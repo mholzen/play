@@ -8,12 +8,14 @@ import (
 	ext "github.com/reugn/go-streams/extension"
 )
 
-func LinkFixtureChannel(fixture fixture.FixtureI, channelName string, channel chan byte) {
+func LinkFixtureChannel(fixture fixture.FixtureI, channelName string, channel <-chan byte) {
 	go func() {
+		log.Printf("starting listener on %+v", channel)
 		for value := range channel {
 			log.Printf("received %+v", value)
 			fixture.SetValue(channelName, value)
 		}
+		log.Print("listener ended")
 	}()
 }
 

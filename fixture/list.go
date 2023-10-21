@@ -22,6 +22,12 @@ func (f *FixtureList) AddFixture(fixture FixtureI, address int) {
 	// TODO: check for overlap
 }
 
+func (f *FixtureList) AddFixtureList(fixtures FixtureList) {
+	for i := range fixtures.Fixtures {
+		f.AddFixture(fixtures.Fixtures[i], fixtures.Addresses[i])
+	}
+}
+
 func (f FixtureList) SetValue(name string, value byte) {
 	for _, fixture := range f.Fixtures {
 		fixture.SetValue(name, value)

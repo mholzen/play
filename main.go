@@ -15,26 +15,31 @@ func main() {
 		log.Fatal(err)
 	}
 
-	universe := fixture.NewFixtureList()
-	addresses := []int{65, 81, 97, 113}
-	for _, address := range addresses {
-		universe.AddFixture(fixture.NewFreedomPar(), address)
+	freedomPars := fixture.NewFixtureList()
+	for _, address := range []int{65, 81, 97, 113} {
+		freedomPars.AddFixture(fixture.NewFreedomPar(), address)
 	}
 
-	soft_white := controls.AllColors["soft_white"]
+	universe := fixture.NewFixtureList()
+	universe.AddFixtureList(freedomPars)
 
 	universe.SetAll(0)
 	universe.SetValue("dimmer", 0)
 
+	soft_white := controls.AllColors["soft_white"]
 	soft_white.Values().ApplyTo(universe)
 
-	universe.Render(*connection)
-
-	surface := GetControls()
+	surface := NewControls()
 	dimmerDial := surface["dimmer"]
 	controls.LinkFixtureChannel(universe, "dimmer", dimmerDial.Channel)
+
+	// Repeat(8*time.Second, GetToggleFunc(dimmerDial, 6*time.Second))
+
 	Render(universe, connection)
-	Repeat(8*time.Second, GetToggleFunc(dimmerDial, 6*time.Second))
+
+	// universe.SetValue("dimmer", 255)
+
+	StartServer(surface)
 
 	time.Sleep(100 * time.Second)
 }
@@ -81,10 +86,9 @@ func Ease(dial *controls.Dial, duration time.Duration, endValue byte) {
 			dial.SetValue(byte(value))
 		}
 	}()
-
 }
 
-func GetControls() controls.DialMap {
+func NewControls() controls.DialMap {
 	m := make(controls.DialMap)
 	m["dimmer"] = controls.NewDial()
 	return m

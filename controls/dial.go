@@ -1,5 +1,7 @@
 package controls
 
+import "log"
+
 func NewDial() *Dial {
 	return &Dial{
 		Value:   0,
@@ -42,6 +44,7 @@ func (d Dial) Opposite() byte {
 	}
 }
 
-func (d Dial) Emit() {
+func (d *Dial) Emit() {
+	log.Printf("Emitting to %+v", d.Channel)
 	d.Channel <- d.Value
 }
