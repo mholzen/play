@@ -19,9 +19,14 @@ func main() {
 	for _, address := range []int{65, 81, 97, 113} {
 		freedomPars.AddFixture(fixture.NewFreedomPar(), address)
 	}
+	tomshine := fixture.NewFixtureList()
+	for _, address := range []int{1, 17, 33, 49} {
+		tomshine.AddFixture(fixture.NewTomeshine(), address)
+	}
 
 	universe := fixture.NewFixtureList()
 	universe.AddFixtureList(freedomPars)
+	universe.AddFixtureList(tomshine)
 
 	universe.SetAll(0)
 	universe.SetValue("dimmer", 0)
@@ -30,8 +35,12 @@ func main() {
 	soft_white.Values().ApplyTo(universe)
 
 	surface := NewControls()
+
 	dimmerDial := surface["dimmer"]
 	controls.LinkFixtureChannel(universe, "dimmer", dimmerDial.Channel)
+
+	tiltDial := surface["tilt"]
+	controls.LinkFixtureChannel(universe, "tilt", tiltDial.Channel)
 
 	// Repeat(8*time.Second, GetToggleFunc(dimmerDial, 6*time.Second))
 
@@ -91,6 +100,7 @@ func Ease(dial *controls.Dial, duration time.Duration, endValue byte) {
 func NewControls() controls.DialMap {
 	m := make(controls.DialMap)
 	m["dimmer"] = controls.NewDial()
+	m["tilt"] = controls.NewDial()
 	return m
 }
 

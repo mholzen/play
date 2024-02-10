@@ -18,3 +18,17 @@ func NewFreedomPar() FixtureI {
 		Values: make([]byte, len(model.Channels)),
 	}
 }
+
+func NewTomeshine() FixtureI {
+	model := NewModelChannels(
+		"Freedom Par",
+		[]string{
+			"pan", "tilt", "speed", "dimmer", "strobe",
+			"r", "g", "b", "w", "a", "uv",
+		},
+	)
+	return Fixture{
+		Model:  model,
+		Values: make([]byte, len(model.Channels)),
+	}
+}
