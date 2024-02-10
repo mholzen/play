@@ -1,11 +1,20 @@
-get:
-	(cd ..; scp -r marchome@192.168.0.60:develop/mholzen/play-go .)
+host=ubuntu-1
+home=marchome
 
 run:
 	go run main.go server.go
 
 on:
-	curl -vvv http://192.168.0.80:1323/controls/dimmer/255
+	curl -vvv http://$(host):1323/controls/dimmer/255
 
 off:
-	curl -vvv http://192.168.0.80:1323/controls/dimmer/0
+	curl -vvv http://$(host):1323/controls/dimmer/0
+
+ssh:
+	ssh -A $(host) -l marc
+
+pull:
+	(cd ..; scp -r marchome@$(home):develop/mholzen/play-go .)
+
+push:
+	(cd ..; scp -r play-go/ marc@$(host):)
