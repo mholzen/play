@@ -1,0 +1,13 @@
+[Unit]
+Description=play-go
+After=network.target
+
+[Service]
+ExecStart=/home/marc/play-go/main
+WorkingDirectory=/home/marc/play-go
+Restart=on-failure
+# Or use Restart=always to always attempt to restart the service on exit.
+
+[Install]
+WantedBy=multi-user.target
+

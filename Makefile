@@ -1,5 +1,10 @@
 host=ubuntu-1
-home=marchome
+#home=marchome
+# cannot for the life of me figure out how to change dns on ubuntu
+home=192.168.50.89
+
+build:
+	go build -o main main.go server.go
 
 run:
 	go run main.go server.go
@@ -13,8 +18,10 @@ off:
 ssh:
 	ssh -A $(host) -l marc
 
-pull:
+get:
 	(cd ..; scp -r marchome@$(home):develop/mholzen/play-go .)
+
+pull: get
 
 push:
 	(cd ..; scp -r play-go/ marc@$(host):)
