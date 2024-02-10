@@ -36,11 +36,19 @@ func main() {
 
 	surface := NewControls()
 
-	dimmerDial := surface["dimmer"]
-	controls.LinkFixtureChannel(universe, "dimmer", dimmerDial.Channel)
+	controls.LinkFixtureChannel(universe, "dimmer", surface["dimmer"].Channel)
+	controls.LinkFixtureChannel(universe, "strobe", surface["strobe"].Channel)
 
-	tiltDial := surface["tilt"]
-	controls.LinkFixtureChannel(universe, "tilt", tiltDial.Channel)
+	controls.LinkFixtureChannel(universe, "tilt", surface["tilt"].Channel)
+	controls.LinkFixtureChannel(universe, "pan", surface["pan"].Channel)
+	controls.LinkFixtureChannel(universe, "speed", surface["speed"].Channel)
+
+	controls.LinkFixtureChannel(universe, "r", surface["r"].Channel)
+	controls.LinkFixtureChannel(universe, "g", surface["g"].Channel)
+	controls.LinkFixtureChannel(universe, "b", surface["b"].Channel)
+	controls.LinkFixtureChannel(universe, "w", surface["w"].Channel)
+	controls.LinkFixtureChannel(universe, "a", surface["a"].Channel)
+	controls.LinkFixtureChannel(universe, "uv", surface["uv"].Channel)
 
 	// Repeat(8*time.Second, GetToggleFunc(dimmerDial, 6*time.Second))
 
@@ -100,7 +108,18 @@ func Ease(dial *controls.Dial, duration time.Duration, endValue byte) {
 func NewControls() controls.DialMap {
 	m := make(controls.DialMap)
 	m["dimmer"] = controls.NewDial()
+	m["strobe"] = controls.NewDial()
+
 	m["tilt"] = controls.NewDial()
+	m["pan"] = controls.NewDial()
+	m["speed"] = controls.NewDial()
+
+	m["r"] = controls.NewDial()
+	m["g"] = controls.NewDial()
+	m["b"] = controls.NewDial()
+	m["w"] = controls.NewDial()
+	m["a"] = controls.NewDial()
+	m["uv"] = controls.NewDial()
 	return m
 }
 
