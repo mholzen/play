@@ -81,6 +81,16 @@ func setup() {
 
 	home.TomeShine.SetValue("tilt", 127)
 	home.TomeShine.SetValue("speed", 64)
+
+	go func() {
+		for {
+			<-clock.TickC
+			log.Print(clock.String())
+		}
+	}()
+
+	clock.Start()
+
 }
 
 func twoColors() {
