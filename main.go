@@ -2,9 +2,10 @@ package main
 
 import (
 	"log"
-	"play-go/controls"
-	"play-go/fixture"
 	"time"
+
+	"github.com/mholzen/play-go/controls"
+	"github.com/mholzen/play-go/fixture"
 
 	"github.com/akualab/dmx"
 )
@@ -12,47 +13,47 @@ import (
 func main() {
 	connection, err := dmx.NewDMXConnection("/dev/ttyUSB0")
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("Warning: starting without a DMX connection: %s", err)
+		connection = nil
 	}
 
-	freedomPars := fixture.NewFixtureList()
-	for _, address := range []int{65, 81, 97, 113} {
-		freedomPars.AddFixture(fixture.NewFreedomPar(), address)
-	}
-	tomshine := fixture.NewFixtureList()
-	for _, address := range []int{1, 17, 33, 49} {
-		tomshine.AddFixture(fixture.NewTomeshine(), address)
-	}
-
-	universe := fixture.NewFixtureList()
-	universe.AddFixtureList(freedomPars)
-	universe.AddFixtureList(tomshine)
+	universe := fixture.GetUniverse()
 
 	universe.SetAll(0)
 	universe.SetValue("dimmer", 0)
+	universe.SetValue("mode", 210) // for colorstrip mini
 
 	soft_white := controls.AllColors["soft_white"]
 	soft_white.Values().ApplyTo(universe)
 
 	surface := NewControls()
 
-	controls.LinkFixtureChannel(universe, "dimmer", surface["dimmer"].Channel)
-	controls.LinkFixtureChannel(universe, "strobe", surface["strobe"].Channel)
+	controls.LinkDialToFixtureChannel(surface["mode"], universe, "mode")
 
-	controls.LinkFixtureChannel(universe, "tilt", surface["tilt"].Channel)
-	controls.LinkFixtureChannel(universe, "pan", surface["pan"].Channel)
-	controls.LinkFixtureChannel(universe, "speed", surface["speed"].Channel)
+	controls.LinkDialToFixtureChannel(surface["dimmer"], universe, "dimmer")
+	controls.LinkDialToFixtureChannel(surface["strobe"], universe, "strobe")
 
-	controls.LinkFixtureChannel(universe, "r", surface["r"].Channel)
-	controls.LinkFixtureChannel(universe, "g", surface["g"].Channel)
-	controls.LinkFixtureChannel(universe, "b", surface["b"].Channel)
-	controls.LinkFixtureChannel(universe, "w", surface["w"].Channel)
-	controls.LinkFixtureChannel(universe, "a", surface["a"].Channel)
-	controls.LinkFixtureChannel(universe, "uv", surface["uv"].Channel)
+	controls.LinkDialToFixtureChannel(surface["tilt"], universe, "tilt")
+	controls.LinkDialToFixtureChannel(surface["pan"], universe, "pan")
+	controls.LinkDialToFixtureChannel(surface["speed"], universe, "speed")
+
+	controls.LinkDialToFixtureChannel(surface["r"], universe, "r")
+	controls.LinkDialToFixtureChannel(surface["g"], universe, "g")
+	controls.LinkDialToFixtureChannel(surface["b"], universe, "b")
+	controls.LinkDialToFixtureChannel(surface["w"], universe, "w")
+	controls.LinkDialToFixtureChannel(surface["a"], universe, "a")
+	controls.LinkDialToFixtureChannel(surface["uv"], universe, "uv")
 
 	// Repeat(8*time.Second, GetToggleFunc(dimmerDial, 6*time.Second))
 
-	Render(universe, connection)
+	if connection != nil {
+		universe.SetOnUpdate(func(f fixture.FixtureI) {
+			log.Printf("rendering")
+			universe.Render(*connection)
+		}, REFRESH)
+
+		// RenderPeriodic(universe, connection)
+	}
 
 	// universe.SetValue("dimmer", 255)
 
@@ -107,6 +108,8 @@ func Ease(dial *controls.Dial, duration time.Duration, endValue byte) {
 
 func NewControls() controls.DialMap {
 	m := make(controls.DialMap)
+	m["mode"] = controls.NewDial()
+
 	m["dimmer"] = controls.NewDial()
 	m["strobe"] = controls.NewDial()
 
@@ -125,7 +128,7 @@ func NewControls() controls.DialMap {
 
 const REFRESH = 11 * time.Millisecond
 
-func Render(f fixture.FixtureList, connection *dmx.DMX) {
+func RenderPeriodic(f fixture.Fixtures, connection *dmx.DMX) {
 	ticker := time.NewTicker(REFRESH)
 	go func() {
 		for range ticker.C {

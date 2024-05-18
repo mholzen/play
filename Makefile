@@ -16,12 +16,29 @@ off:
 	curl -vvv http://$(host):1323/controls/dimmer/0
 
 ssh:
-	ssh -A $(host) -l marc
+	ssh -A $(host) -l marc -t "cd play-go; setup; zsh --login"
 
 get:
-	(cd ..; scp -r marchome@$(home):develop/mholzen/play-go .)
+	rsync -avz --exclude .git --exclude node_modules --exclude main -e ssh marchome@$(home):develop/mholzen/play-go/ .
 
 pull: get
 
 push:
-	(cd ..; scp -r play-go/ marc@$(host):)
+	rsync -avz --exclude .git --exclude node_modules --exclude main -e ssh . marc@$(host):play-go
+
+status:
+	sudo systemctl status play-go.service
+
+stop:
+	sudo systemctl stop play-go-watcher.service
+	sudo systemctl stop play-go.service
+
+start:
+	sudo systemctl start play-go.service
+	sudo systemctl start play-go-watcher.service
+
+log:
+	journalctl -u play-go.service -f
+
+live:
+	go run live.go

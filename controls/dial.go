@@ -11,7 +11,7 @@ func NewDial() *Dial {
 
 type Dial struct {
 	Value   byte
-	Channel chan byte
+	Channel chan byte `json:"-"`
 }
 
 func (d *Dial) SetValue(value byte) {
@@ -46,5 +46,8 @@ func (d Dial) Opposite() byte {
 
 func (d *Dial) Emit() {
 	log.Printf("Emitting to %+v", d.Channel)
-	d.Channel <- d.Value
+	select {
+	case d.Channel <- d.Value:
+	default:
+	}
 }

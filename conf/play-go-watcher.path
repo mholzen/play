@@ -1,6 +1,3 @@
-[Unit]
-Description=Watch /home/marc/play-go for changes
-
 [Path]
 PathModified=/home/marc/play-go/main
 

@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"path/filepath"
 )
 
 type Color struct {
@@ -32,9 +33,9 @@ type Colors map[string]Color
 
 var AllColors Colors
 
-func init() {
-	// Open our jsonFile
-	jsonFile, err := os.Open("colors.json")
+func LoadColors() {
+	root := os.Getenv("ROOT")
+	jsonFile, err := os.Open(filepath.Join(root, "colors.json"))
 	if err != nil {
 		fmt.Println(err)
 	}

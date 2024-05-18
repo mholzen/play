@@ -2,7 +2,8 @@ package controls
 
 import (
 	"log"
-	"play-go/fixture"
+
+	"github.com/mholzen/play-go/fixture"
 
 	"github.com/reugn/go-streams"
 	ext "github.com/reugn/go-streams/extension"
@@ -17,6 +18,10 @@ func LinkFixtureChannel(fixture fixture.FixtureI, channelName string, channel <-
 		}
 		log.Print("listener ended")
 	}()
+}
+
+func LinkDialToFixtureChannel(dial *Dial, fixture fixture.FixtureI, channel string) {
+	LinkFixtureChannel(fixture, channel, dial.Channel)
 }
 
 func NewFixtureSink(fixture fixture.FixtureI, channel string) streams.Sink {

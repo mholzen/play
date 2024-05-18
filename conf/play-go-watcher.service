@@ -1,0 +1,10 @@
+[Unit]
+Description=play-go service restarter
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/systemctl restart play-go.service
+
+[Install]
+WantedBy=multi-user.target
