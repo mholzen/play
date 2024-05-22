@@ -3,15 +3,15 @@ package stages
 import "github.com/mholzen/play-go/fixture"
 
 type Home struct {
-	FreedomPars fixture.Fixtures2
-	TomeShine   fixture.Fixtures2
-	ColorStrip  fixture.Fixtures2
-	ParCans     fixture.Fixtures2
-	Universe    fixture.Fixtures2
+	FreedomPars fixture.Fixtures
+	TomeShine   fixture.Fixtures
+	ColorStrip  fixture.Fixtures
+	ParCans     fixture.Fixtures
+	Universe    fixture.Fixtures
 }
 
 func GetHome() Home {
-	universe := fixture.NewFixtures2()
+	universe := fixture.NewFixtures()
 	return Home{
 		FreedomPars: universe.AddFixtures(fixture.NewFreedomPar, 65, 81, 97, 113),
 		TomeShine:   universe.AddFixtures(fixture.NewTomeshine, 1, 17, 33, 49),

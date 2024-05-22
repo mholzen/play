@@ -145,7 +145,7 @@ func main() {
 
 const REFRESH = 40 * time.Millisecond // DMXIS cannot read faster than 40ms
 
-func Render(f fixture.Fixtures2, connection *dmx.DMX) {
+func Render(f fixture.Fixtures, connection *dmx.DMX) {
 	ticker := time.NewTicker(REFRESH)
 	go func() {
 		for range ticker.C {

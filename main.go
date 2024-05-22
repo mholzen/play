@@ -7,8 +7,6 @@ import (
 	"github.com/mholzen/play-go/controls"
 	"github.com/mholzen/play-go/fixture"
 	"github.com/mholzen/play-go/stages"
-
-	"github.com/akualab/dmx"
 )
 
 func main() {
@@ -131,12 +129,3 @@ func NewControls() controls.DialMap {
 }
 
 const REFRESH = 40 * time.Millisecond // DMXIS cannot read faster than 40ms
-
-func RenderPeriodic(f fixture.Fixtures, connection *dmx.DMX) {
-	ticker := time.NewTicker(REFRESH)
-	go func() {
-		for range ticker.C {
-			f.Render(*connection)
-		}
-	}()
-}

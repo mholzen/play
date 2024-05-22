@@ -27,7 +27,7 @@ func GetConnection() (*dmx.DMX, error) {
 
 const REFRESH = 40 * time.Millisecond // DMXIS cannot read faster than 40ms
 
-func Render(f Fixtures2, connection *dmx.DMX) {
+func Render(f Fixtures, connection *dmx.DMX) {
 	ticker := time.NewTicker(REFRESH)
 	go func() {
 		for range ticker.C {
