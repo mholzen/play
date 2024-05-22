@@ -80,14 +80,11 @@ func (f Fixtures) GetValues() []byte {
 }
 
 func (f *Fixtures) Render(connection dmx.DMX) error {
-	// now := time.Now()
 	for i, fixture := range f.Fixtures {
 		for j, value := range fixture.GetValues() {
 			channel := f.Addresses[i] + j
 			connection.SetChannel(channel, value)
-			// log.Printf("set channel %d to value %d", channel, value)
 		}
 	}
-	// log.Printf("rendering took %s", time.Since(now))
 	return connection.Render()
 }

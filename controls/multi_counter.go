@@ -41,7 +41,7 @@ func (c *MultiCounter2) On(name string, counts []int, fn func(int)) {
 	}
 }
 
-var clock = MultiCounter2{
-	MultiCounter: NewMultiCounter(4, 4, 24),
-	Names:        []string{"bar", "beat", "tick"},
-}
+// var clock = MultiCounter2{
+// 	MultiCounter: NewMultiCounter(4, 4, 24),
+// 	Names:        []string{"bar", "beat", "tick"},
+// }

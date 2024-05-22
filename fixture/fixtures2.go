@@ -1,6 +1,7 @@
 package fixture
 
 import (
+	"log"
 	"time"
 
 	"github.com/akualab/dmx"
@@ -95,7 +96,6 @@ func (f Fixtures2) GetValues() []byte {
 }
 
 func (f *Fixtures2) Render(connection dmx.DMX) error {
-	// now := time.Now()
 	for _, fixture := range *f {
 		for j, value := range fixture.Fixture.GetValues() {
 			channel := fixture.Address + j
@@ -103,8 +103,11 @@ func (f *Fixtures2) Render(connection dmx.DMX) error {
 			// log.Printf("set channel %d to value %d", channel, value)
 		}
 	}
-	// log.Printf("rendering took %s", time.Since(now))
-	return connection.Render()
+	err := connection.Render()
+	if err != nil {
+		log.Printf("ERROR rendering error: %s", err)
+	}
+	return nil
 }
 
 func (f *Fixtures2) Modulo(div, mod int) Fixtures2 {

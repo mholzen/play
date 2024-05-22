@@ -2,6 +2,8 @@ github.com/akualab/dmx v0.0.0-20130922234952-1ec6837faba7 h1:NiSujjEOEg6lSdiIftZ
 github.com/akualab/dmx v0.0.0-20130922234952-1ec6837faba7/go.mod h1:fGkOc9nHK/v2N4kXLbb+uet+BC9TiqI7srodczLFMnQ=
 github.com/bep/debounce v1.2.1 h1:v67fRdBA9UQu2NhLFXrSg0Brw7CexQekrBwDMM8bzeY=
 github.com/bep/debounce v1.2.1/go.mod h1:H8yggRPQKLUhUoqrJC1bO2xNya7vanpDl7xR3ISbCJ0=
+github.com/creack/goselect v0.1.2 h1:2DNy14+JPjRBgPzAd1thbQp4BSIihxcBf0IXhQXDRa0=
+github.com/creack/goselect v0.1.2/go.mod h1:a/NhLweNvqIYMuxcMOuWY516Cimucms3DglDzQP3hKY=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/deckarep/golang-set/v2 v2.6.0 h1:XfcQbWM1LlMB8BsJ8N9vW5ehnnPVIw0je80NsVHagjM=
@@ -31,6 +33,15 @@ github.com/valyala/bytebufferpool v1.0.0 h1:GqA5TC/0021Y/b9FG4Oi9Mr3q7XYx6Kllzaw
 github.com/valyala/bytebufferpool v1.0.0/go.mod h1:6bBcMArwyJ5K/AmCkWv1jt77kVWyCJ6HpOuEn7z0Csc=
 github.com/valyala/fasttemplate v1.2.2 h1:lxLXG0uE3Qnshl9QyaK6XJxMXlQZELvChBOCmQD0Loo=
 github.com/valyala/fasttemplate v1.2.2/go.mod h1:KHLXt3tVN2HBp8eijSv/kGJopbvo7S+qRAEEKiv+SiQ=
+github.com/youpy/go-coremidi v0.0.0-20210828055444-d16028a71dfe h1:YnIUnee8uwqdupK1JUluo59Obk1XDa3iXy45BHH5yhs=
+github.com/youpy/go-coremidi v0.0.0-20210828055444-d16028a71dfe/go.mod h1:JECUA7NazToXvXOjdf3ZXbqBk/LjRx+5GI3geQfi4L4=
+gitlab.com/gomidi/midi v1.21.0/go.mod h1:3ohtNOhqoSakkuLG/Li1OI6I3J1c2LErnJF5o/VBq1c=
+gitlab.com/gomidi/midi v1.23.7 h1:I6qKoIk9s9dcX+pNf0jC+tziCzJFn82bMpuntRkLeik=
+gitlab.com/gomidi/midi v1.23.7/go.mod h1:3ohtNOhqoSakkuLG/Li1OI6I3J1c2LErnJF5o/VBq1c=
+gitlab.com/gomidi/rtmididrv v0.15.0 h1:52Heco8Y3Jjcl4t0yDUVikOxfI8FMF1Zq+qsG++TUeo=
+gitlab.com/gomidi/rtmididrv v0.15.0/go.mod h1:p/6IL1LGgj7utcv3wXudsDWiD9spgAdn0O8LDsGIPG0=
+go.bug.st/serial v1.6.2 h1:kn9LRX3sdm+WxWKufMlIRndwGfPWsH1/9lCWXQCasq8=
+go.bug.st/serial v1.6.2/go.mod h1:UABfsluHAiaNI+La2iESysd9Vetq7VRdpxvjx7CmmOE=
 golang.org/x/crypto v0.22.0 h1:g1v0xeRhjcugydODzvb3mEM9SQ0HGp9s/nh3COQ/C30=
 golang.org/x/crypto v0.22.0/go.mod h1:vr6Su+7cTlO45qkww3VDJlzDn0ctJvRgYbC2NvXHt+M=
 golang.org/x/net v0.24.0 h1:1PcaxkF854Fu3+lvBIx5SYn9wRlBzzcnHZSiaFFAb0w=

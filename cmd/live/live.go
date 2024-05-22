@@ -7,11 +7,11 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/akualab/dmx"
 	"github.com/mholzen/play-go/controls"
 	"github.com/mholzen/play-go/fixture"
 	"github.com/mholzen/play-go/stages"
 
-	"github.com/akualab/dmx"
 	"github.com/fogleman/ease"
 )
 
@@ -34,39 +34,49 @@ func rainbow() {
 		controls.AllColors["violet"].Values(),
 	})
 
+	duration := clock.PhrasePeriod()
 	transition := func() {
 		start, end := seq.IncValues()
 
-		for i, f := range home.FreedomPars {
-			action := Transition(f, start, end, stepDuration, ease.InOutSine, REFRESH)
-			d := time.Duration(i) * stepDuration / time.Duration(len(home.FreedomPars))
-			Delay(d, action)
+		// action := Transition(home.Universe, start, end, duration, ease.InOutSine, REFRESH)
+		// action()
+
+		// Chain
+		log.Printf("loop with universe %+v", home.Universe)
+		for i, f := range home.Universe {
+			action := Transition(f, start, end, duration, ease.InOutSine, REFRESH)
+
+			// d := time.Duration(i*100) * time.Millisecond // time.Duration(len(home.Universe))
+			d := (duration / 2) * time.Duration(i)
+			log.Printf("i: %d delay: %s", i, d)
+			go Delay(d, action)
 		}
-		// Transition(universe, start, end, stepDuration, ease.InOutSine, REFRESH*2)()
 	}
-	RepeatEvery(stepDuration, transition)
+
+	clock.On(controls.TriggerOnBar(1), transition)
 }
 
 func moveTomshine() {
-	current, _ := controls.NewMap("tilt:96-160", "pan:0-256")
+	current, _ := controls.NewMap("tilt:64-192", "pan:0-64")
 	moveStep := func() {
-		end, _ := controls.NewMap("tilt:96-160", "pan:0-256")
-		Transition(home.TomeShine, current, end, stepDuration/4, ease.InOutSine, 10*time.Millisecond)()
+		end, _ := controls.NewMap("tilt:64-192", "pan:0-64")
+		Transition(home.TomeShine, current, end, clock.BeatPeriod(), ease.OutExpo, clock.BeatPeriod())()
 		current = end
 	}
-	RepeatEvery(20*time.Second, moveStep)
+	RepeatEvery(clock.PhrasePeriod(), moveStep)
 }
 
 func beatDown() {
 	freedomPars := controls.NewSequenceT(home.FreedomPars)
 	tomShines := controls.NewSequenceT(home.TomeShine)
 
-	RepeatEvery(stepDuration/20, func() {
+	RepeatEvery(clock.BeatPeriod(), func() {
 		freedomPar, _ := freedomPars.IncValues()
 		tomShine, _ := tomShines.IncValues()
 
-		Transition(freedomPar, controls.ValueMap{"dimmer": 255}, controls.ValueMap{"dimmer": 0}, stepDuration/20, ease.OutCubic, 10*time.Millisecond)()
-		Transition(tomShine, controls.ValueMap{"dimmer": 255}, controls.ValueMap{"dimmer": 0}, stepDuration/20, ease.OutCubic, 10*time.Millisecond)()
+		duration := clock.BeatPeriod() / 2
+		Transition(freedomPar, controls.ValueMap{"dimmer": 255}, controls.ValueMap{"dimmer": 0}, duration, ease.OutCubic, 10*time.Millisecond)()
+		Transition(tomShine, controls.ValueMap{"dimmer": 255}, controls.ValueMap{"dimmer": 0}, duration, ease.OutCubic, 10*time.Millisecond)()
 
 		freedomPar.SetValue("dimmer", 255)
 		tomShine.SetValue("dimmer", 255)
@@ -76,21 +86,16 @@ func beatDown() {
 func setup() {
 	controls.LoadColors()
 	universe.SetAll(0)
-	universe.SetValue("dimmer", 24)
-	home.ColorStrip.SetValue("mode", 210)
+	universe.SetValue("dimmer", 255)
 
 	home.TomeShine.SetValue("tilt", 127)
-	home.TomeShine.SetValue("speed", 64)
+	home.TomeShine.SetValue("speed", 255)
 
-	go func() {
-		for {
-			<-clock.TickC
-			log.Print(clock.String())
-		}
-	}()
+	home.ColorStrip.SetValue("mode", 210)
+
+	clock.On(controls.TriggerOnBeats(), func() { log.Printf("clock: %s", clock.String()) })
 
 	clock.Start()
-
 }
 
 func twoColors() {
@@ -104,21 +109,21 @@ func twoColors() {
 var clock = controls.NewClock(120)
 
 func main() {
-	connection, err := dmx.NewDMXConnection("/dev/ttyUSB0")
+	connection, err := fixture.GetConnection()
 	if err != nil {
 		log.Printf("Warning: starting without a DMX connection: %s", err)
-		connection = nil
 	}
+
 	setup()
 
 	rainbow()
 	// twoColors()
 	// gold()
-	moveTomshine()
+	// moveTomshine()
 	// beatDown()
 
 	if connection != nil {
-		Render(home.Universe, connection)
+		fixture.Render(home.Universe, connection)
 	}
 
 	sigs := make(chan os.Signal, 1)
@@ -126,7 +131,19 @@ func main() {
 	<-sigs
 }
 
-const REFRESH = 11 * time.Millisecond
+// func GetConnection() *fixture.DMX {
+// 	connection, err := fixture.NewDMXConnection("/dev/ttyUSB0") // Linux
+// 	if err != nil {
+// 		connection, err = fixture.NewDMXConnection("/dev/tty.usbserial-ENVVVCOF") // MacOS
+// 		if err != nil {
+// 			log.Printf("Warning: starting without a DMX connection: %s", err)
+// 			connection = nil
+// 		}
+// 	}
+// 	return connection
+// }
+
+const REFRESH = 40 * time.Millisecond // DMXIS cannot read faster than 40ms
 
 func Render(f fixture.Fixtures2, connection *dmx.DMX) {
 	ticker := time.NewTicker(REFRESH)

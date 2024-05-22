@@ -2,52 +2,77 @@ package controls
 
 import (
 	"fmt"
-	"math"
 	"time"
 )
 
+// TODO: consider MultiCounter for this clock
+
 // Clock struct definition
 type Clock struct {
-	bpm            float64
-	ticks          int
-	beats          int
-	bars           int
-	counter        Counter
-	beat, bar, pos int
-	start          time.Time
-	intervalMillis float64
-	ticker         *time.Ticker
-	stopChan       chan struct{}
+	Bpm          float64
+	TicksPerBeat int
+	BeatsPerBar  int
+	BarPerPhrase int
+
+	ticks    int
+	start    time.Time
+	ticker   *time.Ticker
+	stopChan chan struct{}
+
+	TickC chan struct{}
+	BeatC chan struct{}
+	BarC  chan struct{}
+
+	tickCallbacks []func()
+	Triggers      []Trigger
 }
 
-func NewCustomClock(bpm float64, ticks, beats, bars int) *Clock {
-	if bpm == 0 {
-		bpm = 120
-	}
-	clock := &Clock{
-		bpm:      bpm,
-		ticks:    ticks,
-		beats:    beats,
-		bars:     bars,
-		start:    time.Now(),
-		stopChan: make(chan struct{}),
-	}
-	clock.intervalMillis = (60.0 / clock.bpm) / float64(clock.ticks) * 1000.0
-	return clock
+func (c *Clock) Ticks() int {
+	return c.ticks
+}
+func (c *Clock) Tick() int {
+	return c.ticks % c.TicksPerBeat
+}
+func (c *Clock) Beats() int {
+	return int(c.ticks / c.TicksPerBeat)
+}
+func (c *Clock) Bars() int {
+	return int(c.Beats() / c.BeatsPerBar)
+}
+func (c *Clock) Phrases() int {
+	return int(c.Bars() / c.BarPerPhrase)
 }
 
-func NewClock(bpm float64) *Clock {
-	return NewCustomClock(bpm, 24, 4, 4)
+func (c *Clock) Beat() int {
+	return c.Beats() % c.BeatsPerBar
+}
+func (c *Clock) Bar() int {
+	return c.Bars() % c.BarPerPhrase
+}
+func (c *Clock) Phrase() int {
+	return c.Phrases()
 }
 
-func (c *Clock) scheduleNext() {
-	now := time.Now()
-	nextInterval := time.Duration(math.Round(c.intervalMillis*1000)) * time.Microsecond
-	nextTickTime := c.start.Add(nextInterval * time.Duration(c.counter.Value()+1))
-	if nextTickTime.Before(now) {
-		nextInterval = 0
-	}
-	c.ticker = time.NewTicker(nextTickTime.Sub(now))
+func (c *Clock) TickPeriod() time.Duration {
+	ticksPerMin := c.Bpm * float64(c.TicksPerBeat)
+	return time.Duration(60000.0/ticksPerMin) * time.Millisecond
+}
+func (c *Clock) BeatPeriod() time.Duration {
+	return c.TickPeriod() * time.Duration(c.TicksPerBeat)
+}
+func (c *Clock) BarPeriod() time.Duration {
+	return c.BeatPeriod() * time.Duration(c.BeatsPerBar)
+}
+func (c *Clock) PhrasePeriod() time.Duration {
+	return c.BarPeriod() * time.Duration(c.BarPerPhrase)
+}
+
+func (c *Clock) Start() {
+	c.start = time.Now()
+	c.ticker = time.NewTicker(c.TickPeriod())
+
+	c.Trigger() // Trigger 0
+
 	go func() {
 		for {
 			select {
@@ -61,27 +86,97 @@ func (c *Clock) scheduleNext() {
 	}()
 }
 
-func (c *Clock) Start() {
-	c.scheduleNext()
-}
-
 func (c *Clock) Stop() {
 	close(c.stopChan)
 }
 
 func (c *Clock) Reset() {
-	c.Stop() // Stop the current ticking
-	c.counter.Reset()
-	c.beat, c.bar, c.pos = 0, 0, 0
-	c.start = time.Now()
-	c.scheduleNext()
+	c.Stop() // Stop the current ticker
+	c.ticks = 0
+}
+func (c *Clock) String() string {
+	return fmt.Sprintf("Phrase: %d Bar: %d Beat: %d\n",
+		c.Phrase(),
+		c.Bar(),
+		c.Beat(),
+	)
 }
 
+func (c *Clock) StringLong() string {
+	return fmt.Sprintf("Time: %s Ticks: %d Beats: %d Bars: %d -- Tick: %d Beat: %d Bar: %d\n",
+		time.Now(),
+		c.ticks, c.Beats(), c.Bars(),
+		c.Tick(), c.Beat(), c.Bar(),
+	)
+}
 func (c *Clock) tick() {
-	c.counter.Inc()
-	c.pos = c.counter.Value()
-	// Emit tick - Here you would send the tick event through a channel or call a callback function
-	fmt.Printf("Tick at %d\n", c.pos)
-	// Similar logic for beats, bars, and other events as in the CoffeeScript version
-	c.scheduleNext()
+	c.ticks++
+	c.Trigger()
+}
+
+func (c *Clock) Trigger() {
+	for _, callback := range c.tickCallbacks {
+		callback()
+	}
+	// c.SendToChannels()
+	c.CheckTriggers()
+}
+
+func (c *Clock) On(trigger TriggerFunc, callback func()) {
+	c.Triggers = append(c.Triggers, Trigger{trigger, callback})
+}
+
+func (c *Clock) CheckTriggers() {
+	for _, trigger := range c.Triggers {
+		if trigger.When(*c) {
+			go trigger.Do()
+		}
+	}
+}
+
+func (c *Clock) SendToChannels() {
+	select {
+	case c.TickC <- struct{}{}:
+	default:
+	}
+
+	if c.Beat() == 0 {
+		select {
+		case c.BeatC <- struct{}{}:
+		default:
+		}
+	}
+	if c.Bar() == 0 {
+		select {
+		case c.BarC <- struct{}{}:
+		default:
+		}
+	}
+}
+
+func (c *Clock) OnTickCallback(callback func()) {
+	c.tickCallbacks = append(c.tickCallbacks, callback)
+}
+
+func NewCustomClock(bpm float64, ticks, beats, bars, phrases int) *Clock {
+	if bpm == 0 {
+		bpm = 120
+	}
+	clock := &Clock{
+		Bpm:          bpm,
+		TicksPerBeat: ticks,
+		BeatsPerBar:  beats,
+		BarPerPhrase: beats,
+
+		stopChan: make(chan struct{}),
+
+		TickC: make(chan struct{}),
+		BeatC: make(chan struct{}),
+		BarC:  make(chan struct{}),
+	}
+	return clock
+}
+
+func NewClock(bpm float64) *Clock {
+	return NewCustomClock(bpm, 24, 4, 4, 4)
 }

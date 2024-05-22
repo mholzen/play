@@ -3,8 +3,11 @@ host=ubuntu-1
 # cannot for the life of me figure out how to change dns on ubuntu
 home=192.168.50.89
 
+OS := $(shell uname -s |  tr '[:upper:]' '[:lower:]')
+
 build:
-	go build -o main main.go server.go
+	# go build -o main main.go server.go
+	GOOS=$(OS) go build -o main main.go server.go
 
 run:
 	go run main.go server.go
@@ -36,6 +39,8 @@ stop:
 start:
 	sudo systemctl start play-go.service
 	sudo systemctl start play-go-watcher.service
+
+restart: stop start
 
 log:
 	journalctl -u play-go.service -f

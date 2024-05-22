@@ -6,18 +6,20 @@ import (
 
 	"github.com/mholzen/play-go/controls"
 	"github.com/mholzen/play-go/fixture"
+	"github.com/mholzen/play-go/stages"
 
 	"github.com/akualab/dmx"
 )
 
 func main() {
-	connection, err := dmx.NewDMXConnection("/dev/ttyUSB0")
+	connection, err := fixture.GetConnection()
 	if err != nil {
 		log.Printf("Warning: starting without a DMX connection: %s", err)
-		connection = nil
 	}
 
-	universe := fixture.GetUniverse()
+	var home = stages.GetHome()
+	var universe = home.Universe
+	// universe := fixture.GetUniverse()
 
 	universe.SetAll(0)
 	universe.SetValue("dimmer", 0)
@@ -47,13 +49,15 @@ func main() {
 	// Repeat(8*time.Second, GetToggleFunc(dimmerDial, 6*time.Second))
 
 	if connection != nil {
-		universe.SetOnUpdate(func(f fixture.FixtureI) {
-			log.Printf("rendering")
-			universe.Render(*connection)
-		}, REFRESH)
-
-		// RenderPeriodic(universe, connection)
+		fixture.Render(universe, connection)
 	}
+
+	// universe.SetOnUpdate(func(f fixture.FixtureI) {
+	// 	universe.Render(*connection)
+	// }, REFRESH)
+
+	// RenderPeriodic(universe, connection)
+	// }
 
 	// universe.SetValue("dimmer", 255)
 
@@ -126,7 +130,7 @@ func NewControls() controls.DialMap {
 	return m
 }
 
-const REFRESH = 11 * time.Millisecond
+const REFRESH = 40 * time.Millisecond // DMXIS cannot read faster than 40ms
 
 func RenderPeriodic(f fixture.Fixtures, connection *dmx.DMX) {
 	ticker := time.NewTicker(REFRESH)
