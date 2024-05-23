@@ -2,17 +2,12 @@ package fixture
 
 import (
 	"fmt"
-	"log"
-	"time"
-
-	"github.com/bep/debounce"
 )
 
 type FixtureI interface {
 	SetValue(channel string, value byte)
 	SetAll(value byte)
 	GetValues() []byte
-	SetOnUpdate(func(FixtureI), time.Duration)
 }
 
 type ModelChannels struct {
@@ -27,25 +22,10 @@ func NewModelChannels(name string, channels []string) ModelChannels {
 	return m
 }
 
-type Fixture struct {
+type Fixture struct { // TODO: merge this with InstalledFixture
 	Model    ModelChannels
 	Values   []byte
 	onUpdate func()
-}
-
-func (f *Fixture) SetOnUpdate(onUpdate func(FixtureI), debounceTime time.Duration) {
-	onUpdateThis := func() {
-		onUpdate(f)
-	}
-	if debounceTime > 0 {
-		d := debounce.New(debounceTime)
-		f.onUpdate = func() {
-			log.Printf("pre debound called")
-			d(onUpdateThis)
-		}
-	} else {
-		f.onUpdate = onUpdateThis
-	}
 }
 
 func (f *Fixture) SetValue(channel string, value byte) {

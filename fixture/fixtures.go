@@ -2,7 +2,6 @@ package fixture
 
 import (
 	"log"
-	"time"
 
 	"github.com/akualab/dmx"
 )
@@ -37,10 +36,6 @@ func (f InstalledFixture) SetAll(value byte) {
 	f.Fixture.SetAll(value)
 }
 
-func (f InstalledFixture) SetOnUpdate(onUpdate func(FixtureI), debounceTime time.Duration) {
-	f.Fixture.SetOnUpdate(onUpdate, debounceTime)
-}
-
 type Fixtures []InstalledFixture
 
 func (f *Fixtures) AddFixture(fixture FixtureI, address int) {
@@ -69,12 +64,6 @@ func (f Fixtures) SetValue(name string, value byte) {
 func (f Fixtures) SetAll(value byte) {
 	for _, fixture := range f {
 		fixture.Fixture.SetAll(value)
-	}
-}
-
-func (f Fixtures) SetOnUpdate(onUpdate func(FixtureI), debounceTime time.Duration) {
-	for _, fixture := range f {
-		fixture.Fixture.SetOnUpdate(onUpdate, debounceTime)
 	}
 }
 

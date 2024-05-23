@@ -50,15 +50,6 @@ func main() {
 		fixture.Render(universe, connection)
 	}
 
-	// universe.SetOnUpdate(func(f fixture.FixtureI) {
-	// 	universe.Render(*connection)
-	// }, REFRESH)
-
-	// RenderPeriodic(universe, connection)
-	// }
-
-	// universe.SetValue("dimmer", 255)
-
 	StartServer(surface)
 
 	time.Sleep(100 * time.Second)
