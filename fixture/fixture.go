@@ -23,9 +23,8 @@ func NewModelChannels(name string, channels []string) ModelChannels {
 }
 
 type Fixture struct { // TODO: merge this with InstalledFixture
-	Model    ModelChannels
-	Values   []byte
-	onUpdate func()
+	Model  ModelChannels
+	Values []byte
 }
 
 func (f *Fixture) SetValue(channel string, value byte) {
@@ -36,10 +35,6 @@ func (f *Fixture) SetValue(channel string, value byte) {
 	}
 	// log.Printf("setting '%s'[%s] to %d", f.Model.Name, channel, value)
 	f.Values[i] = value
-
-	if f.onUpdate != nil {
-		f.onUpdate()
-	}
 }
 func (f *Fixture) SetAll(value byte) {
 	for _, channel := range f.Model.Channels {
