@@ -161,7 +161,7 @@ func StartServer(surface *controls.List) {
 	e.GET("/colors/", ColorsGetHandler())
 	e.POST("/colors/:name", ColorsPostHandler(dialMap))
 
-	// e.GET("/v2/controls/:name", ContainerGetHandler(surface))
+	e.GET("/v2/controls/:name", ContainerGetHandler(surface))
 
 	dir := "/Users/marchome/develop/mholzen/play/plugins"
 	err = pluginutil.WatchDirectory(dir, "plugin.so", func(p *plugin.Plugin) {
