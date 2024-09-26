@@ -4,11 +4,9 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"plugin"
 	"strconv"
 
 	"github.com/mholzen/play-go/controls"
-	"github.com/mholzen/play-go/pluginutil"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -162,21 +160,6 @@ func StartServer(surface *controls.List) {
 	e.POST("/colors/:name", ColorsPostHandler(dialMap))
 
 	e.GET("/v2/controls/:name", ContainerGetHandler(surface))
-
-	dir := "/Users/marchome/develop/mholzen/play/plugins"
-	err = pluginutil.WatchDirectory(dir, "plugin.so", func(p *plugin.Plugin) {
-		s, err := pluginutil.GetSymbols(p)
-		if err != nil {
-			log.Printf("Error getting symbols: %v", err)
-			return
-		}
-		log.Printf("Symbols: %v", s)
-	})
-	if err != nil {
-		log.Printf("Error watching directory: %v", err)
-	} else {
-		log.Printf("Watching directory: %s", dir)
-	}
 
 	e.Logger.Fatal(e.Start(":1300"))
 
