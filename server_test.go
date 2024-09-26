@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func setupEchoTest(method, path string, body string) (echo.Context, *httptest.ResponseRecorder) {
+func getEchoTest(method, path string, body string) (echo.Context, *httptest.ResponseRecorder) {
 	e := echo.New()
 	req := httptest.NewRequest(method, path, strings.NewReader(body))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
@@ -24,7 +24,7 @@ func setupEchoTest(method, path string, body string) (echo.Context, *httptest.Re
 }
 
 func Test_ContainerGetItem(t *testing.T) {
-	c, rec := setupEchoTest(http.MethodGet, "/container/:name", "")
+	c, rec := getEchoTest(http.MethodGet, "/container/:name", "")
 	c.SetParamNames("name")
 	c.SetParamValues("0")
 
@@ -42,7 +42,7 @@ func getRootList() *controls.List {
 }
 
 func Test_ContainerGetContainer(t *testing.T) {
-	c, rec := setupEchoTest(http.MethodGet, "/container", "")
+	c, rec := getEchoTest(http.MethodGet, "/container", "")
 	list := getRootList()
 
 	require.NoError(t, ContainerGetHandler(list)(c))
@@ -53,7 +53,7 @@ func Test_ContainerGetContainer(t *testing.T) {
 
 }
 func Test_ContainerGetContainerSlash(t *testing.T) {
-	c, rec := setupEchoTest(http.MethodGet, "/container/", "")
+	c, rec := getEchoTest(http.MethodGet, "/container/", "")
 
 	list := getRootList()
 	require.NoError(t, ContainerGetHandler(list)(c))
