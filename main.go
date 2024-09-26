@@ -6,6 +6,7 @@ import (
 
 	"github.com/mholzen/play-go/controls"
 	"github.com/mholzen/play-go/fixture"
+	"github.com/mholzen/play-go/patterns"
 	"github.com/mholzen/play-go/stages"
 )
 
@@ -26,6 +27,21 @@ func main() {
 	soft_white := controls.AllColors["soft_white"]
 	soft_white.Values().ApplyTo(universe)
 
+	// surface := GetChannelMap(universe)
+	surface := GetRootSurface(universe)
+
+	// Repeat(8*time.Second, GetToggleFunc(dimmerDial, 6*time.Second))
+
+	if connection != nil {
+		fixture.Render(universe, connection)
+	}
+
+	StartServer(surface)
+
+	time.Sleep(100 * time.Second)
+}
+
+func GetChannelMap(universe fixture.Fixtures) controls.DialMap {
 	surface := NewControls()
 
 	controls.LinkDialToFixtureChannel(surface["mode"], universe, "mode")
@@ -43,80 +59,54 @@ func main() {
 	controls.LinkDialToFixtureChannel(surface["w"], universe, "w")
 	controls.LinkDialToFixtureChannel(surface["a"], universe, "a")
 	controls.LinkDialToFixtureChannel(surface["uv"], universe, "uv")
-
-	// Repeat(8*time.Second, GetToggleFunc(dimmerDial, 6*time.Second))
-
-	if connection != nil {
-		fixture.Render(universe, connection)
-	}
-
-	StartServer(surface)
-
-	time.Sleep(100 * time.Second)
+	return surface
 }
 
-func Repeat(duration time.Duration, f func()) *time.Ticker {
-	f()
-	ticker := time.NewTicker(duration)
-	go func() {
-		for range ticker.C {
-			f()
-		}
-	}()
-	return ticker
-}
-
-func GetToggleFunc(dial *controls.Dial, duration time.Duration) func() {
-	return func() {
-		endValue := dial.Opposite()
-		log.Printf("triggering ease from %d to %d", dial.Value, endValue)
-		Ease(dial, duration/2, endValue)
-	}
-}
-
-func Ease(dial *controls.Dial, duration time.Duration, endValue byte) {
-	startValue := float64(dial.Value)
-	startTime := time.Now()
-	ticker := time.NewTicker(REFRESH).C
-	go func() {
-		for t := range ticker {
-			if t.After(startTime.Add(duration)) {
-				dial.SetValue(endValue)
-				return
-			}
-			elapsed := t.Sub(startTime)
-			step := float64(elapsed) / float64(duration)
-			// mult := ease.InOutSine(step)
-			mult := step
-			value := startValue + (float64(endValue)-startValue)*mult
-
-			log.Printf("elapsed: %f step: %f mult: %f value: %f",
-				float64(elapsed), step, mult, value,
-			)
-
-			dial.SetValue(byte(value))
-		}
-	}()
+func GetRootSurface(universe fixture.Fixtures) *controls.List {
+	surface := controls.NewList(2)
+	surface.SetItem(0, GetChannelMap(universe))
+	surface.SetItem(1, GetToggles(universe))
+	return surface
 }
 
 func NewControls() controls.DialMap {
 	m := make(controls.DialMap)
-	m["mode"] = controls.NewDial()
+	m["mode"] = controls.NewNumericDial()
 
-	m["dimmer"] = controls.NewDial()
-	m["strobe"] = controls.NewDial()
+	m["dimmer"] = controls.NewNumericDial()
+	m["strobe"] = controls.NewNumericDial()
 
-	m["tilt"] = controls.NewDial()
-	m["pan"] = controls.NewDial()
-	m["speed"] = controls.NewDial()
+	m["tilt"] = controls.NewNumericDial()
+	m["pan"] = controls.NewNumericDial()
+	m["speed"] = controls.NewNumericDial()
 
-	m["r"] = controls.NewDial()
-	m["g"] = controls.NewDial()
-	m["b"] = controls.NewDial()
-	m["w"] = controls.NewDial()
-	m["a"] = controls.NewDial()
-	m["uv"] = controls.NewDial()
+	m["r"] = controls.NewNumericDial()
+	m["g"] = controls.NewNumericDial()
+	m["b"] = controls.NewNumericDial()
+	m["w"] = controls.NewNumericDial()
+	m["a"] = controls.NewNumericDial()
+	m["uv"] = controls.NewNumericDial()
+
 	return m
+}
+
+func LinkToggleToEnable(toggle *controls.Toggle, recipient controls.Triggers) {
+	go func() {
+		for value := range toggle.C {
+			if value {
+				recipient.Enable()
+			} else {
+				recipient.Disable()
+			}
+		}
+	}()
+}
+
+func GetToggles(universe fixture.Fixtures) controls.Emitters[bool] {
+	t1 := controls.NewToggle()
+	transitions := patterns.GetTransitions()
+	LinkToggleToEnable(t1, transitions["rainbow"])
+	return controls.Emitters[bool]{t1}
 }
 
 const REFRESH = 40 * time.Millisecond // DMXIS cannot read faster than 40ms

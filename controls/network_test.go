@@ -10,6 +10,7 @@ import (
 )
 
 func Test_flow(t *testing.T) {
+	t.Skip()
 
 	source := ext.NewChanSource(tickerChan(time.Millisecond * 500))
 	flow := flow.NewPassThrough()

@@ -5,8 +5,6 @@ import (
 	"time"
 )
 
-// TODO: consider MultiCounter for this clock
-
 // Clock struct definition
 type Clock struct {
 	Bpm          float64
@@ -25,6 +23,9 @@ type Clock struct {
 
 	tickCallbacks []func()
 	Triggers      []Trigger
+
+	NudgeDelay  time.Duration
+	ResetPeriod bool
 }
 
 func (c *Clock) Ticks() int {
@@ -78,6 +79,18 @@ func (c *Clock) Start() {
 			select {
 			case <-c.ticker.C:
 				c.tick()
+
+				if c.ResetPeriod {
+					c.ticker = time.NewTicker(c.TickPeriod())
+					c.ResetPeriod = false
+				}
+
+				if c.NudgeDelay != 0 {
+					c.ticker = time.NewTicker(c.TickPeriod() + c.NudgeDelay)
+					c.NudgeDelay = 0
+					c.ResetPeriod = true
+				}
+
 			case <-c.stopChan:
 				c.ticker.Stop()
 				return
@@ -91,11 +104,27 @@ func (c *Clock) Stop() {
 }
 
 func (c *Clock) Reset() {
-	c.Stop() // Stop the current ticker
+	// c.Stop() // Stop the current ticker
 	c.ticks = 0
 }
+func (c *Clock) SetBpm(bpm float64) {
+	c.Bpm = bpm
+	c.ticker = time.NewTicker(c.TickPeriod())
+}
+
+func (c *Clock) Nudge(delta time.Duration) {
+	c.NudgeDelay = c.TickPeriod() + delta
+	c.ResetPeriod = false
+}
+
+func (c *Clock) Pace(delta float64) {
+	c.Bpm += delta
+	c.ResetPeriod = false
+}
+
 func (c *Clock) String() string {
-	return fmt.Sprintf("Phrase: %d Bar: %d Beat: %d\n",
+	return fmt.Sprintf("Bpm: %f Phrase: %d Bar: %d Beat: %d\n",
+		c.Bpm,
 		c.Phrase(),
 		c.Bar(),
 		c.Beat(),
@@ -122,13 +151,15 @@ func (c *Clock) Trigger() {
 	c.CheckTriggers()
 }
 
-func (c *Clock) On(trigger TriggerFunc, callback func()) {
-	c.Triggers = append(c.Triggers, Trigger{trigger, callback})
+func (c *Clock) On(trigger TriggerFunc, callback func()) *Trigger {
+	t := Trigger{trigger, true, callback}
+	c.Triggers = append(c.Triggers, t)
+	return &t
 }
 
 func (c *Clock) CheckTriggers() {
 	for _, trigger := range c.Triggers {
-		if trigger.When(*c) {
+		if trigger.When(*c) && trigger.Enabled {
 			go trigger.Do()
 		}
 	}

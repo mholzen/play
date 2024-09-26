@@ -87,7 +87,7 @@ func gold() {
 	controls.AllColors["gold"].Values().ApplyTo(universe)
 }
 
-func rainbow() controls.Triggers {
+func rainbow() []*controls.Trigger {
 	seq := controls.NewSequence([]controls.ValueMap{
 		controls.AllColors["red"].Values(), // TODO: if `red` doesn't exist, this should fail fast rather than return a the 0 (ie. black) color
 		controls.AllColors["yellow"].Values(),
@@ -95,6 +95,7 @@ func rainbow() controls.Triggers {
 		controls.AllColors["cyan"].Values(),
 		controls.AllColors["blue"].Values(),
 		controls.AllColors["purple"].Values(),
+		// controls.AllColors["violet"].Values(),
 	})
 
 	duration := clock.PhrasePeriod()
@@ -117,61 +118,53 @@ func rainbow() controls.Triggers {
 	}
 
 	t := clock.On(controls.TriggerOnBar(1), transition)
-	return controls.Triggers{
-		*t,
-	}
+	return []*controls.Trigger{t}
 }
 
-func moveTomshine() controls.Triggers {
+func moveTomshine() {
 	current, _ := controls.NewMap("tilt:64-192", "pan:0-64")
 	moveStep := func() {
 		end, _ := controls.NewMap("tilt:64-192", "pan:0-64")
 		Transition(home.TomeShine, current, end, clock.BeatPeriod(), ease.OutExpo, clock.BeatPeriod())()
 		current = end
 	}
-	return controls.Triggers{
-		*RepeatEvery(clock.PhrasePeriod(), moveStep),
-	}
+	RepeatEvery(clock.PhrasePeriod(), moveStep)
 }
 
-func beatDown() controls.Triggers {
+func beatDown() {
 	freedomPars := controls.NewSequenceT(home.FreedomPars)
 	tomShines := controls.NewSequenceT(home.TomeShine)
 
-	return controls.Triggers{
-		*RepeatEvery(clock.BeatPeriod(), func() {
-			freedomPar, _ := freedomPars.IncValues()
-			tomShine, _ := tomShines.IncValues()
+	RepeatEvery(clock.BeatPeriod(), func() {
+		freedomPar, _ := freedomPars.IncValues()
+		tomShine, _ := tomShines.IncValues()
 
-			duration := clock.BeatPeriod()
-			Transition(home.FreedomPars, controls.ValueMap{"dimmer": 255}, controls.ValueMap{"dimmer": 0}, duration, ease.OutCubic, 10*time.Millisecond)()
-			Transition(tomShine, controls.ValueMap{"dimmer": 255}, controls.ValueMap{"dimmer": 0}, duration, ease.OutCubic, 10*time.Millisecond)()
+		duration := clock.BeatPeriod()
+		Transition(home.FreedomPars, controls.ValueMap{"dimmer": 255}, controls.ValueMap{"dimmer": 0}, duration, ease.OutCubic, 10*time.Millisecond)()
+		Transition(tomShine, controls.ValueMap{"dimmer": 255}, controls.ValueMap{"dimmer": 0}, duration, ease.OutCubic, 10*time.Millisecond)()
 
-			freedomPar.SetValue("dimmer", 255)
-			tomShine.SetValue("dimmer", 255)
-		}),
-	}
+		freedomPar.SetValue("dimmer", 255)
+		tomShine.SetValue("dimmer", 255)
+	})
 }
 
-func moveDownTomshine() controls.Triggers {
+func moveDownTomshine() {
 	top, _ := controls.NewMap("tilt:128", "pan:255")
 	bottom, _ := controls.NewMap("tilt:0", "pan:255")
 	tomShines := controls.NewSequenceT(home.TomeShine)
 
 	home.TomeShine.SetValue("speed", 0)
-	return controls.Triggers{
-		*RepeatEvery(clock.BarPeriod(), func() {
+	RepeatEvery(clock.BarPeriod(), func() {
 
-			tomShine, _ := tomShines.IncValues()
+		tomShine, _ := tomShines.IncValues()
 
-			tomShine.SetValue("tilt", 128)
-			// tomShine.SetValue("dimmer", 255)
-			Transition(tomShine, top, bottom, clock.BeatPeriod(), ease.Linear, 10*time.Millisecond)()
-			time.Sleep(clock.BeatPeriod())
-			// tomShine.SetValue("dimmer", 0)
-			tomShine.SetValue("tilt", 128)
-		}),
-	}
+		tomShine.SetValue("tilt", 128)
+		// tomShine.SetValue("dimmer", 255)
+		Transition(tomShine, top, bottom, clock.BeatPeriod(), ease.Linear, 10*time.Millisecond)()
+		time.Sleep(clock.BeatPeriod())
+		// tomShine.SetValue("dimmer", 0)
+		tomShine.SetValue("tilt", 128)
+	})
 }
 
 func twoColors() {
@@ -209,3 +202,23 @@ func main() {
 }
 
 const REFRESH = 40 * time.Millisecond // DMXIS cannot read faster than 40ms
+
+func GetSymbols() []string {
+	return []string{
+		"Transition",
+		"Delay",
+		"RepeatEvery",
+		"home",
+		"universe",
+		"setup",
+		"gold",
+		"rainbow",
+		"moveTomshine",
+		"beatDown",
+		"moveDownTomshine",
+		"twoColors",
+		"clock",
+		"main",
+		"REFRESH",
+	}
+}

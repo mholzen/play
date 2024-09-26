@@ -2,11 +2,6 @@ package controls
 
 type TriggerFunc func(Clock) bool
 
-type Trigger struct {
-	When TriggerFunc
-	Do   func()
-}
-
 func TriggerOnTick(tick int) TriggerFunc {
 	return func(c Clock) bool {
 		return c.Tick() == tick
@@ -41,4 +36,24 @@ func TriggerOnPhrase(phrase int) TriggerFunc {
 
 func TriggerOnPhrases() TriggerFunc {
 	return TriggerOnPhrase(0)
+}
+
+type Trigger struct {
+	When    TriggerFunc
+	Enabled bool
+	Do      func()
+}
+
+type Triggers []Trigger
+
+func (t Triggers) Enable() {
+	for _, trigger := range t {
+		trigger.Enabled = true
+	}
+}
+
+func (t Triggers) Disable() {
+	for _, trigger := range t {
+		trigger.Enabled = false
+	}
 }

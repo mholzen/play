@@ -2,32 +2,32 @@ package controls
 
 import "log"
 
-func NewDial() *Dial {
-	return &Dial{
+func NewNumericDial() *NumericDial {
+	return &NumericDial{
 		Value:   0,
 		Channel: make(chan byte),
 	}
 }
 
-type Dial struct {
+type NumericDial struct {
 	Value   byte
 	Channel chan byte `json:"-"`
 }
 
-func (d *Dial) SetValue(value byte) {
+func (d *NumericDial) SetValue(value byte) {
 	d.Value = value
 	d.Emit()
 }
 
-func (d *Dial) SetMax() {
+func (d *NumericDial) SetMax() {
 	d.SetValue(255)
 }
 
-func (d *Dial) SetMin() {
+func (d *NumericDial) SetMin() {
 	d.SetValue(0)
 }
 
-func (d *Dial) Toggle() {
+func (d *NumericDial) Toggle() {
 	if d.Value <= 127 {
 		d.SetMax()
 	} else {
@@ -35,7 +35,7 @@ func (d *Dial) Toggle() {
 	}
 }
 
-func (d Dial) Opposite() byte {
+func (d NumericDial) Opposite() byte {
 	x := int(d.Value) - 255
 	if x < 0 {
 		return byte(-x)
@@ -44,7 +44,7 @@ func (d Dial) Opposite() byte {
 	}
 }
 
-func (d *Dial) Emit() {
+func (d *NumericDial) Emit() {
 	log.Printf("Emitting to %+v", d.Channel)
 	select {
 	case d.Channel <- d.Value:

@@ -2,10 +2,13 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
+	"plugin"
 	"strconv"
 
 	"github.com/mholzen/play-go/controls"
+	"github.com/mholzen/play-go/pluginutil"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -60,6 +63,52 @@ func ControlsPostHandler(dialMap controls.DialMap) echo.HandlerFunc {
 	}
 }
 
+func ContainerPostHandler(container controls.Container) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		name := c.Param("name")
+		item, err := container.GetItem(name)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Error finding emitter named '%s'", name))
+		}
+
+		emitter, ok := item.(controls.EmitterI)
+		if !ok {
+			return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Item is not an emitter (item: '%s')", name))
+		}
+
+		value := c.Param("value")
+		emitter.SetValue(value)
+
+		return c.String(http.StatusOK, fmt.Sprintf("%v", emitter.GetValue()))
+	}
+}
+
+func ContainerGetHandler(list *controls.List) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		name := c.Param("name")
+		if name == "" {
+			path := c.Path()
+			if path[len(path)-1] == '/' {
+				return c.JSON(http.StatusOK, list.Keys())
+			} else {
+				return c.JSON(http.StatusOK, list.Map())
+			}
+		}
+		// request path ends with /
+		item, err := list.GetItem(name)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Error finding emitter named '%s'", name))
+		}
+
+		item, ok := item.(controls.Item)
+		if !ok {
+			return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Item is not an emitter (item: '%s')", name))
+		}
+
+		return c.String(http.StatusOK, fmt.Sprintf("%s", item.GetString()))
+	}
+}
+
 func ColorsPostHandler(dialMap controls.DialMap) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		name := c.Param("name")
@@ -80,7 +129,7 @@ func ColorsGetHandler() echo.HandlerFunc {
 	}
 }
 
-func StartServer(surface controls.DialMap) {
+func StartServer(surface *controls.List) {
 	controls.LoadColors()
 
 	e := echo.New()
@@ -89,23 +138,46 @@ func StartServer(surface controls.DialMap) {
 	e.Use(middleware.Recover())
 	e.Static("/", "public")
 
-	e.GET("/controls", ControlsGetHandler(surface))
+	item0, err := surface.GetItem("0")
+	if err != nil {
+		log.Fatalf("Error channel map: %v", err)
+	}
+	dialMap := item0.(controls.DialMap)
+	e.GET("/controls", ControlsGetHandler(dialMap))
 	dialList := controls.DialList{
-		DialMap:     surface,
+		DialMap:     dialMap,
 		ChannelList: controls.ChannelList{"r", "g", "b", "a", "w", "uv", "dimmer", "strobe", "speed", "tilt", "pan", "mode"},
 	}
 
 	e.GET("/controls/", ControlsGetHandler2(dialList))
 
-	e.POST("/controls/:name", ControlsPostHandler(surface))
-	e.POST("/controls/:name/:value", ControlsPostHandler(surface))
-	e.GET("/controls/:name/:value", ControlsPostHandler(surface))
+	e.GET("/controls/:name", ControlsGetHandler(dialMap))
 
-	e.POST("/colors/:name", ColorsPostHandler(surface))
-	e.GET("/colors/:name", ColorsPostHandler(surface))
+	postHandler := ControlsPostHandler(dialMap)
+	e.POST("/controls/:name", postHandler)
+	e.GET("/controls/:name/:value", postHandler)
+	e.POST("/controls/:name/:value", postHandler)
+
 	e.GET("/colors/", ColorsGetHandler())
+	e.POST("/colors/:name", ColorsPostHandler(dialMap))
 
-	e.GET("/controls/:name", ControlsGetHandler(surface))
+	// e.GET("/v2/controls/:name", ContainerGetHandler(surface))
+
+	dir := "/Users/marchome/develop/mholzen/play/plugins"
+	err = pluginutil.WatchDirectory(dir, "plugin.so", func(p *plugin.Plugin) {
+		s, err := pluginutil.GetSymbols(p)
+		if err != nil {
+			log.Printf("Error getting symbols: %v", err)
+			return
+		}
+		log.Printf("Symbols: %v", s)
+	})
+	if err != nil {
+		log.Printf("Error watching directory: %v", err)
+	} else {
+		log.Printf("Watching directory: %s", dir)
+	}
 
 	e.Logger.Fatal(e.Start(":1300"))
+
 }

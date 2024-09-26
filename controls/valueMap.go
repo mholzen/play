@@ -77,7 +77,12 @@ func parseParam(param string) (ParamValue, error) {
 		}
 		return ParamValue{Param: parts[0], Value: v}, nil
 	}
-	return ParamValue{Param: parts[0], Value: byte(parts[1][0])}, nil
+	var num int
+	_, err := fmt.Sscanf(parts[1], "%d", &num)
+	if err != nil {
+		return ParamValue{}, err
+	}
+	return ParamValue{Param: parts[0], Value: byte(num)}, nil
 }
 
 func NewMap(param ...string) (ValueMap, error) {

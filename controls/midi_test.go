@@ -1,21 +1,23 @@
 package controls
 
-import "testing"
+import (
+	"testing"
+)
 
 func Test_GetMidiClock(t *testing.T) {
+	t.Skip()
+	// depends on the midi clock being present and sending
+
 	ticker, err := GetMidiClockTicker()
 	if err != nil {
 		t.Error(err)
 	}
 
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 5; i++ {
 		select {
 		case tick := <-ticker:
 			t.Logf("tick: %d", tick)
+		default:
 		}
 	}
-	t.Fail()
-	// if tick != 1 {
-	// 	t.Errorf("expected 1, got %d", tick)
-	// }
 }
