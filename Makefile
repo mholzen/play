@@ -14,6 +14,9 @@ build:
 run:
 	go run main.go server.go
 
+run-dev:
+	~/go/bin/air
+
 open:
 	open http://$(host):1300
 

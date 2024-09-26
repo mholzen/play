@@ -102,11 +102,11 @@ func LinkToggleToEnable(toggle *controls.Toggle, recipient controls.Triggers) {
 	}()
 }
 
-func GetToggles(universe fixture.Fixtures) controls.Emitters[bool] {
+func GetToggles(universe fixture.Fixtures) *controls.Toggle {
 	t1 := controls.NewToggle()
 	transitions := patterns.GetTransitions()
 	LinkToggleToEnable(t1, transitions["rainbow"])
-	return controls.Emitters[bool]{t1}
+	return t1
 }
 
 const REFRESH = 40 * time.Millisecond // DMXIS cannot read faster than 40ms

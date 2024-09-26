@@ -1,5 +1,7 @@
 package controls
 
+import "encoding/json"
+
 type DialMap map[string]*NumericDial
 
 func (m DialMap) SetValues(values ValueMap) {
@@ -9,5 +11,9 @@ func (m DialMap) SetValues(values ValueMap) {
 }
 
 func (m DialMap) GetString() string {
-	return "<multiple items>"
+	r, err := json.Marshal(m)
+	if err != nil {
+		return err.Error()
+	}
+	return string(r)
 }

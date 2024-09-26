@@ -32,7 +32,7 @@ func Test_ContainerGetItem(t *testing.T) {
 
 	require.NoError(t, ContainerGetHandler(list)(c))
 	assert.Equal(t, http.StatusOK, rec.Code)
-	assert.Equal(t, "false", rec.Body.String())
+	assert.Equal(t, "false\n", rec.Body.String())
 }
 
 func getRootList() *controls.List {

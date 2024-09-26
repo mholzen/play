@@ -98,12 +98,7 @@ func ContainerGetHandler(list *controls.List) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Error finding emitter named '%s'", name))
 		}
 
-		item, ok := item.(controls.Item)
-		if !ok {
-			return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Item is not an emitter (item: '%s')", name))
-		}
-
-		return c.String(http.StatusOK, fmt.Sprintf("%s", item.GetString()))
+		return c.JSON(http.StatusOK, item)
 	}
 }
 
@@ -159,6 +154,8 @@ func StartServer(surface *controls.List) {
 	e.GET("/colors/", ColorsGetHandler())
 	e.POST("/colors/:name", ColorsPostHandler(dialMap))
 
+	e.GET("/v2/controls", ContainerGetHandler(surface))
+	e.GET("/v2/controls/", ContainerGetHandler(surface))
 	e.GET("/v2/controls/:name", ContainerGetHandler(surface))
 
 	e.Logger.Fatal(e.Start(":1300"))
