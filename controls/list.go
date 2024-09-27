@@ -24,10 +24,10 @@ func (l *List) GetItem(index string) (Item, error) {
 	return l.items[i], nil
 }
 
-func (l *List) Items() []string {
-	var items []string
-	for _, item := range l.items {
-		items = append(items, item.GetString())
+func (l *List) Items() map[string]Item {
+	items := make(map[string]Item)
+	for i, item := range l.items {
+		items[strconv.Itoa(i)] = item
 	}
 	return items
 }

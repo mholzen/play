@@ -62,7 +62,7 @@ func GetChannelMap(universe fixture.Fixtures) controls.DialMap {
 	return surface
 }
 
-func GetRootSurface(universe fixture.Fixtures) *controls.List {
+func GetRootSurface(universe fixture.Fixtures) controls.Container {
 	surface := controls.NewList(2)
 	surface.SetItem(0, GetChannelMap(universe))
 	surface.SetItem(1, GetToggles(universe))

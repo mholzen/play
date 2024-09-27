@@ -2,6 +2,8 @@ package controls
 
 import "encoding/json"
 
+type ChannelList []string
+
 type DialList struct {
 	DialMap
 	ChannelList

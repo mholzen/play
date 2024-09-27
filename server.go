@@ -3,7 +3,9 @@ package main
 import (
 	"fmt"
 	"log"
+	"maps"
 	"net/http"
+	"slices"
 	"strconv"
 
 	"github.com/mholzen/play-go/controls"
@@ -81,19 +83,19 @@ func ContainerPostHandler(container controls.Container) echo.HandlerFunc {
 	}
 }
 
-func ContainerGetHandler(list *controls.List) echo.HandlerFunc {
+func ContainerGetHandler(container controls.Container) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		name := c.Param("name")
 		if name == "" {
 			path := c.Path()
 			if path[len(path)-1] == '/' {
-				return c.JSON(http.StatusOK, list.Keys())
+				return c.JSON(http.StatusOK, slices.Sorted(maps.Keys(container.Items())))
 			} else {
-				return c.JSON(http.StatusOK, list.Map())
+				return c.JSON(http.StatusOK, container.Items())
 			}
 		}
 		// request path ends with /
-		item, err := list.GetItem(name)
+		item, err := container.GetItem(name)
 		if err != nil {
 			return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Error finding emitter named '%s'", name))
 		}
@@ -122,7 +124,7 @@ func ColorsGetHandler() echo.HandlerFunc {
 	}
 }
 
-func StartServer(surface *controls.List) {
+func StartServer(surface controls.Container) {
 	controls.LoadColors()
 
 	e := echo.New()
@@ -154,9 +156,9 @@ func StartServer(surface *controls.List) {
 	e.GET("/colors/", ColorsGetHandler())
 	e.POST("/colors/:name", ColorsPostHandler(dialMap))
 
-	e.GET("/v2/controls", ContainerGetHandler(surface))
-	e.GET("/v2/controls/", ContainerGetHandler(surface))
-	e.GET("/v2/controls/:name", ContainerGetHandler(surface))
+	e.GET("/v2/root", ContainerGetHandler(surface))
+	e.GET("/v2/root/", ContainerGetHandler(surface))
+	e.GET("/v2/root/:name", ContainerGetHandler(surface))
 
 	e.Logger.Fatal(e.Start(":1300"))
 

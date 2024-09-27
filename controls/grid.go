@@ -5,18 +5,6 @@ import (
 	"strings"
 )
 
-type ChannelList []string
-
-type Item interface {
-	GetString() string
-}
-
-type Container interface {
-	Item
-	GetItem(string) (Item, error)
-	Items() []Item
-}
-
 type Grid struct {
 	items [][]Item
 }
