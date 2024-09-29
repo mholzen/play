@@ -63,26 +63,6 @@ func ControlsPostHandler(dialMap controls.DialMap) echo.HandlerFunc {
 	}
 }
 
-func ContainerPostHandler(container controls.Container) echo.HandlerFunc {
-	return func(c echo.Context) error {
-		name := c.Param("name")
-		item, err := container.GetItem(name)
-		if err != nil {
-			return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Error finding emitter named '%s'", name))
-		}
-
-		emitter, ok := item.(controls.EmitterI)
-		if !ok {
-			return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Item is not an emitter (item: '%s')", name))
-		}
-
-		value := c.Param("value")
-		emitter.SetValue(value)
-
-		return c.String(http.StatusOK, fmt.Sprintf("%v", emitter.GetValue()))
-	}
-}
-
 func ContainerGetHandler(container controls.Container) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		name := c.Param("name")
@@ -97,9 +77,28 @@ func ContainerGetHandler(container controls.Container) echo.HandlerFunc {
 		// request path ends with /
 		item, err := container.GetItem(name)
 		if err != nil {
-			return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Error finding emitter named '%s'", name))
+			return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Error finding control named '%s'", name))
 		}
 
+		return c.JSON(http.StatusOK, item)
+	}
+}
+
+func ContainerPostHandler(container controls.Container) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		name := c.Param("name")
+		item, err := container.GetItem(name)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Error finding control named '%s'", name))
+		}
+
+		control, ok := item.(controls.Control)
+		if !ok {
+			return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Item is not a control (item: '%s')", name))
+		}
+
+		value := c.Param("value")
+		control.SetValue(value)
 		return c.JSON(http.StatusOK, item)
 	}
 }
@@ -159,6 +158,7 @@ func StartServer(surface controls.Container) {
 	e.GET("/v2/root", ContainerGetHandler(surface))
 	e.GET("/v2/root/", ContainerGetHandler(surface))
 	e.GET("/v2/root/:name", ContainerGetHandler(surface))
+	e.POST("/v2/root/:name/:value", ContainerPostHandler(surface))
 
 	e.Logger.Fatal(e.Start(":1300"))
 

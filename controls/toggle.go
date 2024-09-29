@@ -3,6 +3,7 @@ package controls
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 )
 
 type Toggle struct {
@@ -18,11 +19,11 @@ func NewToggle() *Toggle {
 }
 
 func (t *Toggle) On() {
-	t.SetValue(true)
+	t.Set(true)
 }
 
 func (t *Toggle) Off() {
-	t.SetValue(false)
+	t.Set(false)
 }
 
 func (t *Toggle) Toggle() {
@@ -33,8 +34,17 @@ func (t *Toggle) Toggle() {
 	}
 }
 
-func (t *Toggle) GetValue() bool {
-	return t.Value
+func (t *Toggle) SetValue(value string) {
+	value = strings.ToLower(value)
+	if value == "true" || value == "1" || value == "on" || value == "yes" || value == "enable" {
+		t.Set(true)
+	} else {
+		t.Set(false)
+	}
+}
+
+func (t *Toggle) GetValue() string {
+	return t.GetString()
 }
 
 func (t *Toggle) GetString() string {

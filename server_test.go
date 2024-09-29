@@ -24,7 +24,7 @@ func getEchoTest(method, path string, body string) (echo.Context, *httptest.Resp
 }
 
 func Test_ContainerGetItem(t *testing.T) {
-	c, rec := getEchoTest(http.MethodGet, "/container/:name", "")
+	c, rec := getEchoTest(http.MethodGet, "/container", "")
 	c.SetParamNames("name")
 	c.SetParamValues("0")
 
@@ -37,7 +37,8 @@ func Test_ContainerGetItem(t *testing.T) {
 
 func getRootList() *controls.List {
 	list := controls.NewList(1)
-	list.SetItem(0, controls.NewToggle())
+	toggle := controls.NewToggle()
+	list.SetItem(0, toggle)
 	return list
 }
 
@@ -62,4 +63,32 @@ func Test_ContainerGetContainerSlash(t *testing.T) {
 	assert.Equal(t, http.StatusOK, rec.Code)
 	assert.Equal(t, "application/json", resp.Header.Get("Content-Type"))
 	assert.Equal(t, `["0"]`+"\n", rec.Body.String())
+}
+
+func Test_ContainerGetContainerControl(t *testing.T) {
+	c, rec := getEchoTest(http.MethodGet, "/container/0", "")
+	c.SetParamNames("name")
+	c.SetParamValues("0")
+
+	list := getRootList()
+	require.NoError(t, ContainerGetHandler(list)(c))
+	resp := rec.Result()
+	assert.Equal(t, http.StatusOK, rec.Code)
+	assert.Equal(t, "application/json", resp.Header.Get("Content-Type"))
+	assert.Equal(t, `false`+"\n", rec.Body.String())
+
+}
+
+func Test_ContainerPostSetValue(t *testing.T) {
+	c, rec := getEchoTest(http.MethodPost, "/container/0", "true")
+	c.SetParamNames("name", "value")
+	c.SetParamValues("0", "true")
+
+	list := getRootList()
+	require.NoError(t, ContainerPostHandler(list)(c))
+	resp := rec.Result()
+
+	assert.Equal(t, http.StatusOK, rec.Code)
+	assert.Equal(t, "application/json", resp.Header.Get("Content-Type"))
+	assert.Equal(t, `true`+"\n", rec.Body.String())
 }

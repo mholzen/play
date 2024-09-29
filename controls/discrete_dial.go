@@ -5,7 +5,7 @@ type DiscreteDial[T any] struct {
 	C     chan T `json:"-"`
 }
 
-func (d *DiscreteDial[T]) SetValue(value T) {
+func (d *DiscreteDial[T]) Set(value T) {
 	d.Value = value
 	d.Emit()
 }
