@@ -27,7 +27,7 @@ off:
 	curl -vvv http://$(host):1300/controls/dimmer/0
 
 ssh:
-	ssh -A $(host) -l marc -t "cd play-go; setup; zsh --login"
+	ssh -A $(host) -l marc -t "cd play; source .setup; zsh --login --interactive"
 
 get:
 	rsync -avz --delete --exclude .git --exclude node_modules --exclude main -e ssh marchome@$(home):develop/mholzen/play-go/ .
