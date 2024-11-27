@@ -1,9 +1,11 @@
 package controls
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"reflect"
+	"slices"
 )
 
 type Mux[T any] struct {
@@ -17,8 +19,11 @@ func NewMux[T any]() Mux[T] {
 	return res
 }
 
-func (m Mux[T]) Add(name string, source Emitter[T]) {
+func (m *Mux[T]) Add(name string, source Emitter[T]) {
 	m.Sources[name] = source
+	if len(m.Sources) == 1 {
+		m.Source = name
+	}
 }
 
 func (m *Mux[T]) SetSource(name string) error {
@@ -63,4 +68,21 @@ func (m Mux[T]) Channel() <-chan T {
 		}
 	}()
 	return ch
+}
+
+func (m Mux[T]) MarshalJSON() ([]byte, error) {
+	res := struct {
+		Sources []string `json:"sources"`
+		Source  string   `json:"source"`
+	}{
+		Sources: make([]string, 0, len(m.Sources)),
+		Source:  m.Source,
+	}
+
+	for name := range m.Sources {
+		res.Sources = append(res.Sources, name)
+	}
+	slices.Sort(res.Sources)
+
+	return json.Marshal(res)
 }

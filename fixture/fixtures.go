@@ -114,7 +114,7 @@ func (f *Fixtures) Render(connection dmx.DMX) error {
 		for j, value := range fixture.Fixture.GetValues() {
 			channel := fixture.Address + j
 			connection.SetChannel(channel, value)
-			// log.Printf("set channel %d to value %d", channel, value)
+			log.Printf("set channel %d to value %d", channel, value)
 		}
 	}
 	err := connection.Render()
