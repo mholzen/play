@@ -3,13 +3,13 @@ package controls
 type EmitterI interface {
 	SetValue(string)
 	GetValue() string
-	Emit()
+	// Emit()
 }
 
 type Emitter[T any] interface {
 	GetValue() T
 	SetValue(T)
-	Emit()
+	// Emit()
 	Channel() <-chan T
 }
 

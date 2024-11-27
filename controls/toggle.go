@@ -34,7 +34,15 @@ func (t *Toggle) Toggle() {
 	}
 }
 
-func (t *Toggle) SetValue(value string) {
+func (t *Toggle) SetValue(value bool) {
+	if value {
+		t.Set(true)
+	} else {
+		t.Set(false)
+	}
+}
+
+func (t *Toggle) SetValueString(value string) {
 	value = strings.ToLower(value)
 	if value == "true" || value == "1" || value == "on" || value == "yes" || value == "enable" {
 		t.Set(true)
@@ -43,10 +51,10 @@ func (t *Toggle) SetValue(value string) {
 	}
 }
 
-func (t *Toggle) GetValue() string {
-	return t.GetString()
+func (t *Toggle) GetValue() bool {
+	return t.Value
 }
 
-func (t *Toggle) GetString() string {
+func (t *Toggle) GetValueString() string {
 	return fmt.Sprintf("%v", t.Value)
 }

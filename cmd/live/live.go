@@ -9,15 +9,16 @@ import (
 
 	"github.com/mholzen/play-go/controls"
 	"github.com/mholzen/play-go/fixture"
+	"github.com/mholzen/play-go/patterns"
 	"github.com/mholzen/play-go/stages"
 	"github.com/nsf/termbox-go"
 
 	"github.com/fogleman/ease"
 )
 
-var Transition = controls.Transition
-var Delay = controls.Delay
-var RepeatEvery = controls.RepeatEvery
+var Transition = patterns.Transition
+var Delay = patterns.Delay
+var RepeatEvery = patterns.RepeatEvery
 
 var home = stages.GetHome()
 var universe = home.Universe
@@ -25,12 +26,12 @@ var universe = home.Universe
 func setup() {
 	controls.LoadColors()
 	universe.SetAll(0)
-	universe.SetValue("dimmer", 32)
+	universe.SetChannelValue("dimmer", 32)
 
-	home.TomeShine.SetValue("tilt", 127)
-	home.TomeShine.SetValue("speed", 255)
+	home.TomeShine.SetChannelValue("tilt", 127)
+	home.TomeShine.SetChannelValue("speed", 255)
 
-	home.ColorStrip.SetValue("mode", 210)
+	home.ColorStrip.SetChannelValue("mode", 210)
 
 	frequency := controls.NewTimeKeeper(10)
 
@@ -84,7 +85,7 @@ func setup() {
 }
 
 func gold() {
-	controls.AllColors["gold"].Values().ApplyTo(universe)
+	fixture.ApplyTo(controls.AllColors["gold"].Values(), universe)
 }
 
 func rainbow() controls.Triggers {
@@ -100,18 +101,10 @@ func rainbow() controls.Triggers {
 	duration := clock.PhrasePeriod()
 	transition := func() {
 		start, end := seq.IncValues()
-
-		// action := Transition(home.Universe, start, end, duration, ease.InOutSine, REFRESH)
-		// action()
-
-		// Chain
-		// log.Printf("loop with universe %+v", home.Universe)
 		for i, f := range home.Universe {
 			action := Transition(f, start, end, duration, ease.InOutSine, REFRESH)
 
-			// d := time.Duration(i*100) * time.Millisecond // time.Duration(len(home.Universe))
 			d := (duration / 2) * time.Duration(i)
-			// log.Printf("i: %d delay: %s", i, d)
 			go Delay(d, action)
 		}
 	}
@@ -147,8 +140,8 @@ func beatDown() controls.Triggers {
 			Transition(home.FreedomPars, controls.ValueMap{"dimmer": 255}, controls.ValueMap{"dimmer": 0}, duration, ease.OutCubic, 10*time.Millisecond)()
 			Transition(tomShine, controls.ValueMap{"dimmer": 255}, controls.ValueMap{"dimmer": 0}, duration, ease.OutCubic, 10*time.Millisecond)()
 
-			freedomPar.SetValue("dimmer", 255)
-			tomShine.SetValue("dimmer", 255)
+			freedomPar.SetChannelValue("dimmer", 255)
+			tomShine.SetChannelValue("dimmer", 255)
 		}),
 	}
 }
@@ -158,28 +151,28 @@ func moveDownTomshine() controls.Triggers {
 	bottom, _ := controls.NewMap("tilt:0", "pan:255")
 	tomShines := controls.NewSequenceT(home.TomeShine)
 
-	home.TomeShine.SetValue("speed", 0)
+	home.TomeShine.SetChannelValue("speed", 0)
 	return controls.Triggers{
 		*RepeatEvery(clock.BarPeriod(), func() {
 
 			tomShine, _ := tomShines.IncValues()
 
-			tomShine.SetValue("tilt", 128)
+			tomShine.SetChannelValue("tilt", 128)
 			// tomShine.SetValue("dimmer", 255)
 			Transition(tomShine, top, bottom, clock.BeatPeriod(), ease.Linear, 10*time.Millisecond)()
 			time.Sleep(clock.BeatPeriod())
 			// tomShine.SetValue("dimmer", 0)
-			tomShine.SetValue("tilt", 128)
+			tomShine.SetChannelValue("tilt", 128)
 		}),
 	}
 }
 
 func twoColors() {
 	red := controls.AllColors["cyan"].Values()
-	red.ApplyTo(home.FreedomPars.Odd())
+	fixture.ApplyTo(red, home.FreedomPars.Odd())
 
 	blue := controls.AllColors["yellow_green"].Values()
-	blue.ApplyTo(home.FreedomPars.Even())
+	fixture.ApplyTo(blue, home.FreedomPars.Even())
 }
 
 var clock = controls.NewClock(120)

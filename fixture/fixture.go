@@ -2,10 +2,12 @@ package fixture
 
 import (
 	"fmt"
+
+	"github.com/mholzen/play-go/controls"
 )
 
 type FixtureI interface {
-	SetValue(channel string, value byte)
+	SetChannelValue(channel string, value byte)
 	SetAll(value byte)
 	GetValues() []byte
 }
@@ -27,7 +29,7 @@ type Fixture struct { // TODO: merge this with InstalledFixture
 	Values []byte
 }
 
-func (f *Fixture) SetValue(channel string, value byte) {
+func (f *Fixture) SetChannelValue(channel string, value byte) {
 	i, err := f.Model.GetAddress(channel)
 	if err != nil {
 		// log.Printf("cannot set value for '%s': %s", f.Model.Name, err)
@@ -38,7 +40,7 @@ func (f *Fixture) SetValue(channel string, value byte) {
 }
 func (f *Fixture) SetAll(value byte) {
 	for _, channel := range f.Model.Channels {
-		f.SetValue(channel, value)
+		f.SetChannelValue(channel, value)
 	}
 }
 
@@ -57,4 +59,10 @@ func (m ModelChannels) GetAddress(name string) (int, error) {
 func (m *ModelChannels) SetChannels(channels []string) {
 	m.Channels = channels
 	m.IndexByChannel = ArrayToIndex(m.Channels)
+}
+
+func ApplyTo(values controls.ValueMap, f FixtureI) {
+	for k, v := range values {
+		f.SetChannelValue(k, v)
+	}
 }

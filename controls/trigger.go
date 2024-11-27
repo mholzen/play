@@ -39,21 +39,21 @@ func TriggerOnPhrases() TriggerFunc {
 }
 
 type Trigger struct {
-	When    TriggerFunc
-	Enabled bool
-	Do      func()
+	When    TriggerFunc `json:"-"`
+	Enabled bool        `json:"enabled"`
+	Do      func()      `json:"-"`
 }
 
 type Triggers []Trigger
 
 func (t Triggers) Enable() {
-	for _, trigger := range t {
-		trigger.Enabled = true
+	for i := range t {
+		t[i].Enabled = true
 	}
 }
 
 func (t Triggers) Disable() {
-	for _, trigger := range t {
-		trigger.Enabled = false
+	for i := range t {
+		t[i].Enabled = false
 	}
 }

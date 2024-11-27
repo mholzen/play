@@ -11,27 +11,25 @@ import (
 )
 
 func main() {
+
+	var home = stages.GetHome()
+	var universe = home.Universe
+
+	universe.SetAll(0)
+	universe.SetChannelValue("dimmer", 0)
+	universe.SetChannelValue("mode", 210) // for colorstrip mini
+
+	soft_white := controls.AllColors["soft_white"]
+	fixture.ApplyTo(soft_white.Values(), universe)
+
+	clock := controls.NewClock(120)
+
+	surface := GetRootSurface(universe, *clock)
+
 	connection, err := fixture.GetConnection()
 	if err != nil {
 		log.Printf("Warning: starting without a DMX connection: %s", err)
 	}
-
-	var home = stages.GetHome()
-	var universe = home.Universe
-	// universe := fixture.GetUniverse()
-
-	universe.SetAll(0)
-	universe.SetValue("dimmer", 0)
-	universe.SetValue("mode", 210) // for colorstrip mini
-
-	soft_white := controls.AllColors["soft_white"]
-	soft_white.Values().ApplyTo(universe)
-
-	// surface := GetChannelMap(universe)
-	surface := GetRootSurface(universe)
-
-	// Repeat(8*time.Second, GetToggleFunc(dimmerDial, 6*time.Second))
-
 	if connection != nil {
 		fixture.Render(universe, connection)
 	}
@@ -44,50 +42,41 @@ func main() {
 func GetChannelMap(universe fixture.Fixtures) controls.DialMap {
 	surface := NewControls()
 
-	controls.LinkDialToFixtureChannel(surface["mode"], universe, "mode")
+	fixture.LinkDialToFixtureChannel(surface.Dials["mode"], universe, "mode")
 
-	controls.LinkDialToFixtureChannel(surface["dimmer"], universe, "dimmer")
-	controls.LinkDialToFixtureChannel(surface["strobe"], universe, "strobe")
+	fixture.LinkDialToFixtureChannel(surface.Dials["dimmer"], universe, "dimmer")
+	fixture.LinkDialToFixtureChannel(surface.Dials["strobe"], universe, "strobe")
 
-	controls.LinkDialToFixtureChannel(surface["tilt"], universe, "tilt")
-	controls.LinkDialToFixtureChannel(surface["pan"], universe, "pan")
-	controls.LinkDialToFixtureChannel(surface["speed"], universe, "speed")
+	fixture.LinkDialToFixtureChannel(surface.Dials["tilt"], universe, "tilt")
+	fixture.LinkDialToFixtureChannel(surface.Dials["pan"], universe, "pan")
+	fixture.LinkDialToFixtureChannel(surface.Dials["speed"], universe, "speed")
 
-	controls.LinkDialToFixtureChannel(surface["r"], universe, "r")
-	controls.LinkDialToFixtureChannel(surface["g"], universe, "g")
-	controls.LinkDialToFixtureChannel(surface["b"], universe, "b")
-	controls.LinkDialToFixtureChannel(surface["w"], universe, "w")
-	controls.LinkDialToFixtureChannel(surface["a"], universe, "a")
-	controls.LinkDialToFixtureChannel(surface["uv"], universe, "uv")
+	fixture.LinkDialToFixtureChannel(surface.Dials["r"], universe, "r")
+	fixture.LinkDialToFixtureChannel(surface.Dials["g"], universe, "g")
+	fixture.LinkDialToFixtureChannel(surface.Dials["b"], universe, "b")
+	fixture.LinkDialToFixtureChannel(surface.Dials["w"], universe, "w")
+	fixture.LinkDialToFixtureChannel(surface.Dials["a"], universe, "a")
+	fixture.LinkDialToFixtureChannel(surface.Dials["uv"], universe, "uv")
 	return surface
 }
 
-func GetRootSurface(universe fixture.Fixtures) controls.Container {
-	surface := controls.NewList(2)
+func GetRootSurface(universe fixture.Fixtures, clock controls.Clock) controls.Container {
+	surface := controls.NewList(3)
 	surface.SetItem(0, GetChannelMap(universe))
-	surface.SetItem(1, GetToggles(universe))
+
+	rainbowFixtures := fixture.NewFixturesFromFixtures(universe)
+	surface.SetItem(1, patterns.Rainbow(rainbowFixtures, clock))
+
+	mux := controls.NewMux[fixture.FixtureValues]()
+	mux.Add("rainbow", rainbowFixtures)
+	mux.Add("dials", universe)
+	surface.SetItem(2, mux)
+
 	return surface
 }
 
 func NewControls() controls.DialMap {
-	m := make(controls.DialMap)
-	m["mode"] = controls.NewNumericDial()
-
-	m["dimmer"] = controls.NewNumericDial()
-	m["strobe"] = controls.NewNumericDial()
-
-	m["tilt"] = controls.NewNumericDial()
-	m["pan"] = controls.NewNumericDial()
-	m["speed"] = controls.NewNumericDial()
-
-	m["r"] = controls.NewNumericDial()
-	m["g"] = controls.NewNumericDial()
-	m["b"] = controls.NewNumericDial()
-	m["w"] = controls.NewNumericDial()
-	m["a"] = controls.NewNumericDial()
-	m["uv"] = controls.NewNumericDial()
-
-	return m
+	return controls.NewNumericDialMap("mode", "dimmer", "strobe", "tilt", "pan", "speed", "r", "g", "b", "w", "a", "uv")
 }
 
 func LinkToggleToEnable(toggle *controls.Toggle, recipient controls.Triggers) {

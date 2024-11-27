@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/akualab/dmx"
+	"github.com/mholzen/play-go/controls"
 )
 
 func NewFixtures() Fixtures {
@@ -19,6 +20,14 @@ func NewFixturesFromList(constructor FixtureConstructor, address ...int) Fixture
 	return res
 }
 
+func NewFixturesFromFixtures(fixtures Fixtures) Fixtures {
+	res := NewFixtures()
+	for _, f := range fixtures {
+		res.AddFixture(f.Fixture, f.Address)
+	}
+	return res
+}
+
 type InstalledFixture struct {
 	Fixture FixtureI
 	Address int
@@ -28,12 +37,18 @@ func (f InstalledFixture) GetValues() []byte {
 	return f.Fixture.GetValues()
 }
 
-func (f InstalledFixture) SetValue(name string, value byte) {
-	f.Fixture.SetValue(name, value)
+func (f InstalledFixture) SetChannelValue(name string, value byte) {
+	f.Fixture.SetChannelValue(name, value)
 }
 
 func (f InstalledFixture) SetAll(value byte) {
 	f.Fixture.SetAll(value)
+}
+
+func (f InstalledFixture) SetValues(values controls.ValueMap) {
+	for channel, value := range values {
+		f.SetChannelValue(channel, value)
+	}
 }
 
 type Fixtures []InstalledFixture
@@ -55,9 +70,9 @@ func (f *Fixtures) AddFixtureList(fixtures Fixtures) {
 	}
 }
 
-func (f Fixtures) SetValue(name string, value byte) {
+func (f Fixtures) SetChannelValue(name string, value byte) {
 	for _, fixture := range f {
-		fixture.Fixture.SetValue(name, value)
+		fixture.Fixture.SetChannelValue(name, value)
 	}
 }
 
@@ -82,6 +97,16 @@ func (f Fixtures) GetValues() []byte {
 		}
 	}
 	return res
+}
+
+func (f Fixtures) GetValue() FixtureValues {
+	return FixtureValues{}
+}
+
+func (f Fixtures) SetValue(fixtureValues FixtureValues) {
+	for fixture, values := range fixtureValues {
+		fixture.SetValues(values)
+	}
 }
 
 func (f *Fixtures) Render(connection dmx.DMX) error {
@@ -115,4 +140,9 @@ func (f *Fixtures) Odd() Fixtures {
 
 func (f *Fixtures) Even() Fixtures {
 	return f.Modulo(2, 0)
+}
+
+func (f Fixtures) Channel() <-chan FixtureValues {
+	ch := make(chan FixtureValues)
+	return ch
 }

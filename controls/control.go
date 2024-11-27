@@ -2,6 +2,6 @@ package controls
 
 type Control interface {
 	Item
-	GetValue() string
-	SetValue(string)
+	GetValueString() string
+	SetValueString(string)
 }

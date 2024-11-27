@@ -4,14 +4,11 @@ import (
 	"time"
 
 	"github.com/mholzen/play-go/controls"
+	"github.com/mholzen/play-go/fixture"
 	"github.com/mholzen/play-go/stages"
 
 	"github.com/fogleman/ease"
 )
-
-var Transition = controls.Transition
-var Delay = controls.Delay
-var RepeatEvery = controls.RepeatEvery
 
 var home = stages.GetHome()
 var universe = home.Universe
@@ -76,8 +73,8 @@ func beatDown() controls.Triggers {
 			Transition(home.FreedomPars, controls.ValueMap{"dimmer": 255}, controls.ValueMap{"dimmer": 0}, duration, ease.OutCubic, 10*time.Millisecond)()
 			Transition(tomShine, controls.ValueMap{"dimmer": 255}, controls.ValueMap{"dimmer": 0}, duration, ease.OutCubic, 10*time.Millisecond)()
 
-			freedomPar.SetValue("dimmer", 255)
-			tomShine.SetValue("dimmer", 255)
+			freedomPar.SetChannelValue("dimmer", 255)
+			tomShine.SetChannelValue("dimmer", 255)
 		}),
 	}
 }
@@ -87,28 +84,28 @@ func moveDownTomshine() controls.Triggers {
 	bottom, _ := controls.NewMap("tilt:0", "pan:255")
 	tomShines := controls.NewSequenceT(home.TomeShine)
 
-	home.TomeShine.SetValue("speed", 0)
+	home.TomeShine.SetChannelValue("speed", 0)
 	return controls.Triggers{
 		*RepeatEvery(clock.BarPeriod(), func() {
 
 			tomShine, _ := tomShines.IncValues()
 
-			tomShine.SetValue("tilt", 128)
+			tomShine.SetChannelValue("tilt", 128)
 			// tomShine.SetValue("dimmer", 255)
 			Transition(tomShine, top, bottom, clock.BeatPeriod(), ease.Linear, 10*time.Millisecond)()
 			time.Sleep(clock.BeatPeriod())
 			// tomShine.SetValue("dimmer", 0)
-			tomShine.SetValue("tilt", 128)
+			tomShine.SetChannelValue("tilt", 128)
 		}),
 	}
 }
 
 func twoColors() {
 	red := controls.AllColors["cyan"].Values()
-	red.ApplyTo(home.FreedomPars.Odd())
+	fixture.ApplyTo(red, home.FreedomPars.Odd())
 
 	blue := controls.AllColors["yellow_green"].Values()
-	blue.ApplyTo(home.FreedomPars.Even())
+	fixture.ApplyTo(blue, home.FreedomPars.Even())
 }
 
 var clock = controls.NewClock(120)

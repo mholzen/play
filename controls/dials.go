@@ -19,7 +19,7 @@ func (dl DialList) MarshalJSON() ([]byte, error) {
 	for _, channel := range dl.ChannelList {
 		// could account for spaces in channel names here
 		item := DialListItem{channel, nil}
-		dial, ok := dl.DialMap[channel]
+		dial, ok := dl.Dials[channel]
 		if ok {
 			item.Value = &dial.Value
 		}

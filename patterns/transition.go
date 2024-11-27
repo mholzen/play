@@ -1,13 +1,14 @@
-package controls
+package patterns
 
 import (
 	"time"
 
 	"github.com/fogleman/ease"
+	"github.com/mholzen/play-go/controls"
 	"github.com/mholzen/play-go/fixture"
 )
 
-func Transition(f fixture.FixtureI, start, end ValueMap, duration time.Duration, ease ease.Function, period time.Duration) func() {
+func Transition(f fixture.FixtureI, start, end controls.ValueMap, duration time.Duration, ease ease.Function, period time.Duration) func() {
 	return func() {
 		ticker := time.NewTicker(period)
 		x := 0.0
@@ -19,9 +20,9 @@ func Transition(f fixture.FixtureI, start, end ValueMap, duration time.Duration,
 			y := ease(x)
 
 			// log.Printf("x: %f, y: %f", x, y)
-			values := InterpolateValues(start, end, y)
+			values := controls.InterpolateValues(start, end, y)
 			// log.Printf("current: %s", values)
-			values.ApplyTo(f)
+			fixture.ApplyTo(values, f)
 
 			if x >= 1.0 {
 				ticker.Stop()
@@ -32,8 +33,8 @@ func Transition(f fixture.FixtureI, start, end ValueMap, duration time.Duration,
 	}
 }
 
-func RepeatEvery(duration time.Duration, action func()) *Trigger {
-	trigger := &Trigger{
+func RepeatEvery(duration time.Duration, action func()) *controls.Trigger {
+	trigger := &controls.Trigger{
 		// TODO: Don't need the When field?
 		Enabled: true,
 		Do:      action,

@@ -6,18 +6,9 @@ import (
 	"math/rand"
 	"sort"
 	"strings"
-
-	"github.com/mholzen/play-go/fixture"
 )
 
 type ValueMap map[string]byte
-
-func (values ValueMap) ApplyTo(f fixture.FixtureI) {
-	// log.Printf("Applying %s", values.String())
-	for k, v := range values {
-		f.SetValue(k, v)
-	}
-}
 
 func (values ValueMap) String() string {
 	res := []string{}

@@ -20,7 +20,7 @@ func ControlsGetHandler(dialMap controls.DialMap) echo.HandlerFunc {
 		if name == "" {
 			return c.JSON(http.StatusOK, dialMap)
 		}
-		dial, ok := dialMap[name]
+		dial, ok := dialMap.Dials[name]
 		if !ok {
 			return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Cannot find dial name '%s'", name))
 		}
@@ -28,13 +28,13 @@ func ControlsGetHandler(dialMap controls.DialMap) echo.HandlerFunc {
 	}
 }
 
-func ControlsGetHandler2(dialMap controls.DialList) echo.HandlerFunc {
+func ControlsGetHandler2(dialList controls.DialList) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		name := c.Param("name")
 		if name == "" {
-			return c.JSON(http.StatusOK, dialMap)
+			return c.JSON(http.StatusOK, dialList)
 		}
-		dial, ok := dialMap.DialMap[name]
+		dial, ok := dialList.DialMap.Dials[name]
 		if !ok {
 			return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Cannot find dial name '%s'", name))
 		}
@@ -45,7 +45,7 @@ func ControlsGetHandler2(dialMap controls.DialList) echo.HandlerFunc {
 func ControlsPostHandler(dialMap controls.DialMap) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		name := c.Param("name")
-		dial, ok := dialMap[name]
+		dial, ok := dialMap.Dials[name]
 		if !ok {
 			return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Cannot find dial name '%s'", name))
 		}
@@ -98,7 +98,7 @@ func ContainerPostHandler(container controls.Container) echo.HandlerFunc {
 		}
 
 		value := c.Param("value")
-		control.SetValue(value)
+		control.SetValueString(value)
 		return c.JSON(http.StatusOK, item)
 	}
 }
@@ -111,7 +111,7 @@ func ColorsPostHandler(dialMap controls.DialMap) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Cannot find color name '%s'", name))
 		}
 
-		dialMap.SetValues(color.Values())
+		dialMap.SetValue(color.Values())
 
 		return c.String(http.StatusOK, fmt.Sprintf("%v", color))
 	}

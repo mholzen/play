@@ -1,16 +1,15 @@
-package controls
+package fixture
 
 import (
 	"log"
 
-	"github.com/mholzen/play-go/fixture"
-
+	"github.com/mholzen/play-go/controls"
 	"github.com/reugn/go-streams"
 	ext "github.com/reugn/go-streams/extension"
 )
 
 type LinkFixtureChannel2 struct {
-	Fixture     fixture.FixtureI
+	Fixture     FixtureI
 	ChannelName string
 	Channel     <-chan byte
 	Paused      bool
@@ -22,7 +21,7 @@ func (l LinkFixtureChannel2) Run() {
 		for value := range l.Channel {
 			log.Printf("received %+v", value)
 			if !l.Paused {
-				l.Fixture.SetValue(l.ChannelName, value)
+				l.Fixture.SetChannelValue(l.ChannelName, value)
 			}
 		}
 		log.Print("listener ended")
@@ -37,7 +36,7 @@ func (l *LinkFixtureChannel2) Resume() {
 	l.Paused = false
 }
 
-func LinkFixtureChannel(fixture fixture.FixtureI, channelName string, channel <-chan byte) *LinkFixtureChannel2 {
+func LinkFixtureChannel(fixture FixtureI, channelName string, channel <-chan byte) *LinkFixtureChannel2 {
 	l := &LinkFixtureChannel2{
 		Fixture:     fixture,
 		ChannelName: channelName,
@@ -49,17 +48,17 @@ func LinkFixtureChannel(fixture fixture.FixtureI, channelName string, channel <-
 	return l
 }
 
-func LinkDialToFixtureChannel(dial *NumericDial, fixture fixture.FixtureI, channel string) *LinkFixtureChannel2 {
-	return LinkFixtureChannel(fixture, channel, dial.Channel)
+func LinkDialToFixtureChannel(dial *controls.NumericDial, fixture FixtureI, channel string) *LinkFixtureChannel2 {
+	return LinkFixtureChannel(fixture, channel, dial.Channel())
 }
 
-func NewFixtureSink(fixture fixture.FixtureI, channel string) streams.Sink {
+func NewFixtureSink(fixture FixtureI, channel string) streams.Sink {
 	c := make(chan any)
 
 	go func() {
 		for v := range c {
 			log.Printf("received %+v", v)
-			fixture.SetValue(channel, v.(byte))
+			fixture.SetChannelValue(channel, v.(byte))
 		}
 	}()
 

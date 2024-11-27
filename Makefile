@@ -12,7 +12,8 @@ build:
 	GOOS=$(OS) go build -o main main.go server.go
 
 run:
-	go run main.go server.go
+	# go run main.go server.go
+	CompileDaemon --build="go build -o main main.go server.go" --command="./main"
 
 run-dev:
 	~/go/bin/air
@@ -54,7 +55,7 @@ log:
 	journalctl -u play-go.service -f
 
 live:
-	go run live.go
+	(cd cmd/live; go run live.go)
 
 test:
 	env ROOT=$(cwd) go test ./... | grcat ~/.grc/go.conf

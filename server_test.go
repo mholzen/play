@@ -76,7 +76,6 @@ func Test_ContainerGetContainerControl(t *testing.T) {
 	assert.Equal(t, http.StatusOK, rec.Code)
 	assert.Equal(t, "application/json", resp.Header.Get("Content-Type"))
 	assert.Equal(t, `false`+"\n", rec.Body.String())
-
 }
 
 func Test_ContainerPostSetValue(t *testing.T) {
@@ -85,6 +84,11 @@ func Test_ContainerPostSetValue(t *testing.T) {
 	c.SetParamValues("0", "true")
 
 	list := getRootList()
+	item0, err := list.GetItem("0")
+	require.NoError(t, err)
+
+	control := item0.(controls.Control)
+	control.SetValueString("true")
 	require.NoError(t, ContainerPostHandler(list)(c))
 	resp := rec.Result()
 
