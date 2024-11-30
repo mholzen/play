@@ -13,7 +13,7 @@ build:
 
 run:
 	# go run main.go server.go
-	CompileDaemon --build="go build -o main main.go server.go" --command="./main"
+	CompileDaemon --build="go build -o main main.go server.go handlers.go" --command="./main"
 
 run-dev:
 	~/go/bin/air

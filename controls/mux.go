@@ -26,6 +26,10 @@ func (m *Mux[T]) Add(name string, source Emitter[T]) {
 	}
 }
 
+func (m *Mux[T]) GetSource() string {
+	return m.Source
+}
+
 func (m *Mux[T]) SetSource(name string) error {
 	if _, ok := m.Sources[name]; !ok {
 		return fmt.Errorf("cannot find source '%s'", name)
@@ -34,7 +38,7 @@ func (m *Mux[T]) SetSource(name string) error {
 	return nil
 }
 
-func (m Mux[T]) GeValue() T {
+func (m Mux[T]) GetValue() T {
 	return m.Sources[m.Source].GetValue()
 }
 
@@ -53,6 +57,8 @@ func (m Mux[T]) Channel() <-chan T {
 		}
 
 		for {
+			log.Printf("listening on %s", m.Source)
+
 			chosen, value, ok := reflect.Select(cases)
 			log.Printf("chosen: %d, value: %v, ok: %t", chosen, value, ok)
 			if !ok {
@@ -85,4 +91,12 @@ func (m Mux[T]) MarshalJSON() ([]byte, error) {
 	slices.Sort(res.Sources)
 
 	return json.Marshal(res)
+}
+
+func (m Mux[T]) GetValueString() string {
+	return m.Source
+}
+
+func (m *Mux[T]) SetValueString(value string) {
+	m.SetSource(value)
 }

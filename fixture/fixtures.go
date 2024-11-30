@@ -82,6 +82,12 @@ func (f Fixtures) SetAll(value byte) {
 	}
 }
 
+func (f Fixtures) SetValueMap(values controls.ValueMap) {
+	for _, fixture := range f {
+		ApplyTo(values, fixture)
+	}
+}
+
 func (f Fixtures) GetValues() []byte {
 	res := make([]byte, 0)
 	for _, fixture := range f {

@@ -2,6 +2,7 @@ package fixture
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/mholzen/play-go/controls"
 )
@@ -25,11 +26,12 @@ func NewModelChannels(name string, channels []string) ModelChannels {
 }
 
 type Fixture struct { // TODO: merge this with InstalledFixture
-	Model  ModelChannels
-	Values []byte
+	Model   ModelChannels
+	Values  []byte
+	channel chan controls.ValueMap
 }
 
-func (f *Fixture) SetChannelValue(channel string, value byte) {
+func (f *Fixture) setChannelValue(channel string, value byte) {
 	i, err := f.Model.GetAddress(channel)
 	if err != nil {
 		// log.Printf("cannot set value for '%s': %s", f.Model.Name, err)
@@ -38,14 +40,44 @@ func (f *Fixture) SetChannelValue(channel string, value byte) {
 	// log.Printf("setting '%s'[%s] to %d", f.Model.Name, channel, value)
 	f.Values[i] = value
 }
+
+func (f *Fixture) Emit() {
+	select {
+	case f.channel <- f.GetValueMap():
+		log.Printf("emitting %v", f.GetValueMap())
+	default:
+	}
+}
+
+func (f *Fixture) SetChannelValue(channel string, value byte) {
+	f.setChannelValue(channel, value)
+	f.Emit()
+}
+
 func (f *Fixture) SetAll(value byte) {
 	for _, channel := range f.Model.Channels {
 		f.SetChannelValue(channel, value)
 	}
+	f.Emit()
 }
 
 func (f *Fixture) GetValues() []byte {
 	return f.Values
+}
+
+func (f *Fixture) GetValueMap() controls.ValueMap {
+	res := make(controls.ValueMap)
+	for channel, index := range f.Model.IndexByChannel {
+		res[channel] = f.Values[index]
+	}
+	return res
+}
+
+func (f *Fixture) Channel() chan controls.ValueMap {
+	if f.channel == nil {
+		f.channel = make(chan controls.ValueMap)
+	}
+	return f.channel
 }
 
 func (m ModelChannels) GetAddress(name string) (int, error) {

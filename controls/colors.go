@@ -2,9 +2,7 @@ package controls
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
-	"log"
 	"os"
 	"path/filepath"
 )
@@ -33,16 +31,17 @@ type Colors map[string]Color
 
 var AllColors Colors
 
-func LoadColors() {
+func LoadColors() error {
 	root := os.Getenv("ROOT")
 	jsonFile, err := os.Open(filepath.Join(root, "colors.json"))
 	if err != nil {
-		fmt.Println(err)
+		return err
 	}
 	defer jsonFile.Close()
 	byteValue, _ := io.ReadAll(jsonFile)
 	err = json.Unmarshal(byteValue, &AllColors)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
+	return nil
 }

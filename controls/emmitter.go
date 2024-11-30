@@ -8,7 +8,7 @@ type EmitterI interface {
 
 type Emitter[T any] interface {
 	GetValue() T
-	SetValue(T)
+	// SetValue(T)
 	// Emit()
 	Channel() <-chan T
 }

@@ -16,16 +16,16 @@ func Test_Mux(t *testing.T) {
 	mux.Add("in2", in2)
 
 	mux.SetSource("in2")
-	require.Equal(t, mux.GeValue(), true)
+	require.Equal(t, mux.GetValue(), true)
 
 	mux.SetSource("in1")
-	require.Equal(t, mux.GeValue(), false)
+	require.Equal(t, mux.GetValue(), false)
 }
 
 func Test_Mux_ValueMap(t *testing.T) {
 	inA := NewNumericDialMap("ch1", "ch2")
 	inB := NewNumericDialMap("ch1", "ch2")
-	inB.SetValue(ValueMap{"ch1": 0, "ch2": 0})
+	inA.SetValue(ValueMap{"ch1": 1, "ch2": 1})
 	inB.SetValue(ValueMap{"ch1": 255, "ch2": 255})
 
 	mux := NewMux[ValueMap]()
@@ -33,10 +33,10 @@ func Test_Mux_ValueMap(t *testing.T) {
 	mux.Add("inB", inB)
 
 	mux.SetSource("inA")
-	require.Equal(t, mux.GeValue()["ch1"], uint8(0))
+	require.Equal(t, mux.GetValue()["ch1"], uint8(1))
 
 	mux.SetSource("inB")
-	require.Equal(t, mux.GeValue()["ch1"], uint8(255))
+	require.Equal(t, mux.GetValue()["ch1"], uint8(255))
 
 	muxChannel := mux.Channel()
 	done := make(chan bool)
@@ -58,4 +58,21 @@ func Test_Mux_ValueMap(t *testing.T) {
 	inB.SetValue(ValueMap{"ch1": 2, "ch2": 2}) // should not emit
 	inA.SetValue(ValueMap{"ch1": 1, "ch2": 1})
 	<-done
+}
+
+func Test_Mux_Control(t *testing.T) {
+	inA := NewNumericDialMap("ch1", "ch2")
+	inB := NewNumericDialMap("ch1", "ch2")
+
+	mux := NewMux[ValueMap]()
+	mux.Add("inA", inA)
+	mux.Add("inB", inB)
+
+	var control Control = &mux // Why is &mux needed here?
+
+	mux.SetSource("inA")
+	require.Equal(t, control.GetValueString(), "inA")
+
+	control.SetValueString("inB")
+	require.Equal(t, mux.GetSource(), "inB")
 }

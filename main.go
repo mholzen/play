@@ -11,6 +11,10 @@ import (
 )
 
 func main() {
+	err := controls.LoadColors()
+	if err != nil {
+		log.Fatalf("Error loading colors: %v", err)
+	}
 
 	var home = stages.GetHome()
 	var universe = home.Universe
@@ -20,11 +24,13 @@ func main() {
 	universe.SetChannelValue("mode", 210) // for colorstrip mini
 
 	soft_white := controls.AllColors["soft_white"]
-	fixture.ApplyTo(soft_white.Values(), universe)
+	universe.SetValueMap(soft_white.Values())
 
 	clock := controls.NewClock(120)
+	clock.On(controls.TriggerOnBeats(), func() { log.Printf("clock: %s", clock.String()) })
+	clock.Start()
 
-	surface := GetRootSurface(universe, *clock)
+	surface := GetRootSurface(universe, clock)
 
 	connection, err := fixture.GetConnection()
 	if err != nil {
@@ -39,43 +45,49 @@ func main() {
 	time.Sleep(100 * time.Second)
 }
 
-func GetChannelMap(universe fixture.Fixtures) controls.DialMap {
-	surface := NewControls()
-
-	fixture.LinkDialToFixtureChannel(surface.Dials["mode"], universe, "mode")
-
-	fixture.LinkDialToFixtureChannel(surface.Dials["dimmer"], universe, "dimmer")
-	fixture.LinkDialToFixtureChannel(surface.Dials["strobe"], universe, "strobe")
-
-	fixture.LinkDialToFixtureChannel(surface.Dials["tilt"], universe, "tilt")
-	fixture.LinkDialToFixtureChannel(surface.Dials["pan"], universe, "pan")
-	fixture.LinkDialToFixtureChannel(surface.Dials["speed"], universe, "speed")
-
-	fixture.LinkDialToFixtureChannel(surface.Dials["r"], universe, "r")
-	fixture.LinkDialToFixtureChannel(surface.Dials["g"], universe, "g")
-	fixture.LinkDialToFixtureChannel(surface.Dials["b"], universe, "b")
-	fixture.LinkDialToFixtureChannel(surface.Dials["w"], universe, "w")
-	fixture.LinkDialToFixtureChannel(surface.Dials["a"], universe, "a")
-	fixture.LinkDialToFixtureChannel(surface.Dials["uv"], universe, "uv")
-	return surface
+func NewDialMapAllFixtures(fixtures fixture.Fixtures) controls.DialMap {
+	controls := NewDialMap()
+	go func() {
+		channel := controls.Channel()
+		for {
+			valueMap := <-channel
+			fixtures.SetValueMap(valueMap)
+		}
+	}()
+	return controls
 }
 
-func GetRootSurface(universe fixture.Fixtures, clock controls.Clock) controls.Container {
+func LinkEmitterToFixture(source controls.Emitter[fixture.FixtureValues], target fixture.Fixtures) {
+	go func() {
+		for fixtureValues := range source.Channel() {
+			log.Printf("setting fixture values: %v", fixtureValues)
+			target.SetValue(fixtureValues)
+		}
+	}()
+}
+
+func GetRootSurface(universe fixture.Fixtures, clock *controls.Clock) controls.Container {
 	surface := controls.NewList(3)
-	surface.SetItem(0, GetChannelMap(universe))
+
+	dialFixtures := fixture.NewFixturesFromFixtures(universe)
+	channelDials := NewDialMapAllFixtures(dialFixtures)
+	surface.SetItem(0, channelDials)
 
 	rainbowFixtures := fixture.NewFixturesFromFixtures(universe)
-	surface.SetItem(1, patterns.Rainbow(rainbowFixtures, clock))
+	patterns.Rainbow(rainbowFixtures, clock)
 
 	mux := controls.NewMux[fixture.FixtureValues]()
+	mux.Add("dials", dialFixtures)
 	mux.Add("rainbow", rainbowFixtures)
-	mux.Add("dials", universe)
-	surface.SetItem(2, mux)
+	surface.SetItem(2, &mux)
+
+	// link mux emitter to universe fixture
+	LinkEmitterToFixture(mux, universe)
 
 	return surface
 }
 
-func NewControls() controls.DialMap {
+func NewDialMap() controls.DialMap {
 	return controls.NewNumericDialMap("mode", "dimmer", "strobe", "tilt", "pan", "speed", "r", "g", "b", "w", "a", "uv")
 }
 
