@@ -1,19 +1,23 @@
-package patterns
+package home
 
 import (
 	"time"
 
+	"github.com/fogleman/ease"
 	"github.com/mholzen/play-go/controls"
 	"github.com/mholzen/play-go/fixture"
-	"github.com/mholzen/play-go/stages"
-
-	"github.com/fogleman/ease"
+	"github.com/mholzen/play-go/patterns"
 )
 
-var home = stages.GetHome()
-var universe = home.Universe
+var home = GetHome()
 
-func rainbow() controls.Triggers {
+var Transition = patterns.Transition
+var Delay = patterns.Delay
+var RepeatEvery = patterns.RepeatEvery
+
+var clock = controls.NewClock(120)
+
+func Rainbow() controls.Triggers {
 	seq := controls.NewSequence([]controls.ValueMap{
 		controls.AllColors["red"].Values(), // TODO: if `red` doesn't exist, this should fail fast rather than return a the 0 (ie. black) color
 		controls.AllColors["yellow"].Values(),
@@ -33,7 +37,7 @@ func rainbow() controls.Triggers {
 		// Chain
 		// log.Printf("loop with universe %+v", home.Universe)
 		for i, f := range home.Universe {
-			action := Transition(f, start, end, duration, ease.InOutSine, REFRESH)
+			action := Transition(f, start, end, duration, ease.InOutSine, fixture.REFRESH)
 
 			// d := time.Duration(i*100) * time.Millisecond // time.Duration(len(home.Universe))
 			d := (duration / 2) * time.Duration(i)
@@ -61,8 +65,8 @@ func moveTomshine() controls.Triggers {
 }
 
 func beatDown() controls.Triggers {
-	freedomPars := controls.NewSequenceT(home.FreedomPars)
-	tomShines := controls.NewSequenceT(home.TomeShine)
+	freedomPars := controls.NewSequenceT(home.FreedomPars.GetFixtureList())
+	tomShines := controls.NewSequenceT(home.TomeShine.GetFixtureList())
 
 	return controls.Triggers{
 		*RepeatEvery(clock.BeatPeriod(), func() {
@@ -82,7 +86,7 @@ func beatDown() controls.Triggers {
 func moveDownTomshine() controls.Triggers {
 	top, _ := controls.NewMap("tilt:128", "pan:255")
 	bottom, _ := controls.NewMap("tilt:0", "pan:255")
-	tomShines := controls.NewSequenceT(home.TomeShine)
+	tomShines := controls.NewSequenceT(home.TomeShine.GetFixtureList())
 
 	home.TomeShine.SetChannelValue("speed", 0)
 	return controls.Triggers{
@@ -100,23 +104,25 @@ func moveDownTomshine() controls.Triggers {
 	}
 }
 
-func twoColors() {
-	red := controls.AllColors["cyan"].Values()
-	fixture.ApplyTo(red, home.FreedomPars.Odd())
+func twoColors() controls.Triggers {
+	colorA := controls.AllColors["cyan"].Values()
+	colorB := controls.AllColors["yellow_green"].Values()
 
-	blue := controls.AllColors["yellow_green"].Values()
-	fixture.ApplyTo(blue, home.FreedomPars.Even())
+	return controls.Triggers{
+		*RepeatEvery(clock.BeatPeriod(), func() {
+			colorA, colorB = colorB, colorA
+			fixture.ApplyTo(colorA, home.FreedomPars.Odd())
+			fixture.ApplyTo(colorB, home.FreedomPars.Even())
+		}),
+	}
 }
-
-var clock = controls.NewClock(120)
-
-const REFRESH = 40 * time.Millisecond // DMXIS cannot read faster than 40ms
 
 func GetTransitions() map[string]controls.Triggers {
 	return map[string]controls.Triggers{
-		"rainbow":          rainbow(),
+		"rainbow":          Rainbow(),
 		"beatDown":         beatDown(),
 		"moveTomshine":     moveTomshine(),
 		"moveDownTomshine": moveDownTomshine(),
+		"twoColors":        twoColors(),
 	}
 }

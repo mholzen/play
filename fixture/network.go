@@ -65,3 +65,12 @@ func NewFixtureSink(fixture FixtureI, channel string) streams.Sink {
 	sink := ext.NewChanSink(c)
 	return sink
 }
+
+func LinkEmitterToFixture(source controls.Emitter[FixtureValues], target Fixtures) {
+	go func() {
+		for fixtureValues := range source.Channel() {
+			log.Printf("setting fixture values: %v", fixtureValues)
+			target.SetValue(fixtureValues)
+		}
+	}()
+}

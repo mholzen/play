@@ -2,4 +2,4 @@ package fixture
 
 import "github.com/mholzen/play-go/controls"
 
-type FixtureValues map[InstalledFixture]controls.ValueMap
+type FixtureValues map[int]controls.ValueMap

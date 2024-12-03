@@ -10,28 +10,26 @@ import (
 	"github.com/mholzen/play-go/controls"
 	"github.com/mholzen/play-go/fixture"
 	"github.com/mholzen/play-go/patterns"
-	"github.com/mholzen/play-go/stages"
+	"github.com/mholzen/play-go/stages/home"
 	"github.com/nsf/termbox-go"
-
-	"github.com/fogleman/ease"
 )
 
 var Transition = patterns.Transition
 var Delay = patterns.Delay
 var RepeatEvery = patterns.RepeatEvery
 
-var home = stages.GetHome()
-var universe = home.Universe
+var h = home.GetHome()
+var universe = h.Universe
 
 func setup() {
 	controls.LoadColors()
 	universe.SetAll(0)
 	universe.SetChannelValue("dimmer", 32)
 
-	home.TomeShine.SetChannelValue("tilt", 127)
-	home.TomeShine.SetChannelValue("speed", 255)
+	h.TomeShine.SetChannelValue("tilt", 127)
+	h.TomeShine.SetChannelValue("speed", 255)
 
-	home.ColorStrip.SetChannelValue("mode", 210)
+	h.ColorStrip.SetChannelValue("mode", 210)
 
 	frequency := controls.NewTimeKeeper(10)
 
@@ -84,97 +82,6 @@ func setup() {
 	clock.Start()
 }
 
-func gold() {
-	fixture.ApplyTo(controls.AllColors["gold"].Values(), universe)
-}
-
-func rainbow() controls.Triggers {
-	seq := controls.NewSequence([]controls.ValueMap{
-		controls.AllColors["red"].Values(), // TODO: if `red` doesn't exist, this should fail fast rather than return a the 0 (ie. black) color
-		controls.AllColors["yellow"].Values(),
-		controls.AllColors["green"].Values(),
-		controls.AllColors["cyan"].Values(),
-		controls.AllColors["blue"].Values(),
-		controls.AllColors["purple"].Values(),
-	})
-
-	duration := clock.PhrasePeriod()
-	transition := func() {
-		start, end := seq.IncValues()
-		for i, f := range home.Universe {
-			action := Transition(f, start, end, duration, ease.InOutSine, REFRESH)
-
-			d := (duration / 2) * time.Duration(i)
-			go Delay(d, action)
-		}
-	}
-
-	t := clock.On(controls.TriggerOnBar(1), transition)
-	return controls.Triggers{
-		*t,
-	}
-}
-
-func moveTomshine() controls.Triggers {
-	current, _ := controls.NewMap("tilt:64-192", "pan:0-64")
-	moveStep := func() {
-		end, _ := controls.NewMap("tilt:64-192", "pan:0-64")
-		Transition(home.TomeShine, current, end, clock.BeatPeriod(), ease.OutExpo, clock.BeatPeriod())()
-		current = end
-	}
-	return controls.Triggers{
-		*RepeatEvery(clock.PhrasePeriod(), moveStep),
-	}
-}
-
-func beatDown() controls.Triggers {
-	freedomPars := controls.NewSequenceT(home.FreedomPars)
-	tomShines := controls.NewSequenceT(home.TomeShine)
-
-	return controls.Triggers{
-		*RepeatEvery(clock.BeatPeriod(), func() {
-			freedomPar, _ := freedomPars.IncValues()
-			tomShine, _ := tomShines.IncValues()
-
-			duration := clock.BeatPeriod()
-			Transition(home.FreedomPars, controls.ValueMap{"dimmer": 255}, controls.ValueMap{"dimmer": 0}, duration, ease.OutCubic, 10*time.Millisecond)()
-			Transition(tomShine, controls.ValueMap{"dimmer": 255}, controls.ValueMap{"dimmer": 0}, duration, ease.OutCubic, 10*time.Millisecond)()
-
-			freedomPar.SetChannelValue("dimmer", 255)
-			tomShine.SetChannelValue("dimmer", 255)
-		}),
-	}
-}
-
-func moveDownTomshine() controls.Triggers {
-	top, _ := controls.NewMap("tilt:128", "pan:255")
-	bottom, _ := controls.NewMap("tilt:0", "pan:255")
-	tomShines := controls.NewSequenceT(home.TomeShine)
-
-	home.TomeShine.SetChannelValue("speed", 0)
-	return controls.Triggers{
-		*RepeatEvery(clock.BarPeriod(), func() {
-
-			tomShine, _ := tomShines.IncValues()
-
-			tomShine.SetChannelValue("tilt", 128)
-			// tomShine.SetValue("dimmer", 255)
-			Transition(tomShine, top, bottom, clock.BeatPeriod(), ease.Linear, 10*time.Millisecond)()
-			time.Sleep(clock.BeatPeriod())
-			// tomShine.SetValue("dimmer", 0)
-			tomShine.SetChannelValue("tilt", 128)
-		}),
-	}
-}
-
-func twoColors() {
-	red := controls.AllColors["cyan"].Values()
-	fixture.ApplyTo(red, home.FreedomPars.Odd())
-
-	blue := controls.AllColors["yellow_green"].Values()
-	fixture.ApplyTo(blue, home.FreedomPars.Even())
-}
-
 var clock = controls.NewClock(120)
 
 func main() {
@@ -185,7 +92,7 @@ func main() {
 
 	setup()
 
-	rainbow()
+	home.Rainbow()
 	// moveDownTomshine()
 	// twoColors()
 	// gold()
@@ -193,7 +100,7 @@ func main() {
 	// beatDown()
 
 	if connection != nil {
-		fixture.Render(home.Universe, connection)
+		fixture.Render(h.Universe, connection)
 	}
 
 	sigs := make(chan os.Signal, 1)

@@ -2,7 +2,7 @@ package controls
 
 import (
 	"encoding/json"
-	"reflect"
+	"fmt"
 )
 
 // TODO: Make this a generic type with numerical dial as a parameter
@@ -14,7 +14,19 @@ type DialMap struct {
 
 func (m DialMap) SetValue(values ValueMap) {
 	for name, value := range values {
-		m.Dials[name].SetValue(value)
+		if dial, ok := m.Dials[name]; ok {
+			dial.SetValue(value)
+		} else {
+			panic(fmt.Sprintf("dial '%s' not found", name))
+		}
+	}
+}
+
+func (m DialMap) SetChannelValue(name string, value byte) {
+	if dial, ok := m.Dials[name]; ok {
+		dial.SetValue(value)
+	} else {
+		panic(fmt.Sprintf("dial '%s' not found", name))
 	}
 }
 
@@ -38,7 +50,7 @@ func (m DialMap) Emit() {
 	m.channel <- m.GetValue()
 }
 
-func NewNumericDialMap(channels ...string) DialMap {
+func NewNumericDialMap(channels ...string) *DialMap {
 	res := DialMap{
 		Dials:   make(map[string]*NumericDial),
 		channel: make(chan ValueMap),
@@ -47,23 +59,17 @@ func NewNumericDialMap(channels ...string) DialMap {
 		res.Dials[channel] = NewNumericDial()
 	}
 
-	go func() {
-		for {
-			cases := make([]reflect.SelectCase, 0, len(res.Dials))
-			for _, dial := range res.Dials {
-				cases = append(cases, reflect.SelectCase{
-					Dir:  reflect.SelectRecv,
-					Chan: reflect.ValueOf(dial.Channel()),
-				})
+	valueMap := make(ValueMap)
+	for channelName, dial := range res.Dials {
+		go func(channelName string, dial *NumericDial) {
+			for value := range dial.Channel() {
+				valueMap[channelName] = value
+				res.channel <- valueMap
 			}
-			_, _, ok := reflect.Select(cases)
-			if ok {
-				res.Emit()
-			}
-		}
-	}()
+		}(channelName, dial)
+	}
 
-	return res
+	return &res
 }
 
 func (m DialMap) Channel() <-chan ValueMap {
@@ -72,4 +78,8 @@ func (m DialMap) Channel() <-chan ValueMap {
 
 func (m DialMap) MarshalJSON() ([]byte, error) {
 	return json.Marshal(m.Dials)
+}
+
+func NewDialMap() *DialMap {
+	return NewNumericDialMap("mode", "dimmer", "strobe", "tilt", "pan", "speed", "r", "g", "b", "w", "a", "uv")
 }

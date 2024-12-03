@@ -22,9 +22,9 @@ func Rainbow(fixtures fixture.Fixtures, clock *controls.Clock) controls.Triggers
 	duration := clock.PhrasePeriod()
 	transition := func() {
 		start, end := seq.IncValues()
-		log.Printf("transition %v %v\n", start, end)
+		log.Printf("transition %v to %v\n", start, end)
 		for i, f := range fixtures {
-			action := Transition(f, start, end, duration, ease.InOutSine, REFRESH)
+			action := Transition(f, start, end, duration, ease.InOutSine, fixture.REFRESH)
 
 			d := (duration / 2) * time.Duration(i)
 			go Delay(d, action)

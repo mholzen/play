@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/mholzen/play-go/controls"
+	"github.com/mholzen/play-go/fixture"
 )
 
 func Repeat(duration time.Duration, f func()) *time.Ticker {
@@ -21,7 +22,7 @@ func Repeat(duration time.Duration, f func()) *time.Ticker {
 func Ease(dial *controls.NumericDial, duration time.Duration, endValue byte) {
 	startValue := float64(dial.Value)
 	startTime := time.Now()
-	ticker := time.NewTicker(REFRESH).C
+	ticker := time.NewTicker(fixture.REFRESH).C
 	go func() {
 		for t := range ticker {
 			if t.After(startTime.Add(duration)) {

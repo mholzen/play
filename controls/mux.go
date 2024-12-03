@@ -4,13 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"reflect"
 	"slices"
 )
 
 type Mux[T any] struct {
 	Sources map[string]Emitter[T]
 	Source  string
+	channel chan T
 }
 
 func NewMux[T any]() Mux[T] {
@@ -42,39 +42,62 @@ func (m Mux[T]) GetValue() T {
 	return m.Sources[m.Source].GetValue()
 }
 
-func (m Mux[T]) Channel() <-chan T {
-	ch := make(chan T)
-	go func() {
-		cases := make([]reflect.SelectCase, 0, len(m.Sources))
-		sourceNames := make([]string, 0, len(m.Sources))
-
-		for name, source := range m.Sources {
-			cases = append(cases, reflect.SelectCase{
-				Dir:  reflect.SelectRecv,
-				Chan: reflect.ValueOf(source.Channel()),
-			})
-			sourceNames = append(sourceNames, name)
-		}
-
-		for {
-			log.Printf("listening on %s", m.Source)
-
-			chosen, value, ok := reflect.Select(cases)
-			log.Printf("chosen: %d, value: %v, ok: %t", chosen, value, ok)
-			if !ok {
-				continue
+func (m *Mux[T]) Channel() <-chan T {
+	m.channel = make(chan T)
+	for name, source := range m.Sources {
+		go func(source Emitter[T], sourceName string) {
+			for value := range source.Channel() {
+				log.Printf("mux received change from %s: %v", sourceName, value)
+				if sourceName == m.Source {
+					m.channel <- value
+				}
 			}
-			sourceName := sourceNames[chosen]
-			if sourceName == m.Source {
-				log.Printf("emitting %v to %+v", value.Interface().(T), ch)
-				ch <- value.Interface().(T)
-			} else {
-				log.Printf("ignoring %v from %s", value.Interface().(T), sourceName)
-			}
-		}
-	}()
-	return ch
+		}(source, name)
+	}
+
+	return m.channel
 }
+
+func (m Mux[T]) Emit() {
+	if m.channel == nil {
+		return
+	}
+	m.channel <- m.GetValue()
+}
+
+// func (m Mux[T]) ChannelWithSelect() <-chan T {
+// 	ch := make(chan T)
+// 	go func() {
+// 		cases := make([]reflect.SelectCase, 0, len(m.Sources))
+// 		sourceNames := make([]string, 0, len(m.Sources))
+
+// 		for name, source := range m.Sources {
+// 			cases = append(cases, reflect.SelectCase{
+// 				Dir:  reflect.SelectRecv,
+// 				Chan: reflect.ValueOf(source.Channel()),
+// 			})
+// 			sourceNames = append(sourceNames, name)
+// 		}
+
+// 		for {
+// 			log.Printf("listening on %s", m.Source)
+
+// 			chosen, value, ok := reflect.Select(cases)
+// 			log.Printf("chosen: %d, value: %v, ok: %t", chosen, value, ok)
+// 			if !ok {
+// 				continue
+// 			}
+// 			sourceName := sourceNames[chosen]
+// 			if sourceName == m.Source {
+// 				log.Printf("mux emitting %v to %+v", value.Interface().(T), ch)
+// 				ch <- value.Interface().(T)
+// 			} else {
+// 				log.Printf("ignoring %v from %s", value.Interface().(T), sourceName)
+// 			}
+// 		}
+// 	}()
+// 	return ch
+// }
 
 func (m Mux[T]) MarshalJSON() ([]byte, error) {
 	res := struct {

@@ -7,8 +7,10 @@ import (
 	"github.com/mholzen/play-go/controls"
 )
 
+type Fixtures map[int]*InstalledFixture
+
 func NewFixtures() Fixtures {
-	return make([]InstalledFixture, 0)
+	return make(map[int]*InstalledFixture)
 }
 
 func NewFixturesFromList(constructor FixtureConstructor, address ...int) Fixtures {
@@ -28,33 +30,8 @@ func NewFixturesFromFixtures(fixtures Fixtures) Fixtures {
 	return res
 }
 
-type InstalledFixture struct {
-	Fixture FixtureI
-	Address int
-}
-
-func (f InstalledFixture) GetValues() []byte {
-	return f.Fixture.GetValues()
-}
-
-func (f InstalledFixture) SetChannelValue(name string, value byte) {
-	f.Fixture.SetChannelValue(name, value)
-}
-
-func (f InstalledFixture) SetAll(value byte) {
-	f.Fixture.SetAll(value)
-}
-
-func (f InstalledFixture) SetValues(values controls.ValueMap) {
-	for channel, value := range values {
-		f.SetChannelValue(channel, value)
-	}
-}
-
-type Fixtures []InstalledFixture
-
 func (f *Fixtures) AddFixture(fixture FixtureI, address int) {
-	*f = append(*f, InstalledFixture{fixture, address})
+	(*f)[address] = &InstalledFixture{fixture, address}
 	// TODO: check for overlap
 }
 
@@ -83,9 +60,16 @@ func (f Fixtures) SetAll(value byte) {
 }
 
 func (f Fixtures) SetValueMap(values controls.ValueMap) {
-	for _, fixture := range f {
-		ApplyTo(values, fixture)
+	for i, fixture := range f {
+		log.Printf("setting value map %v to fixture %d", values, i)
+		for k, v := range values {
+			fixture.Fixture.SetChannelValue(k, v)
+		}
 	}
+}
+
+func (f Fixtures) GetValueMap() controls.ValueMap {
+	panic("not implemented")
 }
 
 func (f Fixtures) GetValues() []byte {
@@ -106,12 +90,12 @@ func (f Fixtures) GetValues() []byte {
 }
 
 func (f Fixtures) GetValue() FixtureValues {
-	return FixtureValues{}
+	panic("not implemented")
 }
 
 func (f Fixtures) SetValue(fixtureValues FixtureValues) {
-	for fixture, values := range fixtureValues {
-		fixture.SetValues(values)
+	for address, values := range fixtureValues {
+		f[address].SetValues(values)
 	}
 }
 
@@ -130,11 +114,19 @@ func (f *Fixtures) Render(connection dmx.DMX) error {
 	return nil
 }
 
+func (f Fixtures) GetFixtureList() []*InstalledFixture {
+	res := make([]*InstalledFixture, 0)
+	for _, fixture := range f {
+		res = append(res, fixture)
+	}
+	return res
+}
+
 func (f *Fixtures) Modulo(div, mod int) Fixtures {
 	res := NewFixtures()
-	for i, fixture := range *f {
+	for i, fixture := range f.GetFixtureList() {
 		if i%div == mod {
-			res = append(res, fixture)
+			res[fixture.Address] = fixture
 		}
 	}
 	return res
@@ -148,7 +140,29 @@ func (f *Fixtures) Even() Fixtures {
 	return f.Modulo(2, 0)
 }
 
-func (f Fixtures) Channel() <-chan FixtureValues {
-	ch := make(chan FixtureValues)
-	return ch
+// func (f Fixtures) Channel() <-chan FixtureValues {
+// 	ch := make(chan FixtureValues)
+// 	value := make(FixtureValues)
+// 	for _, fixture := range f {
+// 		go func(fixture *InstalledFixture) {
+// 			for fixtureValues := range fixture.Fixture.Channel() {
+// 				value[fixture.Address] = fixtureValues
+// 				ch <- value
+// 			}
+// 		}(fixture)
+// 	}
+// 	return ch
+// }
+
+func NewDialMapAllFixtures(fixtures Fixtures) *controls.DialMap {
+	dialMap := controls.NewDialMap()
+	go func() {
+		channel := dialMap.Channel()
+		for {
+			valueMap := <-channel
+			log.Printf("setting value map %v to %d fixtures", valueMap, len(fixtures))
+			fixtures.SetValueMap(valueMap)
+		}
+	}()
+	return dialMap
 }
