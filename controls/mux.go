@@ -29,8 +29,12 @@ func (m *Mux[T]) Add(name string, source ObservableI[T]) {
 	source.AddObserver(channel)
 	go func() {
 		for value := range channel {
-			log.Printf("mux value received from %s: %v", name, value)
-			m.Notify(value)
+			if name == m.Source {
+				// log.Printf("mux value received from %s: notifying", name)
+				m.Notify(value)
+			} else {
+				// log.Printf("mux value received from %s: ignoring", name)
+			}
 		}
 	}()
 }
@@ -43,6 +47,7 @@ func (m *Mux[T]) SetSource(name string) error {
 	if _, ok := m.Sources[name]; !ok {
 		return fmt.Errorf("cannot find source '%s'", name)
 	}
+	log.Printf("mux setting source to %s", name)
 	m.Source = name
 	return nil
 }

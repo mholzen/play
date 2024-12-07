@@ -1,8 +1,6 @@
 package fixture
 
 import (
-	"log"
-
 	"github.com/mholzen/play-go/controls"
 )
 
@@ -52,11 +50,11 @@ func NewIndividualObservableFixtures2(fixtures FixturesInterface[FixtureI]) *Obs
 // }
 
 func (f *ObservableFixtures2) SetValueMap(values controls.ValueMap) {
-	for address, fixture := range f.FixturesGeneric {
-		log.Printf("ObservableFixtures2: setting fixture %d with value %v", address, values)
+	for _, fixture := range f.FixturesGeneric {
+		// log.Printf("ObservableFixtures2: setting fixture %d with value %v", address, values)
 		(*fixture).SetValueMap(values)
 	}
-	log.Printf("ObservableFixtures2: notifying observers of %v", f.FixturesGeneric.GetValue())
+	// log.Printf("ObservableFixtures2: notifying observers of %v", f.FixturesGeneric.GetValue())
 	f.Notify(f.FixturesGeneric.GetValue())
 }
 

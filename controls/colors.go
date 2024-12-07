@@ -25,6 +25,7 @@ type Colors map[string]Color
 var AllColors Colors
 
 func LoadColors() error {
+	AllColors = make(Colors)
 	for name, color := range ColorsByName {
 		AllColors[name] = Color{
 			Red:   color["r"],

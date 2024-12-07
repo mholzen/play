@@ -33,8 +33,10 @@ func (f *ObservableFixture) GetValues() []byte {
 
 func (f *ObservableFixture) SetAll(value byte) {
 	f.Fixture.SetAll(value)
+	f.Notify(f.GetValueMap())
 }
 
 func (f *ObservableFixture) SetChannelValue(name string, value byte) {
 	f.Fixture.SetChannelValue(name, value)
+	f.Notify(f.GetValueMap())
 }

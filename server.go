@@ -20,7 +20,7 @@ func StartServer(surface controls.Container) {
 	if err != nil {
 		log.Fatalf("Error channel map: %v", err)
 	}
-	dialMap := item0.(controls.DialMap)
+	dialMap := item0.(*controls.ObservableDialMap)
 	e.GET("/controls", ControlsGetHandler(dialMap))
 	dialList := controls.DialList{
 		DialMap:     dialMap,

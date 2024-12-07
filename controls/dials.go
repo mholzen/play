@@ -5,7 +5,7 @@ import "encoding/json"
 type ChannelList []string
 
 type DialList struct {
-	DialMap
+	DialMap *ObservableDialMap
 	ChannelList
 }
 
@@ -19,7 +19,7 @@ func (dl DialList) MarshalJSON() ([]byte, error) {
 	for _, channel := range dl.ChannelList {
 		// could account for spaces in channel names here
 		item := DialListItem{channel, nil}
-		dial, ok := dl.Dials[channel]
+		dial, ok := (*dl.DialMap.Dials)[channel]
 		if ok {
 			item.Value = &dial.Value
 		}

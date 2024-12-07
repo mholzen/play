@@ -110,7 +110,7 @@ func (f Fixtures) GetValue() FixtureValues {
 
 func (f Fixtures) SetValue(fixtureValues FixtureValues) {
 	for address, values := range fixtureValues {
-		log.Printf("set fixture %d with value %v", address, values)
+		// log.Printf("set fixture %d with value %v", address, values)
 		f[address].SetValues(values)
 	}
 }
