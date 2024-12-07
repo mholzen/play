@@ -10,8 +10,10 @@ import (
 type FixtureI interface {
 	SetChannelValue(channel string, value byte)
 	GetValueMap() controls.ValueMap
+	SetValueMap(values controls.ValueMap)
 	SetAll(value byte)
 	GetValues() []byte
+	GetChannels() []string
 }
 
 type ModelChannels struct {
@@ -30,6 +32,10 @@ type Fixture struct { // TODO: merge this with InstalledFixture
 	Model   ModelChannels
 	Values  []byte
 	channel chan controls.ValueMap // TODO: remove this after FixtureEmitter is merged
+}
+
+func (f *Fixture) GetChannels() []string {
+	return f.Model.Channels
 }
 
 func (f *Fixture) setChannelValue(channel string, value byte) {
@@ -72,6 +78,12 @@ func (f *Fixture) GetValueMap() controls.ValueMap {
 		res[channel] = f.Values[index]
 	}
 	return res
+}
+
+func (f *Fixture) SetValueMap(values controls.ValueMap) {
+	for channel, value := range values {
+		f.SetChannelValue(channel, value)
+	}
 }
 
 func (f *Fixture) Channel() chan controls.ValueMap {

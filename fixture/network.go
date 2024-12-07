@@ -66,10 +66,12 @@ func NewFixtureSink(fixture FixtureI, channel string) streams.Sink {
 	return sink
 }
 
-func LinkEmitterToFixture(source controls.Emitter[FixtureValues], target Fixtures) {
+func LinkObservableToFixture(source controls.ObservableI[FixtureValues], target FixturesInterface[FixtureI]) {
+	channel := make(chan FixtureValues)
+	source.AddObserver(channel)
 	go func() {
-		for fixtureValues := range source.Channel() {
-			log.Printf("setting fixture values: %v", fixtureValues)
+		for fixtureValues := range channel {
+			log.Printf("mux output: setting fixture values for %d fixtures", len(fixtureValues))
 			target.SetValue(fixtureValues)
 		}
 	}()

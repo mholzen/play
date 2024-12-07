@@ -1,9 +1,3 @@
-- get the root container
-  - GET /v2/root returns the root container
-
-- post to a control
-  - POST /v2/root/:control_name
-    - item should accept a set value
-  
-- each control sends values to a target
-
+- [x] switch dialmap to use observer pattern
+  - [ ] make observable fixtures
+  - [ ] switch mux to use observer pattern

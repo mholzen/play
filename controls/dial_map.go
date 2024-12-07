@@ -46,9 +46,9 @@ func (m DialMap) GetValue() ValueMap {
 	return res
 }
 
-func (m DialMap) Emit() {
-	m.channel <- m.GetValue()
-}
+// func (m DialMap) Emit() {
+// 	m.channel <- m.GetValue()
+// }
 
 func NewNumericDialMap(channels ...string) *DialMap {
 	res := DialMap{
@@ -59,22 +59,22 @@ func NewNumericDialMap(channels ...string) *DialMap {
 		res.Dials[channel] = NewNumericDial()
 	}
 
-	valueMap := make(ValueMap)
-	for channelName, dial := range res.Dials {
-		go func(channelName string, dial *NumericDial) {
-			for value := range dial.Channel() {
-				valueMap[channelName] = value
-				res.channel <- valueMap
-			}
-		}(channelName, dial)
-	}
+	// valueMap := make(ValueMap)
+	// for channelName, dial := range res.Dials {
+	// 	go func(channelName string, dial *NumericDial) {
+	// 		for value := range dial.Channel() {
+	// 			valueMap[channelName] = value
+	// 			res.channel <- valueMap
+	// 		}
+	// 	}(channelName, dial)
+	// }
 
 	return &res
 }
 
-func (m DialMap) Channel() <-chan ValueMap {
-	return m.channel
-}
+// func (m DialMap) Channel() <-chan ValueMap {
+// 	return m.channel
+// }
 
 func (m DialMap) MarshalJSON() ([]byte, error) {
 	return json.Marshal(m.Dials)

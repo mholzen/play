@@ -7,16 +7,9 @@ import (
 )
 
 func Test_DialMap(t *testing.T) {
-	dialMap := NewNumericDialMap("test")
+	dialMap := NewNumericDialMap("ch1", "ch2")
 
-	received := make(chan ValueMap)
-	go func() {
-		value := <-dialMap.Channel()
-		received <- value
-	}()
+	dialMap.SetValue(ValueMap{"ch1": 42, "ch2": 24})
 
-	dialMap.SetValue(ValueMap{"test": 42})
-
-	value := <-received
-	require.Equal(t, ValueMap{"test": 42}, value)
+	require.Equal(t, ValueMap{"ch1": 42, "ch2": 24}, dialMap.GetValue())
 }

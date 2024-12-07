@@ -27,6 +27,14 @@ func (f *InstalledFixture) SetValues(values controls.ValueMap) {
 	}
 }
 
+func (f *InstalledFixture) SetValueMap(values controls.ValueMap) {
+	f.SetValues(values)
+}
+
 func (f *InstalledFixture) GetValueMap() controls.ValueMap {
 	return f.Fixture.GetValueMap()
+}
+
+func (f *InstalledFixture) GetChannels() []string {
+	return f.Fixture.GetChannels()
 }

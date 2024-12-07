@@ -7,6 +7,13 @@ import (
 	"github.com/mholzen/play-go/controls"
 )
 
+type FixturesI interface {
+	GetFixtures() []FixtureI
+	SetFixtureValueMap(address int, values controls.ValueMap)
+	SetValueMap(values controls.ValueMap)
+	GetChannels() []string
+}
+
 type Fixtures map[int]*InstalledFixture
 
 func NewFixtures() Fixtures {
@@ -68,6 +75,10 @@ func (f Fixtures) SetValueMap(values controls.ValueMap) {
 	}
 }
 
+func (f Fixtures) SetFixtureValueMap(address int, values controls.ValueMap) {
+	f[address].Fixture.SetValueMap(values)
+}
+
 func (f Fixtures) GetValueMap() controls.ValueMap {
 	panic("not implemented")
 }
@@ -90,11 +101,16 @@ func (f Fixtures) GetValues() []byte {
 }
 
 func (f Fixtures) GetValue() FixtureValues {
-	panic("not implemented")
+	res := make(FixtureValues)
+	for _, fixture := range f {
+		res[fixture.Address] = fixture.Fixture.GetValueMap()
+	}
+	return res
 }
 
 func (f Fixtures) SetValue(fixtureValues FixtureValues) {
 	for address, values := range fixtureValues {
+		log.Printf("set fixture %d with value %v", address, values)
 		f[address].SetValues(values)
 	}
 }
@@ -140,27 +156,49 @@ func (f *Fixtures) Even() Fixtures {
 	return f.Modulo(2, 0)
 }
 
-// func (f Fixtures) Channel() <-chan FixtureValues {
-// 	ch := make(chan FixtureValues)
-// 	value := make(FixtureValues)
-// 	for _, fixture := range f {
-// 		go func(fixture *InstalledFixture) {
-// 			for fixtureValues := range fixture.Fixture.Channel() {
-// 				value[fixture.Address] = fixtureValues
-// 				ch <- value
-// 			}
-// 		}(fixture)
-// 	}
-// 	return ch
+func (f Fixtures) GetChannels() []string {
+	channels := make([]string, 0)
+	for _, fixture := range f {
+		channels = append(channels, fixture.Fixture.GetChannels()...)
+	}
+	return channels
+}
+
+func (f Fixtures) GetAddresses() []int {
+	addresses := make([]int, 0)
+	for _, fixture := range f {
+		addresses = append(addresses, fixture.Address)
+	}
+	return addresses
+}
+
+func (f Fixtures) GetFixtures() map[int]FixtureI {
+	res := make(map[int]FixtureI)
+	for addr, fixture := range f {
+		res[addr] = fixture.Fixture
+	}
+	return res
+}
+
+// func NewDialMapAllFixtures(fixtures FixturesI) *controls.DialMap {
+// 	dialMap := controls.NewDialMap()
+// 	go func() {
+// 		channel := dialMap.Channel()
+// 		for {
+// 			valueMap := <-channel
+// 			log.Printf("setting value map %v", valueMap)
+// 			fixtures.SetValueMap(valueMap)
+// 		}
+// 	}()
+// 	return dialMap
 // }
 
-func NewDialMapAllFixtures(fixtures Fixtures) *controls.DialMap {
-	dialMap := controls.NewDialMap()
+func NewObservableDialMapForAllChannels(channels []string, fixtures *ObservableFixtures2) *controls.ObservableDialMap {
+	dialMap := controls.NewObservableNumericDialMap(channels...)
+	received := make(chan controls.ValueMap)
+	dialMap.AddObserver(received)
 	go func() {
-		channel := dialMap.Channel()
-		for {
-			valueMap := <-channel
-			log.Printf("setting value map %v to %d fixtures", valueMap, len(fixtures))
+		for valueMap := range received {
 			fixtures.SetValueMap(valueMap)
 		}
 	}()

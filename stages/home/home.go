@@ -25,28 +25,27 @@ func GetHome() Home {
 	}
 }
 
-func GetRootSurface(universe fixture.Fixtures, clock *controls.Clock) controls.Container {
+func GetRootSurface(universe fixture.FixturesInterface[fixture.FixtureI], clock *controls.Clock) controls.Container {
 	surface := controls.NewList(3)
 
-	dialFixtures := fixture.NewFixturesFromFixtures(universe)
-	dialFixtureEmitter := fixture.NewFixtureEmitter(dialFixtures)
-	// dialFixtureEmitter := controls.NewEmitterValue(dialFixtures)
+	dialFixtures := fixture.NewObservableFixtures2(universe)
 
-	channelDials := fixture.NewDialMapAllFixtures(dialFixtures)
+	channelDials := fixture.NewObservableDialMapForAllChannels(dialFixtures.GetChannels(), dialFixtures)
 	surface.SetItem(0, channelDials)
 
-	rainbowFixtures := fixture.NewFixturesFromFixtures(universe)
-	rainbowFixtureEmitter := fixture.NewFixtureEmitter(rainbowFixtures)
-	patterns.Rainbow(rainbowFixtures, clock)
-
 	mux := controls.NewMux[fixture.FixtureValues]()
-	mux.Add("dials", &dialFixtureEmitter)
-	mux.Add("rainbow", &rainbowFixtureEmitter)
-	mux.SetSource("rainbow")
-	surface.SetItem(2, &mux)
+	mux.Add("dials", dialFixtures)
+
+	rainbowFixtures := fixture.NewIndividualObservableFixtures2(universe)
+	patterns.Rainbow(&rainbowFixtures.FixturesGeneric, clock)
+	mux.Add("rainbow", rainbowFixtures)
+
+	mux.SetSource("dials")
+	surface.SetItem(2, mux)
 
 	// link mux emitter to universe fixture
-	fixture.LinkEmitterToFixture(&mux, universe)
+	// fixture.LinkEmitterToFixture(&mux, universe)
+	fixture.LinkObservableToFixture(mux, universe)
 
 	return surface
 }

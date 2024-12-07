@@ -1,27 +1,60 @@
 package controls
 
-type Observer[T any] func(newValue T)
+import (
+	"sync"
+)
+
+type ObservableI[T any] interface {
+	AddObserver(observer chan T)
+	RemoveObserver(observer chan T)
+	Notify(event T)
+}
 
 type Observable[T any] struct {
-	value     T
-	observers []Observer[T]
+	observers map[chan T]struct{}
+	lock      sync.Mutex
 }
 
-func (o *Observable[T]) Set(value T) {
-	o.value = value
-	o.notifyObservers(value)
-}
-
-func (o *Observable[T]) Get() T {
-	return o.value
-}
-
-func (o *Observable[T]) AddObserver(observer Observer[T]) {
-	o.observers = append(o.observers, observer)
-}
-
-func (o *Observable[T]) notifyObservers(value T) {
-	for _, observer := range o.observers {
-		observer(value)
+func NewObservable[T any]() *Observable[T] {
+	return &Observable[T]{
+		observers: make(map[chan T]struct{}),
 	}
+}
+
+func (o *Observable[T]) AddObserver(observer chan T) {
+	o.lock.Lock()
+	defer o.lock.Unlock()
+	o.observers[observer] = struct{}{}
+}
+
+func (o *Observable[T]) RemoveObserver(observer chan T) {
+	o.lock.Lock()
+	defer o.lock.Unlock()
+	delete(o.observers, observer)
+	close(observer) // Close the channel to notify the observer.
+}
+
+func (o *Observable[T]) Notify(event T) {
+	o.lock.Lock()
+	defer o.lock.Unlock()
+	for observer := range o.observers {
+		// log.Printf("notifying observer")
+		observer <- event
+		// select {
+		// case
+		// // Event sent successfully.
+		// observer <- event:
+		// default:
+		// 	// Drop the event if the Observer channel is full.
+		// }
+	}
+}
+
+func (o *Observable[T]) AddObserverFunc(observer func(T)) {
+	ch := make(chan T)
+	go func() {
+		for event := range ch {
+			observer(event)
+		}
+	}()
 }

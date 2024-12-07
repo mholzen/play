@@ -1,7 +1,6 @@
 package home
 
 import (
-	"log"
 	"testing"
 
 	"github.com/mholzen/play-go/controls"
@@ -10,38 +9,42 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func _Test_RootSurfaceHome(t *testing.T) {
+func Test_RootSurfaceHome(t *testing.T) {
 
 	rootSurface := GetRootSurface(home.Universe, clock)
 
+	// dials
 	item, err := rootSurface.GetItem("0")
 	require.NoError(t, err)
-	dials, ok := item.(*controls.DialMap)
+	dials, ok := item.(*controls.ObservableDialMap)
 	require.True(t, ok)
+	assert.Contains(t, dials.GetValue(), "r")
 
-	// the dialmap messages are sent to the fixturevalues, not to the mux
-	// need multiple listeners
-
+	// mux
 	item, err = rootSurface.GetItem("2")
 	require.NoError(t, err)
 	mux, ok := item.(*controls.Mux[fixture.FixtureValues])
 	require.True(t, ok)
 	require.NoError(t, mux.SetSource("dials"))
 
-	move := make(chan bool)
-	received := false
+	advance := make(chan bool)
+
+	muxChannel := make(chan fixture.FixtureValues)
+	mux.AddObserver(muxChannel)
+
 	go func() {
-		<-move
-		log.Printf("waiting for value")
-		value := <-mux.Channel()
-		expected := value[home.TomeShine[0].Address]["r"]
-		assert.Equal(t, 42, expected)
-		received = true
-		move <- true
+		dials.SetChannelValue("r", 42)
+		<-advance
 	}()
 
-	move <- true
-	for !received {
-		dials.SetChannelValue("r", 42)
-	}
+	value := <-muxChannel
+
+	address := home.TomeShine[1].Address
+	expected := value[address]["r"]
+	assert.Equal(t, byte(42), expected)
+
+	advance <- true
+
+	// require.NoError(t, mux.SetSource("rainbow"))
+	// advance <- true
 }

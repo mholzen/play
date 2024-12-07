@@ -9,7 +9,7 @@ import (
 	"github.com/mholzen/play-go/fixture"
 )
 
-func Rainbow(fixtures fixture.Fixtures, clock *controls.Clock) controls.Triggers {
+func Rainbow(fixtures *fixture.FixturesGeneric[fixture.FixtureI], clock *controls.Clock) controls.Triggers {
 	seq := controls.NewSequence([]controls.ValueMap{
 		controls.AllColors["red"].Values(), // TODO: if `red` doesn't exist, this should fail fast rather than return a the 0 (ie. black) color
 		controls.AllColors["yellow"].Values(),
@@ -23,7 +23,7 @@ func Rainbow(fixtures fixture.Fixtures, clock *controls.Clock) controls.Triggers
 	transition := func() {
 		start, end := seq.IncValues()
 		log.Printf("transition %v to %v\n", start, end)
-		for i, f := range fixtures {
+		for i, f := range fixtures.GetFixtures() {
 			action := Transition(f, start, end, duration, ease.InOutSine, fixture.REFRESH)
 
 			d := (duration / 2) * time.Duration(i)

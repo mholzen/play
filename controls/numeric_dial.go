@@ -2,7 +2,6 @@ package controls
 
 import (
 	"encoding/json"
-	"log"
 )
 
 func NewNumericDial() *NumericDial {
@@ -19,7 +18,7 @@ type NumericDial struct {
 
 func (d *NumericDial) SetValue(value byte) {
 	d.Value = value
-	d.Emit()
+	// d.Emit()
 }
 
 func (d *NumericDial) SetMax() {
@@ -47,13 +46,13 @@ func (d NumericDial) Opposite() byte {
 	}
 }
 
-func (d *NumericDial) Emit() {
-	log.Printf("Emitting %v to %+v", d.Value, d.channel)
-	select {
-	case d.channel <- d.Value:
-	default:
-	}
-}
+// func (d *NumericDial) Emit() {
+// 	log.Printf("Emitting %v to %+v", d.Value, d.channel)
+// 	select {
+// 	case d.channel <- d.Value:
+// 	default:
+// 	}
+// }
 
 func (d *NumericDial) Channel() <-chan byte {
 	return d.channel
