@@ -1,6 +1,8 @@
 package fixture
 
 import (
+	"sort"
+
 	"github.com/mholzen/play-go/controls"
 )
 
@@ -169,6 +171,19 @@ func (f FixturesGeneric[T]) GetFixtures() map[int]T {
 	res := make(map[int]T)
 	for addr, fixture := range f {
 		res[addr] = *fixture
+	}
+	return res
+}
+
+func (f FixturesGeneric[T]) GetFixturesList() []T {
+	// Get addresses and sort them
+	addresses := f.GetAddresses()
+	sort.Ints(addresses)
+
+	// Build sorted list of fixtures
+	res := make([]T, len(addresses))
+	for i, addr := range addresses {
+		res[i] = *f[addr]
 	}
 	return res
 }

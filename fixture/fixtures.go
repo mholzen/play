@@ -67,8 +67,8 @@ func (f Fixtures) SetAll(value byte) {
 }
 
 func (f Fixtures) SetValueMap(values controls.ValueMap) {
-	for i, fixture := range f {
-		log.Printf("setting value map %v to fixture %d", values, i)
+	for _, fixture := range f {
+		// log.Printf("setting value map %v to fixture %d", values, i)
 		for k, v := range values {
 			fixture.Fixture.SetChannelValue(k, v)
 		}
@@ -120,7 +120,7 @@ func (f *Fixtures) Render(connection dmx.DMX) error {
 		for j, value := range fixture.Fixture.GetValues() {
 			channel := fixture.Address + j
 			connection.SetChannel(channel, value)
-			log.Printf("set channel %d to value %d", channel, value)
+			// log.Printf("set channel %d to value %d", channel, value)
 		}
 	}
 	err := connection.Render()
@@ -199,6 +199,7 @@ func NewObservableDialMapForAllChannels(channels []string, fixtures *ObservableF
 	dialMap.AddObserver(received)
 	go func() {
 		for valueMap := range received {
+			log.Printf("dial map received value map %v", valueMap)
 			fixtures.SetValueMap(valueMap)
 		}
 	}()

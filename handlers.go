@@ -90,14 +90,28 @@ func ContainerPostHandler(container controls.Container) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Error finding control named '%s'", name))
 		}
 
-		control, ok := item.(controls.Control)
-		if !ok {
+		// convert this to a control -- make observable dialmap a subcase
+		switch control := item.(type) {
+		case *controls.ObservableDialMap:
+			// Continue with existing control
+			channel := c.Param("channel")
+			value := c.Param("value")
+			b, err := strconv.Atoi(value)
+			if err != nil {
+				return err
+			}
+			control.SetChannelValue(channel, byte(b))
+			log.Printf("Dial Map updated: %s:%s", name, value)
+
+		case controls.Control:
+			value := c.Param("value")
+			control.SetValueString(value)
+			log.Printf("Control updated: %s", value)
+
+		default:
 			return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Item is not a control (item: '%s')", name))
 		}
 
-		value := c.Param("value")
-		control.SetValueString(value)
-		log.Printf("Control %s updated: %s", name, value)
 		return c.JSON(http.StatusOK, item)
 	}
 }

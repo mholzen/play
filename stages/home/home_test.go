@@ -1,6 +1,7 @@
 package home
 
 import (
+	"log"
 	"testing"
 
 	"github.com/mholzen/play-go/controls"
@@ -11,6 +12,8 @@ import (
 
 func Test_RootSurfaceHome(t *testing.T) {
 
+	clock := controls.NewClock(120)
+	clock.Start()
 	rootSurface := GetRootSurface(home.Universe, clock)
 
 	// dials
@@ -27,14 +30,20 @@ func Test_RootSurfaceHome(t *testing.T) {
 	require.True(t, ok)
 	require.NoError(t, mux.SetSource("dials"))
 
-	advance := make(chan bool)
+	advance := make(chan int)
 
 	muxChannel := make(chan fixture.FixtureValues)
 	mux.AddObserver(muxChannel)
 
 	go func() {
 		dials.SetChannelValue("r", 42)
-		<-advance
+		<-advance // 1
+
+		mux.SetSource("rainbow")
+		dials.SetChannelValue("r", 43) // should not have an effect
+		// rainbow is not setting values through the mux channel
+		log.Printf("set r to 43")
+		<-advance // 2
 	}()
 
 	value := <-muxChannel
@@ -43,8 +52,15 @@ func Test_RootSurfaceHome(t *testing.T) {
 	expected := value[address]["r"]
 	assert.Equal(t, byte(42), expected)
 
-	advance <- true
+	advance <- 1
 
-	// require.NoError(t, mux.SetSource("rainbow"))
-	// advance <- true
+	// wait for rainbow to set a non zero value
+	for i := 0; i < 100; i++ {
+		value = <-muxChannel
+		expected = value[address]["r"]
+		if expected > 0 {
+			break
+		}
+	}
+	assert.Greater(t, expected, byte(0))
 }

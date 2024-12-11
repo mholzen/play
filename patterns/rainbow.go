@@ -23,7 +23,7 @@ func Rainbow(fixtures *fixture.FixturesGeneric[fixture.FixtureI], clock *control
 	transition := func() {
 		start, end := seq.IncValues()
 		log.Printf("transition %v to %v\n", start, end)
-		for i, f := range fixtures.GetFixtures() {
+		for i, f := range fixtures.GetFixturesList() {
 			action := Transition(f, start, end, duration, ease.InOutSine, fixture.REFRESH)
 
 			d := (duration / 2) * time.Duration(i)
