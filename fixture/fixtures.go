@@ -192,16 +192,3 @@ func (f Fixtures) GetFixtures() map[int]FixtureI {
 // 	}()
 // 	return dialMap
 // }
-
-func NewObservableDialMapForAllChannels(channels []string, fixtures *ObservableFixtures2) *controls.ObservableDialMap {
-	dialMap := controls.NewObservableNumericDialMap(channels...)
-	received := make(chan controls.ValueMap)
-	dialMap.AddObserver(received)
-	go func() {
-		for valueMap := range received {
-			log.Printf("dial map received value map %v", valueMap)
-			fixtures.SetValueMap(valueMap)
-		}
-	}()
-	return dialMap
-}

@@ -36,7 +36,7 @@ func main() {
 		log.Printf("Warning: starting without a DMX connection: %s", err)
 	}
 	if connection != nil {
-		fixture.Render(universe, connection)
+		fixture.Render(universe, *connection)
 	}
 
 	StartServer(surface)
@@ -55,5 +55,3 @@ func LinkToggleToEnable(toggle *controls.Toggle, recipient controls.Triggers) {
 		}
 	}()
 }
-
-const REFRESH = 40 * time.Millisecond // DMXIS cannot read faster than 40ms

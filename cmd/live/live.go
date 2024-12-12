@@ -100,7 +100,7 @@ func main() {
 	// beatDown()
 
 	if connection != nil {
-		fixture.Render(h.Universe, connection)
+		fixture.Render(h.Universe, *connection)
 	}
 
 	sigs := make(chan os.Signal, 1)

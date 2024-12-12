@@ -3,7 +3,6 @@ package fixture
 import (
 	"fmt"
 	"log"
-	"time"
 
 	"github.com/akualab/dmx"
 )
@@ -23,15 +22,4 @@ func GetConnection() (*dmx.DMX, error) {
 		}
 	}
 	return nil, fmt.Errorf("could not connect to any DMX device")
-}
-
-const REFRESH = 40 * time.Millisecond // DMXIS cannot read faster than 40ms
-
-func Render(f Fixtures, connection *dmx.DMX) {
-	ticker := time.NewTicker(REFRESH)
-	go func() {
-		for range ticker.C {
-			f.Render(*connection)
-		}
-	}()
 }

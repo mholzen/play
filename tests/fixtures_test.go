@@ -70,8 +70,3 @@ func Test_Fixtures_SetChannelValue(t *testing.T) {
 // 	<-done
 
 // }
-
-func Test_ObservableFixtures2(t *testing.T) {
-	fixtures := fixture.NewFixtures()
-	var _ fixture.FixturesInterface[fixture.FixtureI] = &fixtures
-}

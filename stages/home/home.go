@@ -7,21 +7,21 @@ import (
 )
 
 type Home struct {
-	FreedomPars fixture.Fixtures
-	TomeShine   fixture.Fixtures
-	ColorStrip  fixture.Fixtures
-	ParCans     fixture.Fixtures
-	Universe    fixture.Fixtures
+	FreedomPars fixture.Fixtures2
+	TomeShine   fixture.Fixtures2
+	ColorStrip  fixture.Fixtures2
+	ParCans     fixture.Fixtures2
+	Universe    fixture.Fixtures2
 }
 
 func GetHome() Home {
-	universe := fixture.NewFixtures()
+	universe := fixture.NewFixturesGeneric[fixture.Fixture]()
 	return Home{
-		FreedomPars: universe.AddFixtures(fixture.NewFreedomPar, 65, 81, 97, 113),
-		TomeShine:   universe.AddFixtures(fixture.NewTomeshine, 1, 17, 33, 49),
-		ColorStrip:  universe.AddFixtures(fixture.NewColorstripMini, 129),
-		ParCans:     universe.AddFixtures(fixture.NewParCan, 140),
-		Universe:    universe,
+		// FreedomPars: universe.AddFixtures(fixture.NewFreedomPar, 65, 81, 97, 113),
+		TomeShine:  universe.AddFixtures(fixture.NewTomeshine, 1, 17, 33, 49),
+		ColorStrip: universe.AddFixtures(fixture.NewColorstripMini, 129),
+		ParCans:    universe.AddFixtures(fixture.NewParCan, 140),
+		Universe:   *universe,
 	}
 }
 
@@ -45,7 +45,7 @@ func GetRootSurface(universe fixture.FixturesInterface[fixture.FixtureI], clock 
 
 	// link mux emitter to universe fixture
 	// fixture.LinkEmitterToFixture(&mux, universe)
-	fixture.LinkObservableToFixture(mux, universe)
+	fixture.LinkObservableToFixture(mux, &universe)
 
 	return surface
 }

@@ -66,7 +66,7 @@ func NewFixtureSink(fixture FixtureI, channel string) streams.Sink {
 	return sink
 }
 
-func LinkObservableToFixture(source controls.ObservableI[FixtureValues], target FixturesInterface[FixtureI]) {
+func LinkObservableToFixture(source controls.ObservableI[FixtureValues], target *FixturesInterface[FixtureI]) {
 	channel := make(chan FixtureValues)
 	source.AddObserver(channel)
 	go func() {
@@ -77,7 +77,7 @@ func LinkObservableToFixture(source controls.ObservableI[FixtureValues], target 
 			// for address, values := range fixtureValues {
 			// 	log.Printf("address: %d, values: %v", address, values)
 			// }
-			target.SetValue(fixtureValues)
+			(*target).SetValue(fixtureValues)
 		}
 	}()
 }

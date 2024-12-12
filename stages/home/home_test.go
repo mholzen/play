@@ -48,7 +48,7 @@ func Test_RootSurfaceHome(t *testing.T) {
 
 	value := <-muxChannel
 
-	address := home.TomeShine[1].Address
+	address := home.TomeShine.GetAddresses()[0]
 	expected := value[address]["r"]
 	assert.Equal(t, byte(42), expected)
 
