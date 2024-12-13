@@ -6,8 +6,6 @@ import (
 	"github.com/mholzen/play-go/controls"
 )
 
-type FixturePointer *FixtureI
-
 type FixturesInterface[T FixtureI] interface {
 	// AddFixture(fixture T, address int)
 	// AddFixtures(constructor func() T, address ...int)
@@ -18,15 +16,29 @@ type FixturesInterface[T FixtureI] interface {
 	SetValue(fixtureValues FixtureValues)
 	GetValue() FixtureValues
 	GetByteArray() []byte
+	// Clone() FixturesInterface[T]
 }
 
 type FixturesGeneric[T FixtureI] map[int]T
 
-type Fixtures2 = FixturesGeneric[Fixture]
+type Fixtures = FixturesGeneric[Fixture]
 
 func NewFixturesGeneric[T FixtureI]() *FixturesGeneric[T] {
 	f := make(FixturesGeneric[T])
 	return &f
+}
+
+func (f FixturesGeneric[T]) Clone() FixturesInterface[FixtureI] {
+	res := make(FixturesGeneric[FixtureI])
+	for addr, fixture := range f {
+		var fixtureI FixtureI = fixture
+		if fix, ok := fixtureI.(Fixture); ok {
+			res[addr] = fix.Clone()
+		} else {
+			res[addr] = fixture
+		}
+	}
+	return res
 }
 
 func (f *FixturesGeneric[T]) AddFixture(fixture T, address int) {

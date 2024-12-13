@@ -51,3 +51,9 @@ func (m ModelChannels) SetAll(value byte) {
 
 func (m ModelChannels) SetChannelValue(name string, value byte) {
 }
+
+func (m ModelChannels) Clone() FixtureI {
+	clone := NewModelChannels(m.Name, m.GetChannels())
+	clone.SetValueMap(m.GetValueMap())
+	return clone
+}

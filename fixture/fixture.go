@@ -11,10 +11,11 @@ type FixtureI interface {
 	SetAll(value byte)
 	GetValues() []byte
 	GetChannels() []string
+	// Clone() FixtureI
 }
 
-type Fixture struct { // TODO: merge this with InstalledFixture
-	Model  ModelChannels
+type Fixture struct {
+	Model  *ModelChannels
 	Values []byte
 }
 
@@ -63,5 +64,12 @@ func (f Fixture) SetValueMap(values controls.ValueMap) {
 func ApplyTo(values controls.ValueMap, f FixtureI) {
 	for k, v := range values {
 		f.SetChannelValue(k, v)
+	}
+}
+
+func (f Fixture) Clone() Fixture {
+	return Fixture{
+		Model:  f.Model,
+		Values: append([]byte{}, f.Values...),
 	}
 }

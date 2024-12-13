@@ -11,7 +11,7 @@ type ObservableFixtures2 struct {
 	controls.Observable[FixtureValues]
 }
 
-func NewObservableFixtures2(fixtures FixturesInterface[FixtureI]) *ObservableFixtures2 {
+func NewObservableFixtures(fixtures FixturesInterface[FixtureI]) *ObservableFixtures2 {
 	res := &ObservableFixtures2{
 		FixturesGeneric: *NewFixturesGeneric[FixtureI](),
 		Observable:      *controls.NewObservable[FixtureValues](),

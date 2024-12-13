@@ -7,8 +7,8 @@ import (
 )
 
 func Test_ObservableFixture(t *testing.T) {
-	foo := NewModelChannels("Foo", []string{"r", "g", "b"})
-	var fixture FixtureI = foo
+	model := NewModelChannels("Foo", []string{"r", "g", "b"})
+	var fixture FixtureI = model
 
 	observableFixture := NewObservableFixture(fixture)
 

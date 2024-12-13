@@ -1,9 +1,13 @@
 package fixture
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+)
 
 func Test_ModelChannels(t *testing.T) {
-	foo := NewModelChannels("Foo", []string{"r", "g", "b"})
+	model := NewModelChannels("Foo", []string{"r", "g", "b"})
 
-	var _ FixtureI = foo
+	assert.Equal(t, []string{"r", "g", "b"}, model.GetChannels())
 }

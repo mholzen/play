@@ -7,11 +7,11 @@ import (
 )
 
 type Home struct {
-	FreedomPars fixture.Fixtures2
-	TomeShine   fixture.Fixtures2
-	ColorStrip  fixture.Fixtures2
-	ParCans     fixture.Fixtures2
-	Universe    fixture.Fixtures2
+	FreedomPars fixture.Fixtures
+	TomeShine   fixture.Fixtures
+	ColorStrip  fixture.Fixtures
+	ParCans     fixture.Fixtures
+	Universe    fixture.Fixtures
 }
 
 func GetHome() Home {
@@ -28,7 +28,7 @@ func GetHome() Home {
 func GetRootSurface(universe fixture.FixturesInterface[fixture.FixtureI], clock *controls.Clock) controls.Container {
 	surface := controls.NewList(3)
 
-	dialFixtures := fixture.NewObservableFixtures2(universe)
+	dialFixtures := fixture.NewObservableFixtures(universe)
 
 	channelDials := fixture.NewObservableDialMapForAllChannels(dialFixtures.GetChannels(), dialFixtures)
 	surface.SetItem(0, channelDials)

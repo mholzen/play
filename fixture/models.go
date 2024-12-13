@@ -16,7 +16,7 @@ func NewFreedomPar() Fixture {
 		},
 	)
 	return Fixture{
-		Model:  model,
+		Model:  &model,
 		Values: make([]byte, len(model.Channels)),
 	}
 }
@@ -30,7 +30,7 @@ func NewTomeshine() Fixture {
 		},
 	)
 	return Fixture{
-		Model:  model,
+		Model:  &model,
 		Values: make([]byte, len(model.Channels)),
 	}
 }
@@ -44,7 +44,7 @@ func NewColorstripMini() Fixture {
 		},
 	)
 	return Fixture{
-		Model:  model,
+		Model:  &model,
 		Values: make([]byte, len(model.Channels)),
 	}
 }
@@ -107,7 +107,7 @@ func NewParCan() Fixture {
 		},
 	)
 	return Fixture{
-		Model:  model,
+		Model:  &model,
 		Values: make([]byte, len(model.Channels)),
 	}
 }
