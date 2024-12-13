@@ -22,7 +22,7 @@ func Rainbow(fixtures *fixture.FixturesGeneric[fixture.FixtureI], clock *control
 	transition := func() {
 		start, end := seq.IncValues()
 		// log.Printf("transition %v to %v\n", start, end)
-		for i, f := range fixtures.GetFixturesList() {
+		for i, f := range fixtures.GetFixtureList() {
 			action := Transition(f, start, end, duration, ease.InOutSine, fixture.REFRESH)
 
 			f.SetChannelValue("dimmer", 255)

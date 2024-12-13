@@ -57,7 +57,7 @@ func Test_RootSurfaceHome(t *testing.T) {
 	// wait for rainbow to set a non zero value
 	for i := 0; i < 100; i++ {
 		value = <-muxChannel
-		expected = value[address]["r"]
+		expected = value[address]["tilt"]
 		if expected > 0 {
 			break
 		}

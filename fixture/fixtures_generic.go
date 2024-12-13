@@ -7,9 +7,6 @@ import (
 )
 
 type FixturesInterface[T FixtureI] interface {
-	// AddFixture(fixture T, address int)
-	// AddFixtures(constructor func() T, address ...int)
-	// AddFixtureList(fixtures FixturesInterface[T])
 	GetFixtures() map[int]T
 	GetChannels() []string
 	GetAddresses() []int
@@ -159,7 +156,7 @@ func (f FixturesGeneric[T]) GetFixtures() map[int]FixtureI {
 	return res
 }
 
-func (f FixturesGeneric[T]) GetFixturesList() []T { // TODO: rename to GetFixtureList()
+func (f FixturesGeneric[T]) GetFixtureList() []T {
 	// Get addresses and sort them
 	addresses := f.GetAddresses()
 	sort.Ints(addresses)
@@ -178,7 +175,7 @@ func (f FixturesGeneric[T]) GetByteArray() []byte {
 
 func (f FixturesGeneric[T]) GetValueMap() controls.ValueMap {
 	res := make(controls.ValueMap)
-	for _, fixture := range f.GetFixturesList() {
+	for _, fixture := range f.GetFixtureList() {
 		for channel, value := range fixture.GetValueMap() {
 			res[channel] = value
 		}
