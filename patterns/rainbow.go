@@ -25,7 +25,10 @@ func Rainbow(fixtures *fixture.FixturesGeneric[fixture.FixtureI], clock *control
 		for i, f := range fixtures.GetFixturesList() {
 			action := Transition(f, start, end, duration, ease.InOutSine, fixture.REFRESH)
 
-			d := (duration / 2) * time.Duration(i)
+			f.SetChannelValue("dimmer", 255)
+			f.SetChannelValue("tilt", 127)
+
+			d := time.Duration(i) * (duration / 2)
 			go Delay(d, action)
 		}
 	}

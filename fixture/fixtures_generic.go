@@ -16,7 +16,7 @@ type FixturesInterface[T FixtureI] interface {
 	SetValue(fixtureValues FixtureValues)
 	GetValue() FixtureValues
 	GetByteArray() []byte
-	// Clone() FixturesInterface[T]
+	Clone() FixturesInterface[T]
 }
 
 type FixturesGeneric[T FixtureI] map[int]T

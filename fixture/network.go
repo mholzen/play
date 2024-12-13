@@ -71,12 +71,7 @@ func LinkObservableToFixture(source controls.ObservableI[FixtureValues], target 
 	source.AddObserver(channel)
 	go func() {
 		for fixtureValues := range channel {
-			log.Printf("mux output received")
-			log.Printf("fixtureValues: %d fixtures", len(fixtureValues))
-			// log.Printf(": %d fixtures", len(fixtureValues))
-			// for address, values := range fixtureValues {
-			// 	log.Printf("address: %d, values: %v", address, values)
-			// }
+			log.Printf("mux output: %v", fixtureValues)
 			(*target).SetValue(fixtureValues)
 		}
 	}()
