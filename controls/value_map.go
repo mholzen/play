@@ -8,9 +8,9 @@ import (
 	"strings"
 )
 
-type ValueMap map[string]byte
+type ChannelValues map[string]byte
 
-func (values ValueMap) String() string {
+func (values ChannelValues) String() string {
 	res := []string{}
 	keys := make([]string, 0, len(values))
 	for k := range values {
@@ -23,16 +23,16 @@ func (values ValueMap) String() string {
 	return strings.Join(res, ", ")
 }
 
-func InterpolateValues(v1, v2 ValueMap, t float64) ValueMap {
-	res := make(ValueMap)
+func InterpolateValues(v1, v2 ChannelValues, t float64) ChannelValues {
+	res := make(ChannelValues)
 	for k, v := range v1 {
 		res[k] = byte(float64(v) + (float64(v2[k])-float64(v))*t)
 	}
 	return res
 }
 
-func NewMapFromColor(c color.RGBA) ValueMap {
-	return ValueMap{
+func NewMapFromColor(c color.RGBA) ChannelValues {
+	return ChannelValues{
 		"r":  c.R,
 		"g":  c.G,
 		"b":  c.B,
@@ -76,8 +76,8 @@ func parseParam(param string) (ParamValue, error) {
 	return ParamValue{Param: parts[0], Value: byte(num)}, nil
 }
 
-func NewMap(param ...string) (ValueMap, error) {
-	res := make(ValueMap)
+func NewMap(param ...string) (ChannelValues, error) {
+	res := make(ChannelValues)
 	for _, p := range param {
 		v, err := parseParam(p)
 		if err != nil {

@@ -20,30 +20,37 @@ func StartServer(surface controls.Container) {
 	if err != nil {
 		log.Fatalf("Error channel map: %v", err)
 	}
-	dialMap := item0.(controls.DialMap)
-	e.GET("/controls", ControlsGetHandler(dialMap))
+	dialMap := item0.(*controls.ObservableDialMap)
+
 	dialList := controls.DialList{
 		DialMap:     dialMap,
 		ChannelList: controls.ChannelList{"r", "g", "b", "a", "w", "uv", "dimmer", "strobe", "speed", "tilt", "pan", "mode"},
 	}
 
-	e.GET("/controls/", ControlsGetHandler2(dialList))
+	// Create a group with prefix "/controls"
+	controls := e.Group("/api/controls")
 
-	e.GET("/controls/:name", ControlsGetHandler(dialMap))
+	getHandler := ControlsGetHandler(dialList)
+	controls.GET("/", getHandler)
+	controls.GET("/:name", getHandler)
 
 	postHandler := ControlsPostHandler(dialMap)
-	e.POST("/controls/:name", postHandler)
-	e.GET("/controls/:name/:value", postHandler)
-	e.POST("/controls/:name/:value", postHandler)
+	controls.POST("/:name", postHandler)
+	controls.GET("/:name/:value", postHandler)
+	controls.POST("/:name/:value", postHandler)
 
-	e.GET("/colors/", ColorsGetHandler())
-	e.POST("/colors/:name", ColorsPostHandler(dialMap))
+	// Create a group with prefix "/colors"
+	colors := e.Group("/api/colors")
+	colors.GET("/", ColorsGetHandler())
+	colors.POST("/:name", ColorsPostHandler(dialMap))
 
-	e.GET("/v2/root", ContainerGetHandler(surface))
-	e.GET("/v2/root/", ContainerGetHandler(surface))
-	e.GET("/v2/root/:name", ContainerGetHandler(surface))
-	e.POST("/v2/root/:name/:value", ContainerPostHandler(surface))
+	// Create a group with prefix "/v2/root"
+	v2root := e.Group("/api/v2/root")
+	v2root.GET("", ContainerGetHandler(surface))
+	v2root.GET("/", ContainerGetHandler(surface))
+	v2root.GET("/:name", ContainerGetHandler(surface))
+	v2root.POST("/:name/:value", ContainerPostHandler(surface))
+	v2root.POST("/:name/:channel/:value", ContainerPostHandler(surface))
 
 	e.Logger.Fatal(e.Start(":1300"))
-
 }

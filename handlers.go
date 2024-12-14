@@ -12,27 +12,13 @@ import (
 	"github.com/mholzen/play-go/controls"
 )
 
-func ControlsGetHandler(dialMap controls.DialMap) echo.HandlerFunc {
-	return func(c echo.Context) error {
-		name := c.Param("name")
-		if name == "" {
-			return c.JSON(http.StatusOK, dialMap)
-		}
-		dial, ok := dialMap.Dials[name]
-		if !ok {
-			return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Cannot find dial name '%s'", name))
-		}
-		return c.String(http.StatusOK, fmt.Sprintf("%d", dial.Value))
-	}
-}
-
-func ControlsGetHandler2(dialList controls.DialList) echo.HandlerFunc {
+func ControlsGetHandler(dialList controls.DialList) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		name := c.Param("name")
 		if name == "" {
 			return c.JSON(http.StatusOK, dialList)
 		}
-		dial, ok := dialList.DialMap.Dials[name]
+		dial, ok := (*dialList.DialMap.Dials)[name]
 		if !ok {
 			return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Cannot find dial name '%s'", name))
 		}
@@ -40,10 +26,10 @@ func ControlsGetHandler2(dialList controls.DialList) echo.HandlerFunc {
 	}
 }
 
-func ControlsPostHandler(dialMap controls.DialMap) echo.HandlerFunc {
+func ControlsPostHandler(dialMap *controls.ObservableDialMap) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		name := c.Param("name")
-		dial, ok := dialMap.Dials[name]
+		dial, ok := (*dialMap.Dials)[name]
 		if !ok {
 			return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Cannot find dial name '%s'", name))
 		}
@@ -90,19 +76,33 @@ func ContainerPostHandler(container controls.Container) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Error finding control named '%s'", name))
 		}
 
-		control, ok := item.(controls.Control)
-		if !ok {
+		// convert this to a control -- make observable dialmap a subcase
+		switch control := item.(type) {
+		case *controls.ObservableDialMap:
+			// Continue with existing control
+			channel := c.Param("channel")
+			value := c.Param("value")
+			b, err := strconv.Atoi(value)
+			if err != nil {
+				return err
+			}
+			control.SetChannelValue(channel, byte(b))
+			log.Printf("Dial Map updated: %s:%s", name, value)
+
+		case controls.Control:
+			value := c.Param("value")
+			control.SetValueString(value)
+			log.Printf("Control updated: %s", value)
+
+		default:
 			return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Item is not a control (item: '%s')", name))
 		}
 
-		value := c.Param("value")
-		control.SetValueString(value)
-		log.Printf("Control %s updated: %s", name, value)
 		return c.JSON(http.StatusOK, item)
 	}
 }
 
-func ColorsPostHandler(dialMap controls.DialMap) echo.HandlerFunc {
+func ColorsPostHandler(dialMap *controls.ObservableDialMap) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		name := c.Param("name")
 		color, ok := controls.AllColors[name]

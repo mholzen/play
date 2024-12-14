@@ -1,12 +1,5 @@
 package controls
 
-import (
-	"encoding/json"
-	"io"
-	"os"
-	"path/filepath"
-)
-
 type Color struct {
 	Red   byte `json:"r"`
 	Green byte `json:"g"`
@@ -16,8 +9,8 @@ type Color struct {
 	UV    byte `json:"uv"`
 }
 
-func (c Color) Values() ValueMap {
-	return ValueMap{
+func (c Color) Values() ChannelValues {
+	return ChannelValues{
 		"r":  c.Red,
 		"g":  c.Green,
 		"b":  c.Blue,
@@ -32,16 +25,16 @@ type Colors map[string]Color
 var AllColors Colors
 
 func LoadColors() error {
-	root := os.Getenv("ROOT")
-	jsonFile, err := os.Open(filepath.Join(root, "colors.json"))
-	if err != nil {
-		return err
-	}
-	defer jsonFile.Close()
-	byteValue, _ := io.ReadAll(jsonFile)
-	err = json.Unmarshal(byteValue, &AllColors)
-	if err != nil {
-		return err
+	AllColors = make(Colors)
+	for name, color := range ColorsByName {
+		AllColors[name] = Color{
+			Red:   color["r"],
+			Green: color["g"],
+			Blue:  color["b"],
+			White: color["w"],
+			Amber: color["a"],
+			UV:    color["uv"],
+		}
 	}
 	return nil
 }
