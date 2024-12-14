@@ -58,14 +58,3 @@ func (t *Toggle) GetValue() bool {
 func (t *Toggle) GetValueString() string {
 	return fmt.Sprintf("%v", t.Value)
 }
-
-func (t *Toggle) Emit() {
-	select {
-	case t.C <- t.Value:
-	default:
-	}
-}
-
-func (t *Toggle) Channel() <-chan bool {
-	return t.C
-}

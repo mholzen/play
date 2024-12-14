@@ -27,13 +27,14 @@ func StartServer(surface controls.Container) {
 		ChannelList: controls.ChannelList{"r", "g", "b", "a", "w", "uv", "dimmer", "strobe", "speed", "tilt", "pan", "mode"},
 	}
 
-	postHandler := ControlsPostHandler(dialMap)
-
 	// Create a group with prefix "/controls"
 	controls := e.Group("/api/controls")
-	controls.GET("", ControlsGetHandler(dialMap))
-	controls.GET("/", ControlsGetHandler2(dialList))
-	controls.GET("/:name", ControlsGetHandler(dialMap))
+
+	getHandler := ControlsGetHandler(dialList)
+	controls.GET("/", getHandler)
+	controls.GET("/:name", getHandler)
+
+	postHandler := ControlsPostHandler(dialMap)
 	controls.POST("/:name", postHandler)
 	controls.GET("/:name/:value", postHandler)
 	controls.POST("/:name/:value", postHandler)
@@ -52,5 +53,4 @@ func StartServer(surface controls.Container) {
 	v2root.POST("/:name/:channel/:value", ContainerPostHandler(surface))
 
 	e.Logger.Fatal(e.Start(":1300"))
-
 }

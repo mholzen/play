@@ -12,21 +12,7 @@ import (
 	"github.com/mholzen/play-go/controls"
 )
 
-func ControlsGetHandler(dialMap *controls.ObservableDialMap) echo.HandlerFunc {
-	return func(c echo.Context) error {
-		name := c.Param("name")
-		if name == "" {
-			return c.JSON(http.StatusOK, dialMap)
-		}
-		dial, ok := (*dialMap.Dials)[name]
-		if !ok {
-			return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Cannot find dial name '%s'", name))
-		}
-		return c.String(http.StatusOK, fmt.Sprintf("%d", dial.Value))
-	}
-}
-
-func ControlsGetHandler2(dialList controls.DialList) echo.HandlerFunc {
+func ControlsGetHandler(dialList controls.DialList) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		name := c.Param("name")
 		if name == "" {

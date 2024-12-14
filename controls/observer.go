@@ -38,15 +38,7 @@ func (o *Observable[T]) Notify(event T) {
 	o.lock.Lock()
 	defer o.lock.Unlock()
 	for observer := range o.observers {
-		// log.Printf("notifying observer")
 		observer <- event
-		// select {
-		// case
-		// // Event sent successfully.
-		// observer <- event:
-		// default:
-		// 	// Drop the event if the Observer channel is full.
-		// }
 	}
 }
 

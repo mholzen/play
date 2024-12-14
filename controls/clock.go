@@ -2,7 +2,6 @@ package controls
 
 import (
 	"fmt"
-	"log"
 	"time"
 )
 
@@ -155,7 +154,6 @@ func (c *Clock) Trigger() {
 func (c *Clock) On(trigger TriggerFunc, callback func()) *Trigger {
 	t := Trigger{trigger, true, callback}
 	c.Triggers = append(c.Triggers, t)
-	log.Printf("added trigger %v\n", t)
 	return &t
 }
 

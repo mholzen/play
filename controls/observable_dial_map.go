@@ -32,14 +32,6 @@ func (m *ObservableDialMap) SetChannelValue(name string, value byte) {
 	m.Notify(m.GetValue())
 }
 
-// func (m *ObservableDialMap) GetString() string {
-// 	r, err := json.Marshal(m)
-// 	if err != nil {
-// 		return err.Error()
-// 	}
-// 	return string(r)
-// }
-
 func (m *ObservableDialMap) GetValue() ChannelValues {
 	res := ChannelValues{}
 	for name, dial := range *m.Dials {

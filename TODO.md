@@ -1,3 +1,0 @@
-- [x] switch dialmap to use observer pattern
-  - [ ] make observable fixtures
-  - [ ] switch mux to use observer pattern

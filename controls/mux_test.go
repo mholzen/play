@@ -6,22 +6,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// func Test_Mux(t *testing.T) {
-// 	in1 := NewToggle()
-// 	in2 := NewToggle()
-// 	in2.On()
-
-// 	mux := NewMux[bool]()
-// 	mux.Add("in1", in1)
-// 	mux.Add("in2", in2)
-
-// 	mux.SetSource("in2")
-// 	require.Equal(t, mux.GetValue(), true)
-
-// 	mux.SetSource("in1")
-// 	require.Equal(t, mux.GetValue(), false)
-// }
-
 func Test_Mux_ValueMap(t *testing.T) {
 	inA := NewObservableNumericDialMap("ch1")
 	inB := NewObservableNumericDialMap("ch1")
