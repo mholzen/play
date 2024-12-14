@@ -35,11 +35,11 @@ func (m *ModelChannels) SetChannels(channels []string) {
 	m.IndexByChannel = ArrayToIndex(m.Channels)
 }
 
-func (m ModelChannels) GetValueMap() controls.ValueMap {
-	return make(controls.ValueMap)
+func (m ModelChannels) GetChannelValues() controls.ChannelValues {
+	return make(controls.ChannelValues)
 }
 
-func (m ModelChannels) SetValueMap(values controls.ValueMap) {
+func (m ModelChannels) SetChannelValues(values controls.ChannelValues) {
 }
 
 func (m ModelChannels) GetValues() []byte {
@@ -54,6 +54,6 @@ func (m ModelChannels) SetChannelValue(name string, value byte) {
 
 func (m ModelChannels) Clone() FixtureI {
 	clone := NewModelChannels(m.Name, m.GetChannels())
-	clone.SetValueMap(m.GetValueMap())
+	clone.SetChannelValues(m.GetChannelValues())
 	return clone
 }

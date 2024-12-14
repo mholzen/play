@@ -84,7 +84,7 @@ func (f FixturesGeneric[T]) SetAll(value byte) {
 	}
 }
 
-func (f FixturesGeneric[T]) SetValueMap(values controls.ValueMap) {
+func (f FixturesGeneric[T]) SetChannelValues(values controls.ChannelValues) {
 	for address := range f {
 		for k, v := range values {
 			f[address].SetChannelValue(k, v)
@@ -92,8 +92,8 @@ func (f FixturesGeneric[T]) SetValueMap(values controls.ValueMap) {
 	}
 }
 
-func (f FixturesGeneric[T]) SetFixtureValueMap(address int, values controls.ValueMap) {
-	f[address].SetValueMap(values)
+func (f FixturesGeneric[T]) SetFixtureValueMap(address int, values controls.ChannelValues) {
+	f[address].SetChannelValues(values)
 }
 
 func (f FixturesGeneric[T]) GetValues() []byte {
@@ -115,14 +115,14 @@ func (f FixturesGeneric[T]) GetValues() []byte {
 func (f FixturesGeneric[T]) GetValue() FixtureValues {
 	res := make(FixtureValues)
 	for addr, fixture := range f {
-		res[addr] = fixture.GetValueMap()
+		res[addr] = fixture.GetChannelValues()
 	}
 	return res
 }
 
 func (f FixturesGeneric[T]) SetValue(fixtureValues FixtureValues) {
 	for address := range f {
-		f[address].SetValueMap(fixtureValues[address])
+		f[address].SetChannelValues(fixtureValues[address])
 	}
 }
 
@@ -173,10 +173,10 @@ func (f FixturesGeneric[T]) GetByteArray() []byte {
 	return f.GetValues()
 }
 
-func (f FixturesGeneric[T]) GetValueMap() controls.ValueMap {
-	res := make(controls.ValueMap)
+func (f FixturesGeneric[T]) GetChannelValues() controls.ChannelValues {
+	res := make(controls.ChannelValues)
 	for _, fixture := range f.GetFixtureList() {
-		for channel, value := range fixture.GetValueMap() {
+		for channel, value := range fixture.GetChannelValues() {
 			res[channel] = value
 		}
 	}

@@ -13,7 +13,7 @@ func Test_Fixtures_SetChannelValue(t *testing.T) {
 
 	fixture.SetChannelValue("r", 1)
 
-	assert.Equal(t, byte(1), fixture.GetValueMap()["r"])
+	assert.Equal(t, byte(1), fixture.GetChannelValues()["r"])
 }
 
 func Test_Go_Map_Increment(t *testing.T) {

@@ -3,23 +3,23 @@ package fixture
 import "github.com/mholzen/play-go/controls"
 
 type ObservableFixture struct {
-	controls.Observable[controls.ValueMap]
+	controls.Observable[controls.ChannelValues]
 	Fixture FixtureI
 }
 
 func NewObservableFixture(initial FixtureI) *ObservableFixture {
 	return &ObservableFixture{
 		Fixture:    initial,
-		Observable: *controls.NewObservable[controls.ValueMap](),
+		Observable: *controls.NewObservable[controls.ChannelValues](),
 	}
 }
 
-func (f *ObservableFixture) GetValueMap() controls.ValueMap {
-	return f.Fixture.GetValueMap()
+func (f *ObservableFixture) GetChannelValues() controls.ChannelValues {
+	return f.Fixture.GetChannelValues()
 }
 
-func (f *ObservableFixture) SetValueMap(values controls.ValueMap) {
-	f.Fixture.SetValueMap(values)
+func (f *ObservableFixture) SetChannelValues(values controls.ChannelValues) {
+	f.Fixture.SetChannelValues(values)
 	f.Notify(values)
 }
 
@@ -33,10 +33,10 @@ func (f *ObservableFixture) GetValues() []byte {
 
 func (f *ObservableFixture) SetAll(value byte) {
 	f.Fixture.SetAll(value)
-	f.Notify(f.GetValueMap())
+	f.Notify(f.GetChannelValues())
 }
 
 func (f *ObservableFixture) SetChannelValue(name string, value byte) {
 	f.Fixture.SetChannelValue(name, value)
-	f.Notify(f.GetValueMap())
+	f.Notify(f.GetChannelValues())
 }

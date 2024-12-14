@@ -9,10 +9,10 @@ import (
 
 type DialMap struct {
 	Dials   map[string]*NumericDial
-	channel chan ValueMap
+	channel chan ChannelValues
 }
 
-func (m DialMap) SetValue(values ValueMap) {
+func (m DialMap) SetValue(values ChannelValues) {
 	for name, value := range values {
 		if dial, ok := m.Dials[name]; ok {
 			dial.SetValue(value)
@@ -38,8 +38,8 @@ func (m DialMap) GetString() string {
 	return string(r)
 }
 
-func (m DialMap) GetValue() ValueMap {
-	res := ValueMap{}
+func (m DialMap) GetValue() ChannelValues {
+	res := ChannelValues{}
 	for name, dial := range m.Dials {
 		res[name] = dial.Value
 	}
@@ -53,7 +53,7 @@ func (m DialMap) GetValue() ValueMap {
 func NewNumericDialMap(channels ...string) *DialMap {
 	res := DialMap{
 		Dials:   make(map[string]*NumericDial),
-		channel: make(chan ValueMap),
+		channel: make(chan ChannelValues),
 	}
 	for _, channel := range channels {
 		res.Dials[channel] = NewNumericDial()

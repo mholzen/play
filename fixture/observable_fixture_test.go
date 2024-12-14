@@ -12,7 +12,7 @@ func Test_ObservableFixture(t *testing.T) {
 
 	observableFixture := NewObservableFixture(fixture)
 
-	observableFixture.SetValueMap(controls.ValueMap{"r": 1})
+	observableFixture.SetChannelValues(controls.ChannelValues{"r": 1})
 
 	var _ FixtureI = observableFixture
 }

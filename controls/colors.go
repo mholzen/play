@@ -9,8 +9,8 @@ type Color struct {
 	UV    byte `json:"uv"`
 }
 
-func (c Color) Values() ValueMap {
-	return ValueMap{
+func (c Color) Values() ChannelValues {
+	return ChannelValues{
 		"r":  c.Red,
 		"g":  c.Green,
 		"b":  c.Blue,

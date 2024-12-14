@@ -28,7 +28,7 @@ func NewIndividualObservableFixtures(fixtures FixturesInterface[FixtureI]) *Obse
 		Observable:      *controls.NewObservable[FixtureValues](),
 	}
 
-	ch := make(chan controls.ValueMap)
+	ch := make(chan controls.ChannelValues)
 	for address, fixture := range fixtures.GetFixtures() {
 		observableFixture := NewObservableFixture(fixture)
 		var fixtureI FixtureI = observableFixture
@@ -43,21 +43,21 @@ func NewIndividualObservableFixtures(fixtures FixturesInterface[FixtureI]) *Obse
 	return res
 }
 
-func (f *ObservableFixtures) SetValueMap(values controls.ValueMap) {
+func (f *ObservableFixtures) SetChannelValues(values controls.ChannelValues) {
 	for _, fixture := range f.FixturesGeneric {
-		fixture.SetValueMap(values)
+		fixture.SetChannelValues(values)
 	}
 	f.Notify(f.FixturesGeneric.GetValue())
 }
 
 func NewObservableDialMapForAllChannels(channels []string, fixtures *ObservableFixtures) *controls.ObservableDialMap {
 	dialMap := controls.NewObservableNumericDialMap(channels...)
-	received := make(chan controls.ValueMap)
+	received := make(chan controls.ChannelValues)
 	dialMap.AddObserver(received)
 	go func() {
 		for valueMap := range received {
 			log.Printf("dial map received value map %v", valueMap)
-			fixtures.SetValueMap(valueMap)
+			fixtures.SetChannelValues(valueMap)
 		}
 	}()
 	return dialMap

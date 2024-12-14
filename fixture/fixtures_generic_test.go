@@ -17,8 +17,8 @@ func Test_FixtureGeneric_SetChannelValue(t *testing.T) {
 	f1 := f.GetFixtures()[1]
 	f100 := f.GetFixtures()[100]
 
-	assert.Equal(t, byte(1), f1.GetValueMap()["r"])
-	assert.Equal(t, byte(1), f100.GetValueMap()["r"])
+	assert.Equal(t, byte(1), f1.GetChannelValues()["r"])
+	assert.Equal(t, byte(1), f100.GetChannelValues()["r"])
 
 	values := f.GetByteArray()
 	assert.Equal(t, byte(1), values[1+1]) // red is channel 1 (dimmer is channel 0)
@@ -28,7 +28,7 @@ func Test_FixtureGeneric_SetChannelValue(t *testing.T) {
 func Test_Fixtures_Separate(t *testing.T) {
 	fs1 := *NewFixturesGeneric[Fixture]()
 	fs1.AddFixture(NewFreedomPar(), 1)
-	assert.Equal(t, byte(0), fs1.GetValueMap()["r"])
+	assert.Equal(t, byte(0), fs1.GetChannelValues()["r"])
 
 	fs2 := fs1.Clone()
 
@@ -37,8 +37,8 @@ func Test_Fixtures_Separate(t *testing.T) {
 
 	f1.SetChannelValue("r", 1)
 
-	assert.Equal(t, byte(1), f1.GetValueMap()["r"])
-	assert.Equal(t, byte(0), f2.GetValueMap()["r"]) // f2 should not be affected by f1
+	assert.Equal(t, byte(1), f1.GetChannelValues()["r"])
+	assert.Equal(t, byte(0), f2.GetChannelValues()["r"]) // f2 should not be affected by f1
 }
 
 type Stringer interface {

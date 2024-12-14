@@ -18,7 +18,7 @@ var RepeatEvery = patterns.RepeatEvery
 var clock = controls.NewClock(120)
 
 func Rainbow() controls.Triggers {
-	seq := controls.NewSequence([]controls.ValueMap{
+	seq := controls.NewSequence([]controls.ChannelValues{
 		controls.AllColors["red"].Values(), // TODO: if `red` doesn't exist, this should fail fast rather than return a the 0 (ie. black) color
 		controls.AllColors["yellow"].Values(),
 		controls.AllColors["green"].Values(),
@@ -74,8 +74,8 @@ func beatDown() controls.Triggers {
 			tomShine, _ := tomShines.IncValues()
 
 			duration := clock.BeatPeriod()
-			Transition(home.FreedomPars, controls.ValueMap{"dimmer": 255}, controls.ValueMap{"dimmer": 0}, duration, ease.OutCubic, 10*time.Millisecond)()
-			Transition(tomShine, controls.ValueMap{"dimmer": 255}, controls.ValueMap{"dimmer": 0}, duration, ease.OutCubic, 10*time.Millisecond)()
+			Transition(home.FreedomPars, controls.ChannelValues{"dimmer": 255}, controls.ChannelValues{"dimmer": 0}, duration, ease.OutCubic, 10*time.Millisecond)()
+			Transition(tomShine, controls.ChannelValues{"dimmer": 255}, controls.ChannelValues{"dimmer": 0}, duration, ease.OutCubic, 10*time.Millisecond)()
 
 			freedomPar.SetChannelValue("dimmer", 255)
 			tomShine.SetChannelValue("dimmer", 255)

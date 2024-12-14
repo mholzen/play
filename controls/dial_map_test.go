@@ -9,7 +9,7 @@ import (
 func Test_DialMap(t *testing.T) {
 	dialMap := NewNumericDialMap("ch1", "ch2")
 
-	dialMap.SetValue(ValueMap{"ch1": 42, "ch2": 24})
+	dialMap.SetValue(ChannelValues{"ch1": 42, "ch2": 24})
 
-	require.Equal(t, ValueMap{"ch1": 42, "ch2": 24}, dialMap.GetValue())
+	require.Equal(t, ChannelValues{"ch1": 42, "ch2": 24}, dialMap.GetValue())
 }

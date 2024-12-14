@@ -26,12 +26,12 @@ func Test_Mux_ValueMap(t *testing.T) {
 	inA := NewObservableNumericDialMap("ch1")
 	inB := NewObservableNumericDialMap("ch1")
 
-	mux := NewMux[ValueMap]()
+	mux := NewMux[ChannelValues]()
 	mux.Add("inA", inA)
 	mux.Add("inB", inB)
 
 	mux.SetSource("inA")
-	muxChannel := make(chan ValueMap)
+	muxChannel := make(chan ChannelValues)
 	mux.AddObserver(muxChannel)
 
 	done := make(chan bool)
@@ -46,10 +46,10 @@ func Test_Mux_ValueMap(t *testing.T) {
 
 	}()
 
-	inA.SetValue(ValueMap{"ch1": 42})
+	inA.SetValue(ChannelValues{"ch1": 42})
 	done <- true
 
 	mux.SetSource("inB") // Changing source does not trigger notification
-	inB.SetValue(ValueMap{"ch1": 43})
+	inB.SetValue(ChannelValues{"ch1": 43})
 	done <- true
 }

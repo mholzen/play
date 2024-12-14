@@ -1,15 +1,13 @@
 package fixture
 
 import (
-	"log"
-
 	"github.com/mholzen/play-go/controls"
 )
 
 type FixtureI interface {
 	SetChannelValue(channel string, value byte)
-	GetValueMap() controls.ValueMap // TODO: how would FixturesInterface implement this?
-	SetValueMap(values controls.ValueMap)
+	GetChannelValues() controls.ChannelValues
+	SetChannelValues(values controls.ChannelValues)
 	SetAll(value byte)
 	GetValues() []byte
 	GetChannels() []string
@@ -23,7 +21,7 @@ type Fixture struct {
 func (f Fixture) setChannelValue(channel string, value byte) {
 	i, err := f.Model.GetAddress(channel)
 	if err != nil {
-		log.Printf("cannot set value for '%s': %s", f.Model.Name, err)
+		// log.Printf("cannot set value for '%s': %s", f.Model.Name, err)
 		return
 	}
 	f.Values[i] = value
@@ -31,6 +29,20 @@ func (f Fixture) setChannelValue(channel string, value byte) {
 
 func (f Fixture) SetChannelValue(channel string, value byte) {
 	f.setChannelValue(channel, value)
+}
+
+func (f Fixture) SetChannelValues(values controls.ChannelValues) {
+	for channel, value := range values {
+		f.SetChannelValue(channel, value)
+	}
+}
+
+func (f Fixture) GetChannelValues() controls.ChannelValues {
+	res := make(controls.ChannelValues)
+	for channel, index := range f.Model.IndexByChannel {
+		res[channel] = f.Values[index]
+	}
+	return res
 }
 
 func (f Fixture) SetAll(value byte) {
@@ -47,20 +59,6 @@ func (f Fixture) GetValues() []byte {
 	return f.Values
 }
 
-func (f Fixture) GetValueMap() controls.ValueMap {
-	res := make(controls.ValueMap)
-	for channel, index := range f.Model.IndexByChannel {
-		res[channel] = f.Values[index]
-	}
-	return res
-}
-
-func (f Fixture) SetValueMap(values controls.ValueMap) {
-	for channel, value := range values {
-		f.SetChannelValue(channel, value)
-	}
-}
-
 func (f Fixture) Clone() Fixture {
 	return Fixture{
 		Model:  f.Model,
@@ -68,7 +66,7 @@ func (f Fixture) Clone() Fixture {
 	}
 }
 
-func ApplyTo(values controls.ValueMap, f FixtureI) {
+func ApplyTo(values controls.ChannelValues, f FixtureI) {
 	for k, v := range values {
 		f.SetChannelValue(k, v)
 	}

@@ -23,7 +23,7 @@ func main() {
 	universe.SetChannelValue("mode", 210) // for colorstrip mini
 
 	soft_white := controls.AllColors["soft_white"]
-	universe.SetValueMap(soft_white.Values())
+	universe.SetChannelValues(soft_white.Values())
 
 	clock := controls.NewClock(120)
 	clock.On(controls.TriggerOnBars(), func() { log.Printf("clock: %s", clock.String()) })

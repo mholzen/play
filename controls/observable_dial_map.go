@@ -8,11 +8,11 @@ import (
 // TODO: Make this a generic type with numerical dial as a parameter
 
 type ObservableDialMap struct {
-	Observable[ValueMap]
+	Observable[ChannelValues]
 	Dials *NumericDialMap
 }
 
-func (m *ObservableDialMap) SetValue(values ValueMap) {
+func (m *ObservableDialMap) SetValue(values ChannelValues) {
 	for name, value := range values {
 		if dial, ok := (*m.Dials)[name]; ok {
 			dial.SetValue(value)
@@ -40,8 +40,8 @@ func (m *ObservableDialMap) SetChannelValue(name string, value byte) {
 // 	return string(r)
 // }
 
-func (m *ObservableDialMap) GetValue() ValueMap {
-	res := ValueMap{}
+func (m *ObservableDialMap) GetValue() ChannelValues {
+	res := ChannelValues{}
 	for name, dial := range *m.Dials {
 		res[name] = dial.Value
 	}
@@ -50,7 +50,7 @@ func (m *ObservableDialMap) GetValue() ValueMap {
 
 func NewObservableNumericDialMap(channels ...string) *ObservableDialMap {
 	return &ObservableDialMap{
-		Observable: *NewObservable[ValueMap](),
+		Observable: *NewObservable[ChannelValues](),
 		Dials:      NewNumericDialMap2(channels...),
 	}
 }
