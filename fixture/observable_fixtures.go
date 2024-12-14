@@ -7,14 +7,14 @@ import (
 )
 
 type ObservableFixtures struct {
-	FixturesGeneric[FixtureI]
+	AddressableFixtures[Fixture]
 	controls.Observable[FixtureValues]
 }
 
-func NewObservableFixtures(fixtures FixturesInterface[FixtureI]) *ObservableFixtures {
+func NewObservableFixtures(fixtures Fixtures[Fixture]) *ObservableFixtures {
 	res := &ObservableFixtures{
-		FixturesGeneric: *NewFixturesGeneric[FixtureI](),
-		Observable:      *controls.NewObservable[FixtureValues](),
+		AddressableFixtures: *NewFixturesGeneric[Fixture](),
+		Observable:          *controls.NewObservable[FixtureValues](),
 	}
 	for address, fixture := range fixtures.GetFixtures() {
 		res.AddFixture(fixture, address)
@@ -22,17 +22,16 @@ func NewObservableFixtures(fixtures FixturesInterface[FixtureI]) *ObservableFixt
 	return res
 }
 
-func NewIndividualObservableFixtures(fixtures FixturesInterface[FixtureI]) *ObservableFixtures {
+func NewIndividualObservableFixtures(fixtures Fixtures[Fixture]) *ObservableFixtures {
 	res := &ObservableFixtures{
-		FixturesGeneric: *NewFixturesGeneric[FixtureI](),
-		Observable:      *controls.NewObservable[FixtureValues](),
+		AddressableFixtures: *NewFixturesGeneric[Fixture](),
+		Observable:          *controls.NewObservable[FixtureValues](),
 	}
 
 	ch := make(chan controls.ChannelValues)
 	for address, fixture := range fixtures.GetFixtures() {
 		observableFixture := NewObservableFixture(fixture)
-		var fixtureI FixtureI = observableFixture
-		res.AddFixture(fixtureI, address)
+		res.AddFixture(observableFixture, address)
 		observableFixture.AddObserver(ch)
 	}
 	go func() {
@@ -44,10 +43,10 @@ func NewIndividualObservableFixtures(fixtures FixturesInterface[FixtureI]) *Obse
 }
 
 func (f *ObservableFixtures) SetChannelValues(values controls.ChannelValues) {
-	for _, fixture := range f.FixturesGeneric {
+	for _, fixture := range f.AddressableFixtures {
 		fixture.SetChannelValues(values)
 	}
-	f.Notify(f.FixturesGeneric.GetValue())
+	f.Notify(f.AddressableFixtures.GetValue())
 }
 
 func NewObservableDialMapForAllChannels(channels []string, fixtures *ObservableFixtures) *controls.ObservableDialMap {

@@ -4,9 +4,9 @@ type FreedomPar struct {
 	ModelChannels
 }
 
-type FixtureConstructor func() FixtureI
+type FixtureConstructor func() Fixture
 
-func NewFreedomPar() Fixture {
+func NewFreedomPar() ChannelFixture {
 	model := NewModelChannels(
 		"Freedom Par",
 		[]string{
@@ -15,13 +15,13 @@ func NewFreedomPar() Fixture {
 			"strobe",
 		},
 	)
-	return Fixture{
+	return ChannelFixture{
 		Model:  &model,
 		Values: make([]byte, len(model.Channels)),
 	}
 }
 
-func NewTomeshine() Fixture {
+func NewTomeshine() ChannelFixture {
 	model := NewModelChannels(
 		"Tomshine",
 		[]string{
@@ -29,13 +29,13 @@ func NewTomeshine() Fixture {
 			"r", "g", "b", "w", "a", "uv",
 		},
 	)
-	return Fixture{
+	return ChannelFixture{
 		Model:  &model,
 		Values: make([]byte, len(model.Channels)),
 	}
 }
 
-func NewColorstripMini() Fixture {
+func NewColorstripMini() ChannelFixture {
 	model := NewModelChannels(
 		"Colorstrip Mini",
 		[]string{
@@ -43,7 +43,7 @@ func NewColorstripMini() Fixture {
 			"r", "g", "b",
 		},
 	)
-	return Fixture{
+	return ChannelFixture{
 		Model:  &model,
 		Values: make([]byte, len(model.Channels)),
 	}
@@ -95,7 +95,7 @@ func NewColorstripMini() Fixture {
 // Value 000-255: Blue (when Ch. 1 is 210-119) 0-100%
 //
 
-func NewParCan() Fixture {
+func NewParCan() ChannelFixture {
 	model := NewModelChannels(
 		"Battery Par Can",
 		[]string{
@@ -106,7 +106,7 @@ func NewParCan() Fixture {
 			"colorSelection",
 		},
 	)
-	return Fixture{
+	return ChannelFixture{
 		Model:  &model,
 		Values: make([]byte, len(model.Channels)),
 	}

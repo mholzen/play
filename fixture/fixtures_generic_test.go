@@ -8,7 +8,7 @@ import (
 )
 
 func Test_FixtureGeneric_SetChannelValue(t *testing.T) {
-	f := NewFixturesGeneric[Fixture]()
+	f := NewFixturesGeneric[ChannelFixture]()
 	f.AddFixture(NewFreedomPar(), 1)
 	f.AddFixture(NewFreedomPar(), 100)
 
@@ -26,7 +26,7 @@ func Test_FixtureGeneric_SetChannelValue(t *testing.T) {
 }
 
 func Test_Fixtures_Separate(t *testing.T) {
-	fs1 := *NewFixturesGeneric[Fixture]()
+	fs1 := *NewFixturesGeneric[ChannelFixture]()
 	fs1.AddFixture(NewFreedomPar(), 1)
 	assert.Equal(t, byte(0), fs1.GetChannelValues()["r"])
 

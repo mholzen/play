@@ -9,7 +9,7 @@ import (
 func Test_Fixtures_SetChannelValue(t *testing.T) {
 	f := NewFreedomPar()
 
-	var fixture FixtureI = &f
+	var fixture Fixture = &f
 
 	fixture.SetChannelValue("r", 1)
 

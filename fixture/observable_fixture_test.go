@@ -8,11 +8,11 @@ import (
 
 func Test_ObservableFixture(t *testing.T) {
 	model := NewModelChannels("Foo", []string{"r", "g", "b"})
-	var fixture FixtureI = model
+	var fixture Fixture = model
 
 	observableFixture := NewObservableFixture(fixture)
 
 	observableFixture.SetChannelValues(controls.ChannelValues{"r": 1})
 
-	var _ FixtureI = observableFixture
+	var _ Fixture = observableFixture
 }

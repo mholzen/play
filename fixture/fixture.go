@@ -4,21 +4,21 @@ import (
 	"github.com/mholzen/play-go/controls"
 )
 
-type FixtureI interface {
+type Fixture interface {
+	GetValues() []byte
+	GetChannels() []string
 	SetChannelValue(channel string, value byte)
 	GetChannelValues() controls.ChannelValues
 	SetChannelValues(values controls.ChannelValues)
 	SetAll(value byte)
-	GetValues() []byte
-	GetChannels() []string
 }
 
-type Fixture struct {
+type ChannelFixture struct {
 	Model  *ModelChannels
 	Values []byte
 }
 
-func (f Fixture) setChannelValue(channel string, value byte) {
+func (f ChannelFixture) setChannelValue(channel string, value byte) {
 	i, err := f.Model.GetAddress(channel)
 	if err != nil {
 		// log.Printf("cannot set value for '%s': %s", f.Model.Name, err)
@@ -27,17 +27,17 @@ func (f Fixture) setChannelValue(channel string, value byte) {
 	f.Values[i] = value
 }
 
-func (f Fixture) SetChannelValue(channel string, value byte) {
+func (f ChannelFixture) SetChannelValue(channel string, value byte) {
 	f.setChannelValue(channel, value)
 }
 
-func (f Fixture) SetChannelValues(values controls.ChannelValues) {
+func (f ChannelFixture) SetChannelValues(values controls.ChannelValues) {
 	for channel, value := range values {
 		f.SetChannelValue(channel, value)
 	}
 }
 
-func (f Fixture) GetChannelValues() controls.ChannelValues {
+func (f ChannelFixture) GetChannelValues() controls.ChannelValues {
 	res := make(controls.ChannelValues)
 	for channel, index := range f.Model.IndexByChannel {
 		res[channel] = f.Values[index]
@@ -45,28 +45,28 @@ func (f Fixture) GetChannelValues() controls.ChannelValues {
 	return res
 }
 
-func (f Fixture) SetAll(value byte) {
+func (f ChannelFixture) SetAll(value byte) {
 	for _, channel := range f.Model.Channels {
 		f.SetChannelValue(channel, value)
 	}
 }
 
-func (f Fixture) GetChannels() []string {
+func (f ChannelFixture) GetChannels() []string {
 	return f.Model.Channels
 }
 
-func (f Fixture) GetValues() []byte {
+func (f ChannelFixture) GetValues() []byte {
 	return f.Values
 }
 
-func (f Fixture) Clone() Fixture {
-	return Fixture{
+func (f ChannelFixture) Clone() ChannelFixture {
+	return ChannelFixture{
 		Model:  f.Model,
 		Values: append([]byte{}, f.Values...),
 	}
 }
 
-func ApplyTo(values controls.ChannelValues, f FixtureI) {
+func ApplyTo(values controls.ChannelValues, f Fixture) {
 	for k, v := range values {
 		f.SetChannelValue(k, v)
 	}

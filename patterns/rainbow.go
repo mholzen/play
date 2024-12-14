@@ -8,7 +8,7 @@ import (
 	"github.com/mholzen/play-go/fixture"
 )
 
-func Rainbow(fixtures *fixture.FixturesGeneric[fixture.FixtureI], clock *controls.Clock) controls.Triggers {
+func Rainbow(fixtures *fixture.AddressableFixtures[fixture.Fixture], clock *controls.Clock) controls.Triggers {
 	seq := controls.NewSequence([]controls.ChannelValues{
 		controls.AllColors["red"].Values(), // TODO: if `red` doesn't exist, this should fail fast rather than return a the 0 (ie. black) color
 		controls.AllColors["yellow"].Values(),

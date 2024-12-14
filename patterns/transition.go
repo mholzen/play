@@ -8,7 +8,7 @@ import (
 	"github.com/mholzen/play-go/fixture"
 )
 
-func Transition(f fixture.FixtureI, start, end controls.ChannelValues, duration time.Duration, ease ease.Function, period time.Duration) func() {
+func Transition(f fixture.Fixture, start, end controls.ChannelValues, duration time.Duration, ease ease.Function, period time.Duration) func() {
 	return func() {
 		ticker := time.NewTicker(period)
 		x := 0.0

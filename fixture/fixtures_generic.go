@@ -6,31 +6,31 @@ import (
 	"github.com/mholzen/play-go/controls"
 )
 
-type FixturesInterface[T FixtureI] interface {
+type Fixtures[T Fixture] interface {
 	GetFixtures() map[int]T
 	GetChannels() []string
 	GetAddresses() []int
 	SetValue(fixtureValues FixtureValues)
 	GetValue() FixtureValues
 	GetByteArray() []byte
-	Clone() FixturesInterface[T]
+	Clone() Fixtures[T]
 }
 
-type FixturesGeneric[T FixtureI] map[int]T
+type AddressableFixtures[T Fixture] map[int]T
 
-type Fixtures = FixturesGeneric[Fixture]
+type AddressableChannelFixtures = AddressableFixtures[ChannelFixture]
 
-func NewFixturesGeneric[T FixtureI]() *FixturesGeneric[T] {
-	f := make(FixturesGeneric[T])
+func NewFixturesGeneric[T Fixture]() *AddressableFixtures[T] {
+	f := make(AddressableFixtures[T])
 	return &f
 }
 
-func (f FixturesGeneric[T]) Clone() FixturesInterface[FixtureI] {
-	res := make(FixturesGeneric[FixtureI])
+func (f AddressableFixtures[T]) Clone() Fixtures[Fixture] {
+	res := make(AddressableFixtures[Fixture])
 	for addr, fixture := range f {
-		var fixtureI FixtureI = fixture
-		if fix, ok := fixtureI.(Fixture); ok {
-			res[addr] = fix.Clone()
+		var fixtureI Fixture = fixture
+		if channelFixture, ok := fixtureI.(ChannelFixture); ok {
+			res[addr] = channelFixture.Clone()
 		} else {
 			res[addr] = fixture
 		}
@@ -38,12 +38,12 @@ func (f FixturesGeneric[T]) Clone() FixturesInterface[FixtureI] {
 	return res
 }
 
-func (f *FixturesGeneric[T]) AddFixture(fixture T, address int) {
+func (f *AddressableFixtures[T]) AddFixture(fixture T, address int) {
 	(*f)[address] = fixture
 }
 
-func (f *FixturesGeneric[T]) AddFixtures(constructor func() T, addresses ...int) FixturesGeneric[T] {
-	res := make(FixturesGeneric[T])
+func (f *AddressableFixtures[T]) AddFixtures(constructor func() T, addresses ...int) AddressableFixtures[T] {
+	res := make(AddressableFixtures[T])
 	for _, address := range addresses {
 		fixture := constructor()
 		f.AddFixture(fixture, address)
@@ -52,8 +52,8 @@ func (f *FixturesGeneric[T]) AddFixtures(constructor func() T, addresses ...int)
 	return res
 }
 
-func (f *FixturesGeneric[T]) Modulo(div, mod int) FixturesGeneric[T] {
-	res := make(FixturesGeneric[T])
+func (f *AddressableFixtures[T]) Modulo(div, mod int) AddressableFixtures[T] {
+	res := make(AddressableFixtures[T])
 	i := 0
 	for addr, fixture := range *f {
 		if i%div == mod {
@@ -64,27 +64,27 @@ func (f *FixturesGeneric[T]) Modulo(div, mod int) FixturesGeneric[T] {
 	return res
 }
 
-func (f *FixturesGeneric[T]) Odd() FixturesGeneric[T] {
+func (f *AddressableFixtures[T]) Odd() AddressableFixtures[T] {
 	return f.Modulo(2, 1)
 }
 
-func (f *FixturesGeneric[T]) Even() FixturesGeneric[T] {
+func (f *AddressableFixtures[T]) Even() AddressableFixtures[T] {
 	return f.Modulo(2, 0)
 }
 
-func (f FixturesGeneric[T]) SetChannelValue(name string, value byte) {
+func (f AddressableFixtures[T]) SetChannelValue(name string, value byte) {
 	for address := range f {
 		f[address].SetChannelValue(name, value)
 	}
 }
 
-func (f FixturesGeneric[T]) SetAll(value byte) {
+func (f AddressableFixtures[T]) SetAll(value byte) {
 	for address := range f {
 		f[address].SetAll(value)
 	}
 }
 
-func (f FixturesGeneric[T]) SetChannelValues(values controls.ChannelValues) {
+func (f AddressableFixtures[T]) SetChannelValues(values controls.ChannelValues) {
 	for address := range f {
 		for k, v := range values {
 			f[address].SetChannelValue(k, v)
@@ -92,11 +92,11 @@ func (f FixturesGeneric[T]) SetChannelValues(values controls.ChannelValues) {
 	}
 }
 
-func (f FixturesGeneric[T]) SetFixtureValueMap(address int, values controls.ChannelValues) {
+func (f AddressableFixtures[T]) SetFixtureValueMap(address int, values controls.ChannelValues) {
 	f[address].SetChannelValues(values)
 }
 
-func (f FixturesGeneric[T]) GetValues() []byte {
+func (f AddressableFixtures[T]) GetValues() []byte {
 	res := make([]byte, 0)
 	for address, fixture := range f {
 		values := fixture.GetValues()
@@ -112,7 +112,7 @@ func (f FixturesGeneric[T]) GetValues() []byte {
 	return res
 }
 
-func (f FixturesGeneric[T]) GetValue() FixtureValues {
+func (f AddressableFixtures[T]) GetValue() FixtureValues {
 	res := make(FixtureValues)
 	for addr, fixture := range f {
 		res[addr] = fixture.GetChannelValues()
@@ -120,13 +120,13 @@ func (f FixturesGeneric[T]) GetValue() FixtureValues {
 	return res
 }
 
-func (f FixturesGeneric[T]) SetValue(fixtureValues FixtureValues) {
+func (f AddressableFixtures[T]) SetValue(fixtureValues FixtureValues) {
 	for address := range f {
 		f[address].SetChannelValues(fixtureValues[address])
 	}
 }
 
-func (f FixturesGeneric[T]) GetChannels() []string {
+func (f AddressableFixtures[T]) GetChannels() []string {
 	channels := make(map[string]struct{})
 	for _, fixture := range f {
 		for _, channel := range fixture.GetChannels() {
@@ -140,7 +140,7 @@ func (f FixturesGeneric[T]) GetChannels() []string {
 	return keys
 }
 
-func (f FixturesGeneric[T]) GetAddresses() []int {
+func (f AddressableFixtures[T]) GetAddresses() []int {
 	addresses := make([]int, 0)
 	for addr := range f {
 		addresses = append(addresses, addr)
@@ -148,15 +148,15 @@ func (f FixturesGeneric[T]) GetAddresses() []int {
 	return addresses
 }
 
-func (f FixturesGeneric[T]) GetFixtures() map[int]FixtureI {
-	res := make(map[int]FixtureI)
+func (f AddressableFixtures[T]) GetFixtures() map[int]Fixture {
+	res := make(map[int]Fixture)
 	for addr, fixture := range f {
 		res[addr] = fixture
 	}
 	return res
 }
 
-func (f FixturesGeneric[T]) GetFixtureList() []T {
+func (f AddressableFixtures[T]) GetFixtureList() []T {
 	// Get addresses and sort them
 	addresses := f.GetAddresses()
 	sort.Ints(addresses)
@@ -169,11 +169,11 @@ func (f FixturesGeneric[T]) GetFixtureList() []T {
 	return res
 }
 
-func (f FixturesGeneric[T]) GetByteArray() []byte {
+func (f AddressableFixtures[T]) GetByteArray() []byte {
 	return f.GetValues()
 }
 
-func (f FixturesGeneric[T]) GetChannelValues() controls.ChannelValues {
+func (f AddressableFixtures[T]) GetChannelValues() controls.ChannelValues {
 	res := make(controls.ChannelValues)
 	for _, fixture := range f.GetFixtureList() {
 		for channel, value := range fixture.GetChannelValues() {

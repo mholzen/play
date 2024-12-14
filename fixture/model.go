@@ -52,7 +52,7 @@ func (m ModelChannels) SetAll(value byte) {
 func (m ModelChannels) SetChannelValue(name string, value byte) {
 }
 
-func (m ModelChannels) Clone() FixtureI {
+func (m ModelChannels) Clone() Fixture {
 	clone := NewModelChannels(m.Name, m.GetChannels())
 	clone.SetChannelValues(m.GetChannelValues())
 	return clone

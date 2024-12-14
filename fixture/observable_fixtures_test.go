@@ -3,8 +3,8 @@ package fixture
 import "testing"
 
 func Test_ObservableFixtures2(t *testing.T) {
-	fixtures := NewFixturesGeneric[FixtureI]()
+	fixtures := NewFixturesGeneric[Fixture]()
 	observableFixtures := NewObservableFixtures(fixtures)
 
-	var _ FixturesGeneric[FixtureI] = observableFixtures.FixturesGeneric
+	var _ AddressableFixtures[Fixture] = observableFixtures.AddressableFixtures
 }
