@@ -20,12 +20,8 @@ func StartServer(surface controls.Container) {
 	if err != nil {
 		log.Fatalf("Error channel map: %v", err)
 	}
-	dialMap := item0.(*controls.ObservableDialMap)
-
-	dialList := controls.DialList{
-		DialMap:     dialMap,
-		ChannelList: controls.ChannelList{"r", "g", "b", "a", "w", "uv", "dimmer", "strobe", "speed", "tilt", "pan", "mode"},
-	}
+	dialList := item0.(controls.DialList)
+	dialMap := dialList.DialMap
 
 	// Create a group with prefix "/controls"
 	controls := e.Group("/api/controls")
@@ -49,6 +45,7 @@ func StartServer(surface controls.Container) {
 	v2root.GET("", ContainerGetHandler(surface))
 	v2root.GET("/", ContainerGetHandler(surface))
 	v2root.GET("/:name", ContainerGetHandler(surface))
+	v2root.GET("/:name/", ContainerGetHandler(surface))
 	v2root.POST("/:name/:value", ContainerPostHandler(surface))
 	v2root.POST("/:name/:channel/:value", ContainerPostHandler(surface))
 

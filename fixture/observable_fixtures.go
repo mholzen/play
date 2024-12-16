@@ -8,13 +8,13 @@ import (
 
 type ObservableFixtures struct {
 	AddressableFixtures[Fixture]
-	controls.Observable[FixtureValues]
+	controls.Observers[FixtureValues]
 }
 
 func NewObservableFixtures(fixtures Fixtures[Fixture]) *ObservableFixtures {
 	res := &ObservableFixtures{
-		AddressableFixtures: *NewFixturesGeneric[Fixture](),
-		Observable:          *controls.NewObservable[FixtureValues](),
+		AddressableFixtures: *NewAddressableFixtures[Fixture](),
+		Observers:           *controls.NewObservable[FixtureValues](),
 	}
 	for address, fixture := range fixtures.GetFixtures() {
 		res.AddFixture(fixture, address)
@@ -24,8 +24,8 @@ func NewObservableFixtures(fixtures Fixtures[Fixture]) *ObservableFixtures {
 
 func NewIndividualObservableFixtures(fixtures Fixtures[Fixture]) *ObservableFixtures {
 	res := &ObservableFixtures{
-		AddressableFixtures: *NewFixturesGeneric[Fixture](),
-		Observable:          *controls.NewObservable[FixtureValues](),
+		AddressableFixtures: *NewAddressableFixtures[Fixture](),
+		Observers:           *controls.NewObservable[FixtureValues](),
 	}
 
 	ch := make(chan controls.ChannelValues)
@@ -49,7 +49,8 @@ func (f *ObservableFixtures) SetChannelValues(values controls.ChannelValues) {
 	f.Notify(f.AddressableFixtures.GetValue())
 }
 
-func NewObservableDialMapForAllChannels(channels []string, fixtures *ObservableFixtures) *controls.ObservableDialMap {
+func NewObservableDialMapForAllChannels(fixtures *ObservableFixtures) *controls.ObservableDialMap {
+	channels := fixtures.GetChannels()
 	dialMap := controls.NewObservableNumericDialMap(channels...)
 	received := make(chan controls.ChannelValues)
 	dialMap.AddObserver(received)

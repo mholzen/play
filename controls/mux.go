@@ -8,19 +8,19 @@ import (
 )
 
 type Mux[T any] struct {
-	Sources map[string]ObservableI[T]
+	Sources map[string]Observable[T]
 	Source  string
-	Observable[T]
+	Observers[T]
 }
 
 func NewMux[T any]() *Mux[T] {
 	res := &Mux[T]{}
-	res.Sources = make(map[string]ObservableI[T], 0)
-	res.Observable = *NewObservable[T]()
+	res.Sources = make(map[string]Observable[T], 0)
+	res.Observers = *NewObservable[T]()
 	return res
 }
 
-func (m *Mux[T]) Add(name string, source ObservableI[T]) {
+func (m *Mux[T]) Add(name string, source Observable[T]) {
 	m.Sources[name] = source
 	if len(m.Sources) == 1 {
 		m.Source = name

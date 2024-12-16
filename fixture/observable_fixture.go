@@ -3,14 +3,14 @@ package fixture
 import "github.com/mholzen/play-go/controls"
 
 type ObservableFixture struct {
-	controls.Observable[controls.ChannelValues]
+	controls.Observers[controls.ChannelValues]
 	Fixture Fixture
 }
 
 func NewObservableFixture(initial Fixture) *ObservableFixture {
 	return &ObservableFixture{
-		Fixture:    initial,
-		Observable: *controls.NewObservable[controls.ChannelValues](),
+		Fixture:   initial,
+		Observers: *controls.NewObservable[controls.ChannelValues](),
 	}
 }
 

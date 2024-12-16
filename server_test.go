@@ -58,11 +58,13 @@ func Test_ContainerGetContainerSlash(t *testing.T) {
 
 	list := getRootList()
 	require.NoError(t, ContainerGetHandler(list)(c))
-	resp := rec.Result()
 
 	assert.Equal(t, http.StatusOK, rec.Code)
+
+	resp := rec.Result()
 	assert.Equal(t, "application/json", resp.Header.Get("Content-Type"))
-	assert.Equal(t, `["0"]`+"\n", rec.Body.String())
+	body := rec.Body.String()
+	assert.Equal(t, `["0"]`+"\n", body)
 }
 
 func Test_ContainerGetContainerControl(t *testing.T) {

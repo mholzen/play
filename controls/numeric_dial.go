@@ -6,14 +6,12 @@ import (
 
 func NewNumericDial() *NumericDial {
 	return &NumericDial{
-		Value:   0,
-		channel: make(chan byte),
+		Value: 0,
 	}
 }
 
 type NumericDial struct {
-	Value   byte
-	channel chan byte `json:"-"`
+	Value byte
 }
 
 func (d *NumericDial) SetValue(value byte) {

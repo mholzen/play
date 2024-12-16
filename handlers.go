@@ -50,18 +50,28 @@ func ControlsPostHandler(dialMap *controls.ObservableDialMap) echo.HandlerFunc {
 func ContainerGetHandler(container controls.Container) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		name := c.Param("name")
+		path := c.Path()
+		endsWithSlash := path[len(path)-1] == '/'
+
+		log.Printf("ContainerGetHandler: name: %s, path: %s, endsWithSlash: %t", name, path, endsWithSlash)
 		if name == "" {
-			path := c.Path()
-			if path[len(path)-1] == '/' {
+			if endsWithSlash {
 				return c.JSON(http.StatusOK, slices.Sorted(maps.Keys(container.Items())))
 			} else {
 				return c.JSON(http.StatusOK, container.Items())
 			}
 		}
-		// request path ends with /
+
 		item, err := container.GetItem(name)
 		if err != nil {
 			return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Error finding control named '%s'", name))
+		}
+
+		if endsWithSlash {
+			// Try to convert item to a map/array-like structure
+			if container, ok := item.(controls.Container); ok {
+				return c.JSON(http.StatusOK, slices.Sorted(maps.Keys(container.Items())))
+			}
 		}
 
 		return c.JSON(http.StatusOK, item)
@@ -95,7 +105,7 @@ func ContainerPostHandler(container controls.Container) echo.HandlerFunc {
 			log.Printf("Control updated: %s", value)
 
 		default:
-			return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Item is not a control (item: '%s')", name))
+			return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Item '%s' is not a control ('%v')", name, item))
 		}
 
 		return c.JSON(http.StatusOK, item)

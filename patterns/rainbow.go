@@ -8,7 +8,13 @@ import (
 	"github.com/mholzen/play-go/fixture"
 )
 
-func Rainbow(fixtures *fixture.AddressableFixtures[fixture.Fixture], clock *controls.Clock) controls.Triggers {
+type RainbowControls struct {
+	Clock *controls.Clock
+	Speed controls.FloatDial
+	Chase controls.FloatDial
+}
+
+func (c RainbowControls) Rainbow(fixtures *fixture.AddressableFixtures[fixture.Fixture]) controls.Triggers {
 	seq := controls.NewSequence([]controls.ChannelValues{
 		controls.AllColors["red"].Values(), // TODO: if `red` doesn't exist, this should fail fast rather than return a the 0 (ie. black) color
 		controls.AllColors["yellow"].Values(),
@@ -18,7 +24,7 @@ func Rainbow(fixtures *fixture.AddressableFixtures[fixture.Fixture], clock *cont
 		controls.AllColors["purple"].Values(),
 	})
 
-	duration := clock.PhrasePeriod()
+	duration := c.Clock.PhrasePeriod()
 	transition := func() {
 		start, end := seq.IncValues()
 		// log.Printf("transition %v to %v\n", start, end)
@@ -33,8 +39,53 @@ func Rainbow(fixtures *fixture.AddressableFixtures[fixture.Fixture], clock *cont
 		}
 	}
 
-	t := clock.On(controls.TriggerOnBar(1), transition)
+	t := c.Clock.On(controls.TriggerOnBar(1), transition)
 	return controls.Triggers{
 		*t,
+	}
+}
+
+func (c *RainbowControls) GetDialMap() map[string]controls.Control {
+	return map[string]controls.Control{
+		"speed": &c.Speed,
+		"chase": &c.Chase,
+	}
+}
+
+type ObservableFloatDial struct {
+	controls.Observers[controls.FloatDial]
+	controls.FloatDial
+}
+
+func NewRainbowControls(clock *controls.Clock) RainbowControls {
+
+	speed := ObservableFloatDial{
+		FloatDial: controls.FloatDial{
+			Value: 1,
+			Min:   -10,
+			Max:   10,
+		},
+		Observers: *controls.NewObservable[controls.FloatDial](),
+	}
+	speed.Observers.AddObserverFunc(func(value controls.FloatDial) {
+		speed.FloatDial = value
+	})
+
+	chase := ObservableFloatDial{
+		FloatDial: controls.FloatDial{
+			Value: 0,
+			Min:   0,
+			Max:   10,
+		},
+		Observers: *controls.NewObservable[controls.FloatDial](),
+	}
+	chase.Observers.AddObserverFunc(func(value controls.FloatDial) {
+		chase.FloatDial = value
+	})
+
+	return RainbowControls{
+		Clock: clock,
+		Speed: speed.FloatDial,
+		Chase: chase.FloatDial,
 	}
 }

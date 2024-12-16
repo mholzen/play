@@ -15,7 +15,7 @@ type Home struct {
 }
 
 func GetHome() Home {
-	universe := fixture.NewFixturesGeneric[fixture.ChannelFixture]()
+	universe := fixture.NewAddressableFixtures[fixture.ChannelFixture]()
 	return Home{
 		FreedomPars: universe.AddFixtures(fixture.NewFreedomPar, 65, 81, 97, 113),
 		TomeShine:   universe.AddFixtures(fixture.NewTomeshine, 1, 17, 33, 49),
@@ -26,16 +26,21 @@ func GetHome() Home {
 }
 
 func GetRootSurface(universe fixture.Fixtures[fixture.Fixture], clock *controls.Clock) controls.Container {
-	surface := controls.NewList(3)
+	surface := controls.NewList(4)
 
 	// dials
 	dialFixtures := fixture.NewObservableFixtures(universe.Clone())
-	channelDials := fixture.NewObservableDialMapForAllChannels(dialFixtures.GetChannels(), dialFixtures)
-	surface.SetItem(0, channelDials)
+	dialMap := fixture.NewObservableDialMapForAllChannels(dialFixtures)
+	surface.SetItem(0, dialMap)
+
+	dialList := controls.NewDialList(dialMap)
+	surface.SetItem(3, dialList)
 
 	// rainbow
 	rainbowFixtures := fixture.NewIndividualObservableFixtures(universe.Clone())
-	patterns.Rainbow(&rainbowFixtures.AddressableFixtures, clock)
+	rainbowControls := patterns.NewRainbowControls(clock)
+	rainbowControls.Rainbow(&rainbowFixtures.AddressableFixtures)
+	surface.SetItem(1, rainbowControls.GetDialMap())
 
 	// mux
 	mux := controls.NewMux[fixture.FixtureValues]()

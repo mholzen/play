@@ -1,12 +1,18 @@
 package controls
 
-import "encoding/json"
+import (
+	"encoding/json"
+)
 
 type ChannelList []string
 
 type DialList struct {
 	DialMap *ObservableDialMap
 	ChannelList
+}
+
+func (dl *DialList) SetChannelValue(channel string, value byte) {
+	(*dl.DialMap.Dials)[channel].Value = value
 }
 
 // marshalJSON is a custom JSON marshaller for DialList
@@ -27,4 +33,10 @@ func (dl DialList) MarshalJSON() ([]byte, error) {
 		res = append(res, item)
 	}
 	return json.Marshal(res)
+}
+
+var DefaultChannelList = []string{"r", "g", "b", "a", "w", "uv", "dimmer", "strobe", "speed", "tilt", "pan", "mode"}
+
+func NewDialList(dialMap *ObservableDialMap) *DialList {
+	return &DialList{DialMap: dialMap, ChannelList: DefaultChannelList}
 }

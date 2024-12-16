@@ -20,7 +20,7 @@ type AddressableFixtures[T Fixture] map[int]T
 
 type AddressableChannelFixtures = AddressableFixtures[ChannelFixture]
 
-func NewFixturesGeneric[T Fixture]() *AddressableFixtures[T] {
+func NewAddressableFixtures[T Fixture]() *AddressableFixtures[T] {
 	f := make(AddressableFixtures[T])
 	return &f
 }
