@@ -9,3 +9,11 @@ func NewNumericDialMap(channels ...string) *NumericDialMap {
 	}
 	return &res
 }
+
+func (m *NumericDialMap) GetChannels() []string {
+	res := []string{}
+	for channel := range *m {
+		res = append(res, channel)
+	}
+	return res
+}

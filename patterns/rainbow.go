@@ -1,6 +1,7 @@
 package patterns
 
 import (
+	"log"
 	"time"
 
 	"github.com/fogleman/ease"
@@ -10,8 +11,8 @@ import (
 
 type RainbowControls struct {
 	Clock *controls.Clock
-	Speed controls.FloatDial
-	Chase controls.FloatDial
+	Speed *controls.FloatDial
+	Chase *controls.FloatDial
 }
 
 func (c RainbowControls) Rainbow(fixtures *fixture.AddressableFixtures[fixture.Fixture]) controls.Triggers {
@@ -24,10 +25,10 @@ func (c RainbowControls) Rainbow(fixtures *fixture.AddressableFixtures[fixture.F
 		controls.AllColors["purple"].Values(),
 	})
 
-	duration := c.Clock.PhrasePeriod()
 	transition := func() {
+		duration := time.Duration(float64(c.Clock.PhrasePeriod().Nanoseconds()) / c.Speed.Value)
 		start, end := seq.IncValues()
-		// log.Printf("transition %v to %v\n", start, end)
+		log.Printf("transition %v to %v (duration: %v)\n", start, end, duration)
 		for i, f := range fixtures.GetFixtureList() {
 			action := Transition(f, start, end, duration, ease.InOutSine, fixture.REFRESH)
 
@@ -45,11 +46,11 @@ func (c RainbowControls) Rainbow(fixtures *fixture.AddressableFixtures[fixture.F
 	}
 }
 
-func (c *RainbowControls) GetDialMap() map[string]controls.Control {
-	return map[string]controls.Control{
-		"speed": &c.Speed,
-		"chase": &c.Chase,
-	}
+func (c *RainbowControls) GetContainer() controls.Container {
+	dialMap := controls.NewMap()
+	dialMap.AddItem("speed", c.Speed)
+	dialMap.AddItem("chase", c.Chase)
+	return dialMap
 }
 
 type ObservableFloatDial struct {
@@ -85,7 +86,7 @@ func NewRainbowControls(clock *controls.Clock) RainbowControls {
 
 	return RainbowControls{
 		Clock: clock,
-		Speed: speed.FloatDial,
-		Chase: chase.FloatDial,
+		Speed: &speed.FloatDial,
+		Chase: &chase.FloatDial,
 	}
 }

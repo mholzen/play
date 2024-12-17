@@ -53,7 +53,7 @@ func ContainerGetHandler(container controls.Container) echo.HandlerFunc {
 		path := c.Path()
 		endsWithSlash := path[len(path)-1] == '/'
 
-		log.Printf("ContainerGetHandler: name: %s, path: %s, endsWithSlash: %t", name, path, endsWithSlash)
+		// log.Printf("ContainerGetHandler: name: %s, path: %s, endsWithSlash: %t", name, path, endsWithSlash)
 		if name == "" {
 			if endsWithSlash {
 				return c.JSON(http.StatusOK, slices.Sorted(maps.Keys(container.Items())))
@@ -89,7 +89,6 @@ func ContainerPostHandler(container controls.Container) echo.HandlerFunc {
 		// convert this to a control -- make observable dialmap a subcase
 		switch control := item.(type) {
 		case *controls.ObservableDialMap:
-			// Continue with existing control
 			channel := c.Param("channel")
 			value := c.Param("value")
 			b, err := strconv.Atoi(value)
@@ -99,13 +98,37 @@ func ContainerPostHandler(container controls.Container) echo.HandlerFunc {
 			control.SetChannelValue(channel, byte(b))
 			log.Printf("Dial Map updated: %s:%s", name, value)
 
+		case controls.Container:
+			channel := c.Param("channel")
+			value := c.Param("value")
+			b, err := strconv.Atoi(value)
+			if err != nil {
+				return err
+			}
+			item, err := control.GetItem(channel)
+			if err != nil {
+				return err
+			}
+			switch item := item.(type) {
+			case *controls.FloatDial:
+				item.SetValue(float64(b))
+				log.Printf("Float Dial updated: %s:%s", name, value)
+			case *controls.NumericDial:
+				item.SetValue(byte(b))
+				log.Printf("Numeric Dial updated: %s:%s", name, value)
+			default:
+				return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Container %s item '%s' is not settable ('%v')", name, channel, item))
+			}
+
+			log.Printf("Dial Map updated: %s:%s", name, value)
+
 		case controls.Control:
 			value := c.Param("value")
 			control.SetValueString(value)
 			log.Printf("Control updated: %s", value)
 
 		default:
-			return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Item '%s' is not a control ('%v')", name, item))
+			return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Item '%s' is not a dialmap,container or control ('%v')", name, item))
 		}
 
 		return c.JSON(http.StatusOK, item)

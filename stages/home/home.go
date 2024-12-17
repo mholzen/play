@@ -26,21 +26,25 @@ func GetHome() Home {
 }
 
 func GetRootSurface(universe fixture.Fixtures[fixture.Fixture], clock *controls.Clock) controls.Container {
-	surface := controls.NewList(4)
+	surface := controls.NewList(5)
 
-	// dials
+	// dial map
 	dialFixtures := fixture.NewObservableFixtures(universe.Clone())
 	dialMap := fixture.NewObservableDialMapForAllChannels(dialFixtures)
 	surface.SetItem(0, dialMap)
 
+	// dial list
 	dialList := controls.NewDialList(dialMap)
-	surface.SetItem(3, dialList)
+	surface.SetItem(3, *dialList)
 
 	// rainbow
 	rainbowFixtures := fixture.NewIndividualObservableFixtures(universe.Clone())
 	rainbowControls := patterns.NewRainbowControls(clock)
 	rainbowControls.Rainbow(&rainbowFixtures.AddressableFixtures)
-	surface.SetItem(1, rainbowControls.GetDialMap())
+	surface.SetItem(1, rainbowControls.GetContainer())
+
+	// rainbow dial map
+	surface.SetItem(4, rainbowControls.GetContainer())
 
 	// mux
 	mux := controls.NewMux[fixture.FixtureValues]()

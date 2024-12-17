@@ -53,9 +53,9 @@ func Rainbow() controls.Triggers {
 }
 
 func moveTomshine() controls.Triggers {
-	current, _ := controls.NewMap("tilt:64-192", "pan:0-64")
+	current, _ := controls.NewChannelValues("tilt:64-192", "pan:0-64")
 	moveStep := func() {
-		end, _ := controls.NewMap("tilt:64-192", "pan:0-64")
+		end, _ := controls.NewChannelValues("tilt:64-192", "pan:0-64")
 		Transition(home.TomeShine, current, end, clock.BeatPeriod(), ease.OutExpo, clock.BeatPeriod())()
 		current = end
 	}
@@ -84,8 +84,8 @@ func beatDown() controls.Triggers {
 }
 
 func moveDownTomshine() controls.Triggers {
-	top, _ := controls.NewMap("tilt:128", "pan:255")
-	bottom, _ := controls.NewMap("tilt:0", "pan:255")
+	top, _ := controls.NewChannelValues("tilt:128", "pan:255")
+	bottom, _ := controls.NewChannelValues("tilt:0", "pan:255")
 	tomShines := controls.NewSequenceT(home.TomeShine.GetFixtureList())
 
 	home.TomeShine.SetChannelValue("speed", 0)

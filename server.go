@@ -16,7 +16,7 @@ func StartServer(surface controls.Container) {
 	e.Use(middleware.Recover())
 	e.Static("/", "public")
 
-	item0, err := surface.GetItem("0")
+	item0, err := surface.GetItem("3")
 	if err != nil {
 		log.Fatalf("Error channel map: %v", err)
 	}

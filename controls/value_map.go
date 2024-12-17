@@ -76,7 +76,7 @@ func parseParam(param string) (ParamValue, error) {
 	return ParamValue{Param: parts[0], Value: byte(num)}, nil
 }
 
-func NewMap(param ...string) (ChannelValues, error) {
+func NewChannelValues(param ...string) (ChannelValues, error) {
 	res := make(ChannelValues)
 	for _, p := range param {
 		v, err := parseParam(p)

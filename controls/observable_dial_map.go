@@ -40,6 +40,10 @@ func (m *ObservableDialMap) GetValue() ChannelValues {
 	return res
 }
 
+func (m *ObservableDialMap) GetChannels() []string {
+	return m.Dials.GetChannels()
+}
+
 func NewObservableNumericDialMap(channels ...string) *ObservableDialMap {
 	return &ObservableDialMap{
 		Observers: *NewObservable[ChannelValues](),

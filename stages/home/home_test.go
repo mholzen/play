@@ -19,9 +19,16 @@ func Test_RootSurfaceHome(t *testing.T) {
 	// dials
 	item, err := rootSurface.GetItem("0")
 	require.NoError(t, err)
-	dials, ok := item.(*controls.ObservableDialMap)
+	dialMap, ok := item.(*controls.ObservableDialMap)
 	require.True(t, ok)
-	assert.Contains(t, dials.GetValue(), "r")
+	assert.Contains(t, dialMap.GetValue(), "r")
+
+	// dial list
+	item, err = rootSurface.GetItem("3")
+	require.NoError(t, err)
+	dialList, ok := item.(*controls.DialList)
+	require.True(t, ok)
+	assert.Contains(t, dialList.DialMap.GetChannels(), "r")
 
 	// mux
 	item, err = rootSurface.GetItem("2")
@@ -36,11 +43,11 @@ func Test_RootSurfaceHome(t *testing.T) {
 	mux.AddObserver(muxChannel)
 
 	go func() {
-		dials.SetChannelValue("r", 42)
+		dialMap.SetChannelValue("r", 42)
 		<-advance // 1
 
 		mux.SetSource("rainbow")
-		dials.SetChannelValue("r", 43) // should not have an effect
+		dialMap.SetChannelValue("r", 43) // should not have an effect
 		// rainbow is not setting values through the mux channel
 		log.Printf("set r to 43")
 		<-advance // 2

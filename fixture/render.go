@@ -14,7 +14,7 @@ func Render(fixtures Fixtures[Fixture], connection dmx.DMX) error {
 	go func() {
 		for range ticker.C {
 			values := fixtures.GetByteArray()
-			log.Printf("values: %v", values)
+			// log.Printf("values: %v", values)
 			for address, value := range values {
 				if address == 0 {
 					continue

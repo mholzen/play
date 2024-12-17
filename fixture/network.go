@@ -1,8 +1,6 @@
 package fixture
 
 import (
-	"log"
-
 	"github.com/mholzen/play-go/controls"
 )
 
@@ -11,7 +9,7 @@ func LinkObservableToFixture(source controls.Observable[FixtureValues], target *
 	source.AddObserver(channel)
 	go func() {
 		for fixtureValues := range channel {
-			log.Printf("mux output: %v", fixtureValues)
+			// log.Printf("mux output: %v", fixtureValues)
 			(*target).SetValue(fixtureValues)
 		}
 	}()
