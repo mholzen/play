@@ -128,7 +128,7 @@ func ContainerPostHandler(container controls.Container) echo.HandlerFunc {
 			log.Printf("Control updated: %s", value)
 
 		default:
-			return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Item '%s' is not a dialmap,container or control ('%v')", name, item))
+			return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Item '%s' is not a dialmap, container or control ('%v')", name, item))
 		}
 
 		return c.JSON(http.StatusOK, item)

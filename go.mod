@@ -17,6 +17,12 @@ require (
 )
 
 require (
+	github.com/fatih/color v1.9.0 // indirect
+	github.com/githubnemo/CompileDaemon v1.4.0 // indirect
+	github.com/radovskyb/watcher v1.0.7 // indirect
+)
+
+require (
 	github.com/creack/goselect v0.1.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // direct

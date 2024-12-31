@@ -43,15 +43,3 @@ func main() {
 
 	time.Sleep(100 * time.Second)
 }
-
-func LinkToggleToEnable(toggle *controls.Toggle, recipient controls.Triggers) {
-	go func() {
-		for value := range toggle.C {
-			if value {
-				recipient.Enable()
-			} else {
-				recipient.Disable()
-			}
-		}
-	}()
-}
