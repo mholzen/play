@@ -1,7 +1,7 @@
 package controls
 
 import (
-	"encoding/json"
+	"fmt"
 )
 
 type ChannelList []string
@@ -15,24 +15,28 @@ func (dl *DialList) SetChannelValue(channel string, value byte) {
 	(*dl.DialMap.Dials)[channel].Value = value
 }
 
-// marshalJSON is a custom JSON marshaller for DialList
-func (dl DialList) MarshalJSON() ([]byte, error) {
-	type DialListItem struct {
-		Channel string
-		Value   *byte
+func (dl *DialList) GetItem(name string) (Item, error) {
+	dial, ok := (*dl.DialMap.Dials)[name]
+	if !ok {
+		return nil, fmt.Errorf("item not found: %s", name)
 	}
-	res := make([]DialListItem, 0)
-	for _, channel := range dl.ChannelList {
-		// could account for spaces in channel names here
-		item := DialListItem{channel, nil}
-		dial, ok := (*dl.DialMap.Dials)[channel]
-		if ok {
-			item.Value = &dial.Value
-		}
+	return dial, nil
+}
 
-		res = append(res, item)
+func (dl *DialList) Items() map[string]Item {
+	items := make(map[string]Item)
+	for _, channel := range dl.ChannelList {
+		items[channel] = (*dl.DialMap.Dials)[channel]
 	}
-	return json.Marshal(res)
+	return items
+}
+
+func (dl *DialList) Keys() []string {
+	return dl.ChannelList
+}
+
+func (dl *DialList) MarshalJSON() ([]byte, error) {
+	return OrderedContainerMarshalJSON(dl)
 }
 
 var DefaultChannelList = []string{"r", "g", "b", "a", "w", "uv", "dimmer", "strobe", "speed", "tilt", "pan", "mode"}

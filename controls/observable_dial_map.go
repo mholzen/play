@@ -5,8 +5,6 @@ import (
 	"fmt"
 )
 
-// TODO: Make this a generic type with numerical dial as a parameter
-
 type ObservableDialMap struct {
 	Observers[ChannelValues]
 	Dials *NumericDialMap

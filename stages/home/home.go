@@ -31,31 +31,28 @@ func GetRootSurface(universe fixture.Fixtures[fixture.Fixture], clock *controls.
 	// dial map
 	dialFixtures := fixture.NewObservableFixtures(universe.Clone())
 	dialMap := fixture.NewObservableDialMapForAllChannels(dialFixtures)
-	surface.SetItem(0, dialMap)
-
-	// dial list
 	dialList := controls.NewDialList(dialMap)
-	surface.SetItem(3, *dialList)
 
 	// rainbow
 	rainbowFixtures := fixture.NewIndividualObservableFixtures(universe.Clone())
 	rainbowControls := patterns.NewRainbowControls(clock)
 	rainbowControls.Rainbow(&rainbowFixtures.AddressableFixtures)
-	surface.SetItem(1, rainbowControls.GetContainer())
-
-	// rainbow dial map
-	surface.SetItem(4, rainbowControls.GetContainer())
 
 	// mux
 	mux := controls.NewMux[fixture.FixtureValues]()
 	mux.Add("dials", dialFixtures)
 	mux.Add("rainbow", rainbowFixtures)
-	surface.SetItem(2, mux)
 
 	mux.SetSource("dials")
 
 	// link mux emitter to universe fixture
 	fixture.LinkObservableToFixture(mux, &universe)
+
+	surface.SetItem(0, mux)
+	surface.SetItem(1, dialList)
+	surface.SetItem(2, dialMap)
+	surface.SetItem(3, rainbowControls)
+	// surface.SetItem(4, rainbowControls.GetContainer())
 
 	return surface
 }

@@ -58,3 +58,8 @@ func (t *Toggle) GetValue() bool {
 func (t *Toggle) GetValueString() string {
 	return fmt.Sprintf("%v", t.Value)
 }
+
+type ObservableToggle struct {
+	Observers[Toggle]
+	Toggle
+}

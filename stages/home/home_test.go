@@ -10,28 +10,39 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func Test_RootSurfaceHome(t *testing.T) {
-
+func Test_RootSurfaceDialControls(t *testing.T) {
 	clock := controls.NewClock(120)
 	clock.Start()
 	rootSurface := GetRootSurface(home.Universe, clock)
 
 	// dials
-	item, err := rootSurface.GetItem("0")
+	item, err := rootSurface.GetItem("2")
 	require.NoError(t, err)
 	dialMap, ok := item.(*controls.ObservableDialMap)
 	require.True(t, ok)
 	assert.Contains(t, dialMap.GetValue(), "r")
 
 	// dial list
-	item, err = rootSurface.GetItem("3")
+	item, err = rootSurface.GetItem("1")
 	require.NoError(t, err)
 	dialList, ok := item.(*controls.DialList)
 	require.True(t, ok)
 	assert.Contains(t, dialList.DialMap.GetChannels(), "r")
+}
+
+func Test_RootSurfaceMux(t *testing.T) {
+	clock := controls.NewClock(120)
+	clock.Start()
+	rootSurface := GetRootSurface(home.Universe, clock)
+
+	// Get dialMap
+	item, err := rootSurface.GetItem("2")
+	require.NoError(t, err)
+	dialMap, ok := item.(*controls.ObservableDialMap)
+	require.True(t, ok)
 
 	// mux
-	item, err = rootSurface.GetItem("2")
+	item, err = rootSurface.GetItem("0")
 	require.NoError(t, err)
 	mux, ok := item.(*controls.Mux[fixture.FixtureValues])
 	require.True(t, ok)

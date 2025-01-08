@@ -35,7 +35,6 @@ func Transition(f fixture.Fixture, start, end controls.ChannelValues, duration t
 
 func RepeatEvery(duration time.Duration, action func()) *controls.Trigger {
 	trigger := &controls.Trigger{
-		// TODO: Don't need the When field?
 		Enabled: true,
 		Do:      action,
 	}
