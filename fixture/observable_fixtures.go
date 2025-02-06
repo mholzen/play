@@ -49,9 +49,13 @@ func (f *ObservableFixtures) SetChannelValues(values controls.ChannelValues) {
 	f.Notify(f.AddressableFixtures.GetValue())
 }
 
-func NewObservableDialMapForAllChannels(fixtures *ObservableFixtures) *controls.ObservableDialMap {
+func NewObservableDialMapForAllChannels(fixtures *ObservableFixtures) *controls.ObservableDialMap2 {
+	dialMap := controls.NewObservableDialMap2()
 	channels := fixtures.GetChannels()
-	dialMap := controls.NewObservableNumericDialMap(channels...)
+	for _, channel := range channels {
+		dialMap.AddItem(channel, controls.NewObservableNumericalDial(controls.NewNumericDial()))
+	}
+
 	received := make(chan controls.ChannelValues)
 	dialMap.AddObserver(received)
 	go func() {

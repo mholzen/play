@@ -72,6 +72,10 @@ func (f *AddressableFixtures[T]) Even() AddressableFixtures[T] {
 	return f.Modulo(2, 0)
 }
 
+func (f AddressableFixtures[T]) GetChannelValue(name string) byte {
+	panic("not implemented")
+}
+
 func (f AddressableFixtures[T]) SetChannelValue(name string, value byte) {
 	for address := range f {
 		f[address].SetChannelValue(name, value)

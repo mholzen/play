@@ -7,9 +7,13 @@ import (
 type Fixture interface {
 	GetValues() []byte
 	GetChannels() []string
+
+	GetChannelValue(channel string) byte
 	SetChannelValue(channel string, value byte)
+
 	GetChannelValues() controls.ChannelValues
 	SetChannelValues(values controls.ChannelValues)
+
 	SetAll(value byte)
 }
 
@@ -25,6 +29,14 @@ func (f ChannelFixture) setChannelValue(channel string, value byte) {
 		return
 	}
 	f.Values[i] = value
+}
+
+func (f ChannelFixture) GetChannelValue(channel string) byte {
+	i, err := f.Model.GetAddress(channel)
+	if err != nil {
+		return 0 // TODO: change the method signature
+	}
+	return f.Values[i]
 }
 
 func (f ChannelFixture) SetChannelValue(channel string, value byte) {

@@ -4,15 +4,18 @@ import (
 	"testing"
 
 	"github.com/mholzen/play-go/controls"
+	"github.com/stretchr/testify/assert"
 )
 
 func Test_ObservableFixture(t *testing.T) {
-	model := NewModelChannels("Foo", []string{"r", "g", "b"})
-	var fixture Fixture = model
+	model := NewModelChannels("a Model Name", []string{"r", "g", "b"})
+	var fixture Fixture = ChannelFixture{Model: &model, Values: model.GetEmptyValues()}
 
 	observableFixture := NewObservableFixture(fixture)
 
 	observableFixture.SetChannelValues(controls.ChannelValues{"r": 1})
+
+	assert.Equal(t, byte(1), fixture.GetChannelValue("r"))
 
 	var _ Fixture = observableFixture
 }

@@ -15,19 +15,22 @@ func Test_RootSurfaceDialControls(t *testing.T) {
 	clock.Start()
 	rootSurface := GetRootSurface(home.Universe, clock)
 
-	// dials
+	// dial map
 	item, err := rootSurface.GetItem("2")
 	require.NoError(t, err)
-	dialMap, ok := item.(*controls.ObservableDialMap)
+
+	container, ok := item.(controls.Container)
 	require.True(t, ok)
-	assert.Contains(t, dialMap.GetValue(), "r")
+	item, err = container.GetItem("r")
+	require.NoError(t, err)
+	assert.NotNil(t, item)
 
 	// dial list
 	item, err = rootSurface.GetItem("1")
 	require.NoError(t, err)
-	dialList, ok := item.(*controls.DialList)
+	dialList, ok := item.(controls.OrderedContainer)
 	require.True(t, ok)
-	assert.Contains(t, dialList.DialMap.GetChannels(), "r")
+	assert.Contains(t, dialList.Keys(), "r")
 }
 
 func Test_RootSurfaceMux(t *testing.T) {
@@ -38,7 +41,14 @@ func Test_RootSurfaceMux(t *testing.T) {
 	// Get dialMap
 	item, err := rootSurface.GetItem("2")
 	require.NoError(t, err)
-	dialMap, ok := item.(*controls.ObservableDialMap)
+
+	dialMap, ok := item.(*controls.ObservableDialMap2)
+	require.True(t, ok)
+
+	dial, err := dialMap.GetItem("r")
+	require.NoError(t, err)
+
+	redDial, ok := dial.(*controls.ObservableNumericalDial)
 	require.True(t, ok)
 
 	// mux
@@ -54,23 +64,36 @@ func Test_RootSurfaceMux(t *testing.T) {
 	mux.AddObserver(muxChannel)
 
 	go func() {
-		dialMap.SetChannelValue("r", 42)
-		<-advance // 1
+		t.Helper() // Marks this function as a test helper
+
+		dialMap.SetChannelValue("r", 0xa)
+		<-advance // wait for 1
+
+		redDial.SetValue(0xb)
+		log.Printf("set r to 0xb")
+		<-advance // wait for 2
 
 		mux.SetSource("rainbow")
-		dialMap.SetChannelValue("r", 43) // should not have an effect
+		dialMap.SetChannelValue("r", 0xc) // should not have an effect
 		// rainbow is not setting values through the mux channel
-		log.Printf("set r to 43")
-		<-advance // 2
+		log.Printf("set r to 0xc")
+		<-advance // wait for 3
 	}()
 
 	value := <-muxChannel
 
 	address := home.TomeShine.GetAddresses()[0]
 	expected := value[address]["r"]
-	assert.Equal(t, byte(42), expected)
+	assert.Equal(t, byte(10), expected)
 
 	advance <- 1
+
+	value = <-muxChannel
+
+	expected = value[address]["r"]
+	assert.Equal(t, byte(0xb), expected)
+
+	advance <- 2
 
 	// wait for rainbow to set a non zero value
 	for i := 0; i < 100; i++ {

@@ -36,6 +36,10 @@ func (f *ObservableFixture) SetAll(value byte) {
 	f.Notify(f.GetChannelValues())
 }
 
+func (f *ObservableFixture) GetChannelValue(name string) byte {
+	return f.Fixture.GetChannelValue(name)
+}
+
 func (f *ObservableFixture) SetChannelValue(name string, value byte) {
 	f.Fixture.SetChannelValue(name, value)
 	f.Notify(f.GetChannelValues())

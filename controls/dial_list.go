@@ -18,7 +18,7 @@ func (dl *DialList) SetChannelValue(channel string, value byte) {
 func (dl *DialList) GetItem(name string) (Item, error) {
 	dial, ok := (*dl.DialMap.Dials)[name]
 	if !ok {
-		return nil, fmt.Errorf("item not found: %s", name)
+		return nil, fmt.Errorf("item not found: '%s'", name)
 	}
 	return dial, nil
 }
@@ -43,4 +43,21 @@ var DefaultChannelList = []string{"r", "g", "b", "a", "w", "uv", "dimmer", "stro
 
 func NewDialList(dialMap *ObservableDialMap) *DialList {
 	return &DialList{DialMap: dialMap, ChannelList: DefaultChannelList}
+}
+
+type DialList2 struct {
+	ItemMap
+	ChannelList
+}
+
+func NewDialList2(container Container) *DialList2 {
+	return &DialList2{ItemMap: container.Items(), ChannelList: DefaultChannelList}
+}
+
+func (dl *DialList2) Keys() []string {
+	return dl.ChannelList
+}
+
+func (dl *DialList2) MarshalJSON() ([]byte, error) {
+	return OrderedContainerMarshalJSON(dl)
 }

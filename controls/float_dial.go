@@ -6,9 +6,9 @@ import (
 )
 
 type FloatDial struct {
-	Value float64
-	Min   float64
-	Max   float64
+	Value float64 `json:"value"`
+	Min   float64 `json:"min"`
+	Max   float64 `json:"max"`
 }
 
 func (d *FloatDial) SetValue(value float64) {
