@@ -8,11 +8,11 @@ cwd := $(shell pwd)
 OS := $(shell uname -s |  tr '[:upper:]' '[:lower:]')
 
 build:
-	GOOS=$(OS) go build -o main main.go server.go handlers.go
+	GOOS=$(OS) go build -o bin/server ./cmd/server
 
 run:
-	# go run main.go server.go
-	CompileDaemon --build="go build -o main main.go server.go handlers.go" --command="./main"
+	# go run ./cmd/server
+	CompileDaemon --build="go build -o bin/server ./cmd/server" --command="./bin/server"
 
 run-dev:
 	~/go/bin/air
