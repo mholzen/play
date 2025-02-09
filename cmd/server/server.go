@@ -24,7 +24,7 @@ func StartServer(surface controls.Container) {
 	v2root.GET("/", ContainerGetHandler(surface))
 	v2root.GET("/:name", ContainerGetHandler(surface))
 	v2root.GET("/:name/", ContainerGetHandler(surface))
-	v2root.POST("/*", ContainerPostHandler2(surface))
+	v2root.POST("/*", ContainerPostHandler(surface))
 
 	e.Logger.Fatal(e.Start(":1300"))
 }

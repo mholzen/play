@@ -7,7 +7,6 @@ import (
 	"maps"
 	"net/http"
 	"slices"
-	"strconv"
 	"strings"
 
 	"github.com/labstack/echo/v4"
@@ -45,64 +44,6 @@ func ContainerGetHandler(container controls.Container) echo.HandlerFunc {
 	}
 }
 
-func ContainerPostHandler(container controls.Container) echo.HandlerFunc {
-	return func(c echo.Context) error {
-		name := c.Param("name")
-		item, err := container.GetItem(name)
-		if err != nil {
-			return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Error finding control named '%s'", name))
-		}
-
-		// convert this to a control -- make observable dialmap a subcase
-		switch control := item.(type) {
-		case *controls.ObservableDialMap:
-			channel := c.Param("channel")
-			value := c.Param("value")
-			b, err := strconv.Atoi(value)
-			if err != nil {
-				return err
-			}
-			control.SetChannelValue(channel, byte(b))
-			log.Printf("Dial Map updated: %s:%s", name, value)
-
-		case controls.Container:
-			channel := c.Param("channel")
-			value := c.Param("value")
-			b, err := strconv.Atoi(value)
-			if err != nil {
-				return err
-			}
-			item, err := control.GetItem(channel)
-			if err != nil {
-				return err
-			}
-			switch item := item.(type) {
-			case *controls.FloatDial:
-				item.SetValue(float64(b))
-				log.Printf("Float Dial updated: %s:%s", name, value)
-			case *controls.NumericDial:
-				item.SetValue(byte(b))
-				log.Printf("Numeric Dial updated: %s:%s", name, value)
-			default:
-				return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Container %s item '%s' is not settable ('%v')", name, channel, item))
-			}
-
-			log.Printf("Dial Map updated: %s:%s", name, value)
-
-		case controls.Control:
-			value := c.Param("value")
-			control.SetValueString(value)
-			log.Printf("Control updated: %s", value)
-
-		default:
-			return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Item '%s' is not a dialmap, container or control ('%v')", name, item))
-		}
-
-		return c.JSON(http.StatusOK, item)
-	}
-}
-
-// PathResolve resolves a path within a container by traversing the path segments
 func PathResolve(container controls.Container, path string) (controls.Item, string, error) {
 	if path == "" {
 		return container, path, nil
@@ -135,7 +76,7 @@ func PathResolve(container controls.Container, path string) (controls.Item, stri
 	return current, "", nil
 }
 
-func ContainerPostHandler2(container controls.Container) echo.HandlerFunc {
+func ContainerPostHandler(container controls.Container) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		path := c.Param("*")
 		if path == "" {

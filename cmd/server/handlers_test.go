@@ -88,7 +88,7 @@ func Test_ContainerPostHandler2(t *testing.T) {
 			c.Request().Body = io.NopCloser(strings.NewReader(tt.value))
 
 			// Execute handler
-			err := ContainerPostHandler2(rootContainer)(c)
+			err := ContainerPostHandler(rootContainer)(c)
 
 			// Check response
 			if tt.expectedStatus != http.StatusOK {
@@ -189,7 +189,7 @@ func Test_ContainerPostSetValue(t *testing.T) {
 	c.SetParamNames("*")
 	c.SetParamValues("0")
 
-	err := ContainerPostHandler2(getRootList())(c)
+	err := ContainerPostHandler(getRootList())(c)
 	require.NoError(t, err)
 	resp := rec.Result()
 
