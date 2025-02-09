@@ -1,6 +1,6 @@
 module github.com/mholzen/play-go
 
-go 1.20
+go 1.23
 
 require (
 	github.com/akualab/dmx v0.0.0-20130922234952-1ec6837faba7

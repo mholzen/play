@@ -58,3 +58,11 @@ live:
 
 test:
 	env ROOT=$(cwd) go test ./... | grcat .grc.conf
+
+build-docker:
+	docker build -t play-go .
+
+run-docker:
+	docker run -p 8080:8080 --device=/dev/tty.usbserial-ENVVVCOF:/dev/tty.usbserial-ENVVVCOF play-go
+
+
