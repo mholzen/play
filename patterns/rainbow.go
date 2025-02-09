@@ -2,6 +2,7 @@ package patterns
 
 import (
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/fogleman/ease"
@@ -27,7 +28,10 @@ func (c RainbowControls) Rainbow(fixtures *fixture.AddressableFixtures[fixture.F
 	})
 
 	transition := func() {
-		duration := time.Duration(float64(c.Clock.PhrasePeriod().Nanoseconds()) / c.Speed.Value)
+		// duration := time.Duration(float64(c.Clock.PhrasePeriod().Nanoseconds()) * (c.Speed.Value) / 10)
+		duration := c.Clock.PhrasePeriod()
+		log.Printf("duration: %v", duration)
+		log.Printf("speed: %v", c.Speed.Value)
 		start, end := seq.IncValues()
 		// log.Printf("transition %v to %v (duration: %v)\n", start, end, duration)
 

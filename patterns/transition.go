@@ -9,10 +9,17 @@ import (
 )
 
 func Transition(f fixture.Fixture, start, end controls.ChannelValues, duration time.Duration, ease ease.Function, period time.Duration) func() {
+	return TransitionValues(start, end, duration, ease, period, func(values controls.ChannelValues) {
+		fixture.ApplyTo(values, f)
+	})
+}
+
+func TransitionValues(start, end controls.ChannelValues, duration time.Duration, ease ease.Function, period time.Duration, apply func(values controls.ChannelValues)) func() {
 	return func() {
 		ticker := time.NewTicker(period)
 		x := 0.0
-		inc := float64(period.Milliseconds()) / float64(duration.Milliseconds())
+		inc := float64(period) / float64(duration)
+
 		// log.Printf("start: %s", start.String())
 		// log.Printf("ending: %s", end.String())
 		for range ticker.C {
@@ -22,8 +29,7 @@ func Transition(f fixture.Fixture, start, end controls.ChannelValues, duration t
 			// log.Printf("x: %f, y: %f", x, y)
 			values := controls.InterpolateValues(start, end, y)
 			// log.Printf("current: %s", values)
-			fixture.ApplyTo(values, f)
-
+			apply(values)
 			if x >= 1.0 {
 				ticker.Stop()
 				break
