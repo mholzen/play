@@ -14,46 +14,6 @@ import (
 	"github.com/mholzen/play-go/controls"
 )
 
-func ControlsGetHandler(dialList *controls.DialList) echo.HandlerFunc {
-	return func(c echo.Context) error {
-		name := c.Param("name")
-		if name == "" {
-			return c.JSON(http.StatusOK, dialList)
-		}
-		// name can be an index or a channel name
-		dial, ok := (*dialList.DialMap.Dials)[name]
-		if !ok {
-			index, err := strconv.Atoi(name)
-			if err != nil {
-				return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Cannot find dial name '%s'", name))
-			}
-			dial = (*dialList.DialMap.Dials)[dialList.ChannelList[index]]
-		}
-		return c.String(http.StatusOK, fmt.Sprintf("%d", dial.Value))
-	}
-}
-
-func ControlsPostHandler(dialMap *controls.ObservableDialMap) echo.HandlerFunc {
-	return func(c echo.Context) error {
-		name := c.Param("name")
-		dial, ok := (*dialMap.Dials)[name]
-		if !ok {
-			return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Cannot find dial name '%s'", name))
-		}
-
-		value := c.Param("value")
-
-		b, err := strconv.Atoi(value)
-		if err != nil {
-			return err
-		}
-
-		dial.SetValue(byte(b))
-
-		return c.String(http.StatusOK, fmt.Sprintf("%d", dial.Value))
-	}
-}
-
 func ContainerGetHandler(container controls.Container) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		name := c.Param("name")
@@ -206,25 +166,5 @@ func ContainerPostHandler2(container controls.Container) echo.HandlerFunc {
 		}
 
 		return c.JSON(http.StatusOK, item)
-	}
-}
-
-func ColorsPostHandler(dialMap *controls.ObservableDialMap) echo.HandlerFunc {
-	return func(c echo.Context) error {
-		name := c.Param("name")
-		color, ok := controls.AllColors[name]
-		if !ok {
-			return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Cannot find color name '%s'", name))
-		}
-
-		dialMap.SetValue(color.Values())
-
-		return c.String(http.StatusOK, fmt.Sprintf("%v", color))
-	}
-}
-
-func ColorsGetHandler() echo.HandlerFunc {
-	return func(c echo.Context) error {
-		return c.JSON(http.StatusOK, controls.AllColors)
 	}
 }
