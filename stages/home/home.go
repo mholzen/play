@@ -33,7 +33,7 @@ func GetRootSurface(universe fixture.Fixtures[fixture.Fixture], clock *controls.
 	// dialFixtures := fixture.NewIndividualObservableFixtures(universe.Clone())
 
 	dialMap := fixture.NewObservableDialMapForAllChannels(dialFixtures)
-	dialList := controls.NewDialList2(dialMap)
+	dialList := controls.NewDialList(dialMap)
 
 	// rainbow
 	rainbowFixtures := fixture.NewIndividualObservableFixtures(universe.Clone())
