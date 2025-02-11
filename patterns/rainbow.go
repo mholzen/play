@@ -1,8 +1,8 @@
 package patterns
 
 import (
+	"context"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/fogleman/ease"
@@ -28,16 +28,22 @@ func (c RainbowControls) Rainbow(fixtures *fixture.AddressableFixtures[fixture.F
 	})
 
 	transition := func() {
-		// duration := time.Duration(float64(c.Clock.PhrasePeriod().Nanoseconds()) * (c.Speed.Value) / 10)
-		duration := c.Clock.PhrasePeriod()
-		log.Printf("duration: %v", duration)
-		log.Printf("speed: %v", c.Speed.Value)
+		// log.Printf("rainbow speed: %v", c.Speed.Value)
+
+		ratio := float64(16) / float64(c.Speed.Value)
+		// log.Printf("rainbow ratio: %v", ratio)
+
+		duration := time.Duration(float64(c.Clock.PhrasePeriod().Nanoseconds()) * ratio)
+		// log.Printf("rainbow transition duration: %v", duration)
+
 		start, end := seq.IncValues()
 		// log.Printf("transition %v to %v (duration: %v)\n", start, end, duration)
 
 		max := len(fixtures.GetFixtureList())
+		contexts := make([]context.Context, max)
+		cancels := make([]context.CancelFunc, max)
+
 		for i, f := range fixtures.GetFixtureList() {
-			action := Transition(f, start, end, duration, ease.InOutSine, fixture.REFRESH)
 
 			f.SetChannelValue("dimmer", 255)
 			f.SetChannelValue("tilt", 127)
@@ -45,7 +51,16 @@ func (c RainbowControls) Rainbow(fixtures *fixture.AddressableFixtures[fixture.F
 			if c.Reverse.GetValue() {
 				i = max - i
 			}
-			go Delay(time.Duration(i)*(duration/2), action)
+
+			if cancels[i] != nil {
+				cancels[i]()
+			}
+			contexts[i], cancels[i] = context.WithCancel(context.Background())
+			action := Transition(f, start, end, duration, ease.InOutSine, fixture.REFRESH, contexts[i])
+
+			chaseDelay := time.Duration(float64(c.Clock.BeatPeriod().Nanoseconds()) * c.Chase.Value * float64(i))
+			// log.Printf("rainbow chaseDelay: %v", chaseDelay)
+			go Delay(chaseDelay, action, contexts[i])
 		}
 	}
 
@@ -74,7 +89,7 @@ func (c RainbowControls) GetItem(name string) (controls.Item, error) {
 func NewRainbowControls(clock *controls.Clock) RainbowControls {
 	speed := controls.ObservableFloatDial{
 		FloatDial: controls.FloatDial{
-			Value: 1,
+			Value: 16,
 			Min:   0,
 			Max:   10,
 		},

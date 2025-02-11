@@ -1,6 +1,7 @@
 package patterns
 
 import (
+	"context"
 	"time"
 
 	"github.com/fogleman/ease"
@@ -8,13 +9,13 @@ import (
 	"github.com/mholzen/play-go/fixture"
 )
 
-func Transition(f fixture.Fixture, start, end controls.ChannelValues, duration time.Duration, ease ease.Function, period time.Duration) func() {
+func Transition(f fixture.Fixture, start, end controls.ChannelValues, duration time.Duration, ease ease.Function, period time.Duration, ctx context.Context) func() {
 	return TransitionValues(start, end, duration, ease, period, func(values controls.ChannelValues) {
 		fixture.ApplyTo(values, f)
-	})
+	}, ctx)
 }
 
-func TransitionValues(start, end controls.ChannelValues, duration time.Duration, ease ease.Function, period time.Duration, apply func(values controls.ChannelValues)) func() {
+func TransitionValues(start, end controls.ChannelValues, duration time.Duration, ease ease.Function, period time.Duration, apply func(values controls.ChannelValues), ctx context.Context) func() {
 	return func() {
 		ticker := time.NewTicker(period)
 		x := 0.0
@@ -30,6 +31,13 @@ func TransitionValues(start, end controls.ChannelValues, duration time.Duration,
 			values := controls.InterpolateValues(start, end, y)
 			// log.Printf("current: %s", values)
 			apply(values)
+
+			select {
+			case <-ctx.Done():
+				x = 1.0
+			default:
+			}
+
 			if x >= 1.0 {
 				ticker.Stop()
 				break
@@ -57,7 +65,12 @@ func RepeatEvery(duration time.Duration, action func()) *controls.Trigger {
 	return trigger
 }
 
-func Delay(duration time.Duration, action func()) {
-	time.Sleep(duration)
-	action()
+func Delay(duration time.Duration, action func(), ctx context.Context) {
+	select {
+	case <-ctx.Done():
+		return
+	case <-time.After(duration):
+		// log.Printf("executing action after delay: %v", duration)
+		action()
+	}
 }

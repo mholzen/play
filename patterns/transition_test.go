@@ -1,6 +1,7 @@
 package patterns
 
 import (
+	"context"
 	"log"
 	"testing"
 	"time"
@@ -22,9 +23,9 @@ func Test_Transition(t *testing.T) {
 	transition := TransitionValues(start, end, duration, ease.Linear, period, func(values controls.ChannelValues) {
 		log.Printf("values: %s", values)
 		last = values
-	})
+	}, context.Background())
 	transition()
 
 	assert.Greater(t, last, start)
-	assert.Equal(t, end, last)
+	assert.Equal(t, end, last) // not only is it not equal but `last` goes back to 24 ?!!?
 }
