@@ -26,7 +26,7 @@ func main() {
 	universe.SetChannelValues(soft_white.Values())
 
 	clock := controls.NewClock(120)
-	clock.On(controls.TriggerOnBars(), func() { log.Printf("clock: %s", clock.String()) })
+	clock.On(controls.TriggerOnBeats(), func() { log.Printf("clock: %s", clock.String()) })
 	clock.Start()
 
 	surface := home.GetRootSurface(universe, clock)

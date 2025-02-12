@@ -40,6 +40,12 @@ func TransitionValues(start, end controls.ChannelValues, duration time.Duration,
 
 			if x >= 1.0 {
 				ticker.Stop()
+
+				// Ensure we apply the final values.
+				// This could be made optional in the future.
+				// InterpolateValues above does not always end with the final value.
+				apply(end)
+
 				break
 			}
 		}
