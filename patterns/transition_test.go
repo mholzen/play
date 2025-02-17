@@ -26,6 +26,6 @@ func Test_Transition(t *testing.T) {
 	}, context.Background())
 	transition()
 
-	assert.Greater(t, last, start)
-	assert.Equal(t, end, last) // not only is it not equal but `last` goes back to 24 ?!!?
+	assert.Greater(t, last["x"], start["x"])
+	assert.Equal(t, end["x"], last["x"])
 }
