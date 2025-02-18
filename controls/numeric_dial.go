@@ -92,3 +92,7 @@ func (d *ObservableNumericalDial) SetValueString(value string) {
 	d.Dial.SetValueString(value)
 	d.Notify(d.Dial.Value)
 }
+
+func (d *ObservableNumericalDial) MarshalJSON() ([]byte, error) {
+	return json.Marshal(d.Dial)
+}

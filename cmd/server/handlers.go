@@ -15,23 +15,12 @@ import (
 
 func ContainerGetHandler(container controls.Container) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		name := c.Param("name")
-		path := c.Path()
-		endsWithSlash := path[len(path)-1] == '/'
-
-		// log.Printf("ContainerGetHandler: name: %s, path: %s, endsWithSlash: %t", name, path, endsWithSlash)
-		if name == "" {
-			if endsWithSlash {
-				return c.JSON(http.StatusOK, slices.Sorted(maps.Keys(container.Items())))
-			} else {
-				return c.JSON(http.StatusOK, container.Items())
-			}
-		}
-
-		item, err := container.GetItem(name)
+		item, path, err := resolvePathToItem(c, container)
 		if err != nil {
-			return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Error finding control named '%s'", name))
+			return err
 		}
+
+		endsWithSlash := path[len(path)-1] == '/'
 
 		if endsWithSlash {
 			// Try to convert item to a map/array-like structure
@@ -76,16 +65,25 @@ func PathResolve(container controls.Container, path string) (controls.Item, stri
 	return current, "", nil
 }
 
+func resolvePathToItem(c echo.Context, container controls.Container) (controls.Item, string, error) {
+	path := c.Param("*")
+	if path == "" {
+		return nil, path, echo.NewHTTPError(http.StatusBadRequest, "path is required")
+	}
+
+	item, _, err := PathResolve(container, path)
+	if err != nil {
+		return nil, path, echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Error finding control named '%s': %v", path, err))
+	}
+
+	return item, path, nil
+}
+
 func ContainerPostHandler(container controls.Container) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		path := c.Param("*")
-		if path == "" {
-			return echo.NewHTTPError(http.StatusBadRequest, "path is required")
-		}
-
-		item, _, err := PathResolve(container, path)
+		item, path, err := resolvePathToItem(c, container)
 		if err != nil {
-			return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Error finding control named '%s': %v", path, err))
+			return err
 		}
 
 		body := c.Request().Body

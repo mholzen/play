@@ -2,7 +2,6 @@ package controls
 
 import (
 	"fmt"
-	"log"
 	"time"
 )
 
@@ -159,9 +158,9 @@ func (c *Clock) On(trigger TriggerFunc, callback func()) *Trigger {
 }
 
 func (c *Clock) CheckTriggers() {
-	for i, trigger := range c.Triggers {
+	for _, trigger := range c.Triggers {
 		if trigger.When(*c) && trigger.Enabled {
-			log.Printf("trigger %d", i)
+			// log.Printf("trigger %d", i)
 			go trigger.Do()
 		}
 	}

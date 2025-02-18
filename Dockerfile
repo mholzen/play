@@ -24,7 +24,6 @@ FROM alpine:latest
 
 # Install runtime dependencies and create dialout group
 RUN apk add --no-cache ca-certificates alsa-lib libstdc++ && \
-    addgroup -S dialout && \
     adduser -S appuser -G dialout
 
 WORKDIR /app
@@ -38,9 +37,6 @@ RUN chown appuser:dialout /app/server && \
 
 # Switch to non-root user
 USER appuser
-
-# Copy any necessary static files or assets if needed
-# COPY static/ static/
 
 # Expose the port the server runs on
 EXPOSE 8080

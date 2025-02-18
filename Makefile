@@ -60,9 +60,14 @@ test:
 	env ROOT=$(cwd) go test ./... | grcat .grc.conf
 
 build-docker:
-	docker build -t play-go .
+	docker buildx build --platform linux/amd64 -t play-go --load .
 
 run-docker:
 	docker run -p 8080:8080 --device=/dev/tty.usbserial-ENVVVCOF:/dev/tty.usbserial-ENVVVCOF play-go
 
+run-docker-remote:
+	ssh marc@$(host) "docker run -p 1300:1300 --add-host=host.docker.internal:host-gateway --device=/dev/ttyUSB0:/dev/ttyUSB0 ubuntu-1:5000/play-go"
 
+push-docker:
+	docker tag play-go $(host):5000/play-go
+	docker push $(host):5000/play-go

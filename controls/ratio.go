@@ -1,8 +1,13 @@
 package controls
 
+import (
+	"encoding/json"
+	"fmt"
+)
+
 type Ratio struct {
-	numerator   int
-	denominator int
+	Numerator   int `json:"numerator"`
+	Denominator int `json:"denominator"`
 }
 
 var WellKnownRatios = []Ratio{
@@ -19,8 +24,40 @@ var WellKnownRatios = []Ratio{
 }
 
 func (r Ratio) ToFloat() float64 {
-	if r.denominator == 0 {
+	if r.Denominator == 0 {
 		return 0
 	}
-	return float64(r.numerator) / float64(r.denominator)
+	return float64(r.Numerator) / float64(r.Denominator)
+}
+
+func (r Ratio) Label() string {
+	return fmt.Sprintf("%d:%d", r.Numerator, r.Denominator)
+}
+
+type ObservableRatioDial struct {
+	DiscreteDial[Ratio]
+	Observers[Ratio]
+}
+
+func NewObservableRatioDial() *ObservableRatioDial {
+	return &ObservableRatioDial{
+		DiscreteDial: *NewDiscreteDial(WellKnownRatios),
+		Observers:    *NewObservable[Ratio](),
+	}
+}
+
+type ratioJSON struct {
+	Value       float64 `json:"value"`
+	Numerator   int     `json:"numerator"`
+	Denominator int     `json:"denominator"`
+	Label       string  `json:"label"`
+}
+
+func (r Ratio) MarshalJSON() ([]byte, error) {
+	return json.Marshal(ratioJSON{
+		Value:       r.ToFloat(),
+		Numerator:   r.Numerator,
+		Denominator: r.Denominator,
+		Label:       r.Label(),
+	})
 }

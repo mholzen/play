@@ -11,11 +11,13 @@ type Toggle struct {
 }
 
 func (t *Toggle) MarshalJSON() ([]byte, error) {
-	return json.Marshal(t.Value)
+	return json.Marshal(t.Get())
 }
 
 func NewToggle() *Toggle {
-	return &Toggle{}
+	return &Toggle{
+		DiscreteDial: *NewDiscreteDial([]bool{false, true}),
+	}
 }
 
 func (t *Toggle) On() {
@@ -27,7 +29,7 @@ func (t *Toggle) Off() {
 }
 
 func (t *Toggle) Toggle() {
-	if t.Value {
+	if t.Get() {
 		t.Off()
 	} else {
 		t.On()
@@ -52,11 +54,11 @@ func (t *Toggle) SetValueString(value string) {
 }
 
 func (t *Toggle) GetValue() bool {
-	return t.Value
+	return t.Get()
 }
 
 func (t *Toggle) GetValueString() string {
-	return fmt.Sprintf("%v", t.Value)
+	return fmt.Sprintf("%v", t.Get())
 }
 
 type ObservableToggle struct {
