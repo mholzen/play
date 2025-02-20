@@ -62,7 +62,8 @@ func (c RainbowControls) Rainbow(fixtures *fixture.AddressableFixtures[fixture.F
 			action := Transition(f, start, end, duration, ease.InOutSine, fixture.REFRESH, contexts[j])
 
 			chaseDelay := time.Duration(float64(c.Clock.BeatPeriod().Nanoseconds()) * c.Chase.Value * float64(i))
-			// log.Printf("rainbow chaseDelay: %v", chaseDelay)
+
+			log.Printf("rainbow chaseDelay: %v", chaseDelay)
 			go Delay(chaseDelay, action, contexts[j])
 		}
 	}

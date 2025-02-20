@@ -6,6 +6,7 @@ var DefaultChannelList = []string{"r", "g", "b", "a", "w", "uv", "dimmer", "stro
 
 type DialList struct {
 	ItemMap
+	// DialMap
 	ChannelList
 }
 
@@ -19,4 +20,18 @@ func (dl *DialList) Keys() []string {
 
 func (dl *DialList) MarshalJSON() ([]byte, error) {
 	return OrderedContainerMarshalJSON(dl)
+}
+
+func (dl *DialList) SetChannelValue(channel string, value byte) {
+	item, ok := dl.ItemMap[channel]
+	if !ok {
+		return
+	}
+
+	dial, ok := item.(*ObservableNumericalDial)
+	if !ok {
+		return
+	}
+
+	dial.SetValue(value)
 }

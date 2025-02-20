@@ -49,19 +49,14 @@ func GetRootSurface(universe fixture.Fixtures[fixture.Fixture], clock *controls.
 	mux.Add("rainbow", rainbowFixtures)
 	mux.Add("fall in", fallInFixtures)
 
-	mux.SetSource("fall in")
+	mux.SetSource("dials")
 
 	// link mux emitter to universe fixture
 	fixture.LinkObservableToFixture(mux, &universe)
 
 	surface.SetItem(0, mux)
 	surface.SetItem(1, dialList)
-	// surface.SetItem(2, dialMap)
 	surface.SetItem(2, rainbowControls)
-
-	// newList := controls.NewList(1)
-	// surface.SetItem(4, newList)
-	// newList.SetItem(0, mux)
 
 	return surface
 }

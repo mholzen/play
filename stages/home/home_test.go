@@ -16,7 +16,7 @@ func Test_RootSurfaceDialControls(t *testing.T) {
 	rootSurface := GetRootSurface(home.Universe, clock)
 
 	// dial map
-	item, err := rootSurface.GetItem("2")
+	item, err := rootSurface.GetItem("1")
 	require.NoError(t, err)
 
 	container, ok := item.(controls.Container)
@@ -39,13 +39,15 @@ func Test_RootSurfaceMux(t *testing.T) {
 	rootSurface := GetRootSurface(home.Universe, clock)
 
 	// Get dialMap
-	item, err := rootSurface.GetItem("2")
+	item, err := rootSurface.GetItem("1")
 	require.NoError(t, err)
 
-	dialMap, ok := item.(*controls.ObservableDialMap2)
+	require.IsType(t, &controls.DialList{}, item)
+
+	dialList, ok := item.(*controls.DialList)
 	require.True(t, ok)
 
-	dial, err := dialMap.GetItem("r")
+	dial, err := dialList.GetItem("r")
 	require.NoError(t, err)
 
 	redDial, ok := dial.(*controls.ObservableNumericalDial)
@@ -66,7 +68,7 @@ func Test_RootSurfaceMux(t *testing.T) {
 	go func() {
 		t.Helper() // Marks this function as a test helper
 
-		dialMap.SetChannelValue("r", 0xa)
+		dialList.SetChannelValue("r", 0xa)
 		<-advance // wait for 1
 
 		redDial.SetValue(0xb)
@@ -74,7 +76,7 @@ func Test_RootSurfaceMux(t *testing.T) {
 		<-advance // wait for 2
 
 		mux.SetSource("rainbow")
-		dialMap.SetChannelValue("r", 0xc) // should not have an effect
+		dialList.SetChannelValue("r", 0xc) // should not have an effect
 		// rainbow is not setting values through the mux channel
 		log.Printf("set r to 0xc")
 		<-advance // wait for 3
