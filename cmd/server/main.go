@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	"time"
 
 	"github.com/mholzen/play-go/controls"
 	"github.com/mholzen/play-go/fixture"
@@ -40,6 +39,4 @@ func main() {
 	}
 
 	StartServer(surface)
-
-	time.Sleep(100 * time.Second)
 }

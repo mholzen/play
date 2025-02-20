@@ -13,6 +13,75 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func getTestContainer() controls.Container {
+	rootContainer := controls.NewItemMap()
+	rootContainer["dial1"] = controls.NewNumericDial()
+	container1 := controls.NewItemMap()
+	rootContainer["container1"] = container1
+	dial2 := controls.NewNumericDial()
+	container1["dial2"] = dial2
+	dial2.SetValue(42)
+
+	return rootContainer
+}
+
+func Test_ContainerGetDial(t *testing.T) {
+	handler := ContainerGetHandler(getTestContainer())
+
+	ctx, recorder := newGetResponseRecorder("/container1/dial2")
+
+	require.NoError(t, handler(ctx))
+	resp := recorder.Result()
+
+	assert.Equal(t, http.StatusOK, recorder.Code)
+	assert.Equal(t, "application/json", resp.Header.Get("Content-Type"))
+	assert.Equal(t, `42`+"\n", recorder.Body.String())
+}
+
+func Test_ContainerGetContainer(t *testing.T) {
+	handler := ContainerGetHandler(getTestContainer())
+
+	ctx, recorder := newGetResponseRecorder("/container1")
+
+	require.NoError(t, handler(ctx))
+	resp := recorder.Result()
+
+	assert.Equal(t, http.StatusOK, recorder.Code)
+	assert.Equal(t, "application/json", resp.Header.Get("Content-Type"))
+	assert.Contains(t, recorder.Body.String(), `"dial2"`)
+	assert.Contains(t, recorder.Body.String(), `42`)
+}
+
+func Test_ContainerGetContainerSlash(t *testing.T) {
+	handler := ContainerGetHandler(getTestContainer())
+
+	ctx, recorder := newGetResponseRecorder("/container1/")
+
+	require.NoError(t, handler(ctx))
+	resp := recorder.Result()
+
+	assert.Equal(t, http.StatusOK, recorder.Code)
+	assert.Equal(t, "application/json", resp.Header.Get("Content-Type"))
+	assert.Contains(t, recorder.Body.String(), `"dial2"`)
+	assert.Contains(t, recorder.Body.String(), `[`)
+}
+
+func Test_ContainerPostSetValue(t *testing.T) {
+	c, rec := getResponseRecorder(http.MethodPost, "/*", "true")
+	c.SetParamNames("*")
+	c.SetParamValues("0")
+
+	list := controls.NewList(1)
+	list.SetItem(0, controls.NewToggle())
+	handler := ContainerPostHandler(list)
+
+	err := handler(c)
+	require.NoError(t, err)
+
+	assert.Equal(t, http.StatusOK, rec.Code)
+	assert.Equal(t, `true`+"\n", rec.Body.String())
+}
+
 func Test_ContainerPostHandler(t *testing.T) {
 	innerDial := controls.NewNumericDial()
 	innerContainer := controls.NewItemMap()
@@ -76,18 +145,6 @@ func Test_ContainerPostHandler(t *testing.T) {
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, tt.expectedStatus, rec.Code)
-
-				// For successful cases, verify the value was set correctly
-				// switch tt.path {
-				// case "inner/dial":
-				// 	assert.Equal(t, tt.expectedValue, innerDial.Value)
-				// case "inner":
-				// 	container, ok := rootContainer["inner"].(controls.Container)
-				// 	require.True(t, ok)
-				// 	dial, ok := container.GetItem("dial")
-				// 	require.True(t, ok)
-				// 	assert.Equal(t, tt.expectedValue, dial.Value)
-				// }
 			}
 		})
 	}
@@ -104,83 +161,9 @@ func getResponseRecorder(method, path string, body string) (echo.Context, *httpt
 	return c, rec
 }
 
-func getRootList() *controls.List {
-	list := controls.NewList(1)
-	toggle := controls.NewToggle()
-	list.SetItem(0, toggle)
-	return list
-}
-
-func Test_ContainerPostSetValue(t *testing.T) {
-	c, rec := getResponseRecorder(http.MethodPost, "/container/0", "true")
-	c.SetParamNames("*")
-	c.SetParamValues("0")
-
-	err := ContainerPostHandler(getRootList())(c)
-	require.NoError(t, err)
-	resp := rec.Result()
-
-	assert.Equal(t, http.StatusOK, rec.Code)
-	assert.Equal(t, "application/json", resp.Header.Get("Content-Type"))
-	assert.Equal(t, `true`+"\n", rec.Body.String())
-}
-
-func getTestContainer() controls.Container {
-	rootContainer := controls.NewItemMap()
-	rootContainer["dial1"] = controls.NewNumericDial()
-	container1 := controls.NewItemMap()
-	rootContainer["container1"] = container1
-	dial2 := controls.NewNumericDial()
-	container1["dial2"] = dial2
-	dial2.SetValue(42)
-
-	return rootContainer
-}
-
 func newGetResponseRecorder(path string) (echo.Context, *httptest.ResponseRecorder) {
 	ctx, rec := getResponseRecorder(http.MethodGet, "/*", "")
 	ctx.SetParamNames("*")
 	ctx.SetParamValues(path)
 	return ctx, rec
-}
-
-func Test_ContainerGetDial(t *testing.T) {
-	handler := ContainerGetHandler(getTestContainer())
-
-	ctx, recorder := newGetResponseRecorder("/container1/dial2")
-
-	require.NoError(t, handler(ctx))
-	resp := recorder.Result()
-
-	assert.Equal(t, http.StatusOK, recorder.Code)
-	assert.Equal(t, "application/json", resp.Header.Get("Content-Type"))
-	assert.Equal(t, `42`+"\n", recorder.Body.String())
-}
-
-func Test_ContainerGetContainer(t *testing.T) {
-	handler := ContainerGetHandler(getTestContainer())
-
-	ctx, recorder := newGetResponseRecorder("/container1")
-
-	require.NoError(t, handler(ctx))
-	resp := recorder.Result()
-
-	assert.Equal(t, http.StatusOK, recorder.Code)
-	assert.Equal(t, "application/json", resp.Header.Get("Content-Type"))
-	assert.Contains(t, recorder.Body.String(), `"dial2"`)
-	assert.Contains(t, recorder.Body.String(), `42`)
-}
-
-func Test_ContainerGetContainerSlash(t *testing.T) {
-	handler := ContainerGetHandler(getTestContainer())
-
-	ctx, recorder := newGetResponseRecorder("/container1/")
-
-	require.NoError(t, handler(ctx))
-	resp := recorder.Result()
-
-	assert.Equal(t, http.StatusOK, recorder.Code)
-	assert.Equal(t, "application/json", resp.Header.Get("Content-Type"))
-	assert.Contains(t, recorder.Body.String(), `"dial2"`)
-	assert.Contains(t, recorder.Body.String(), `[`)
 }
