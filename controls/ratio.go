@@ -1,7 +1,6 @@
 package controls
 
 import (
-	"encoding/json"
 	"fmt"
 )
 
@@ -10,8 +9,27 @@ type Ratio struct {
 	Denominator int `json:"denominator"`
 }
 
-var WellKnownRatios = []Ratio{
-	{1, 1},
+func (r Ratio) Inverse() Ratio {
+	return Ratio{r.Denominator, r.Numerator}
+}
+
+type RatioSlice []Ratio
+
+func (s RatioSlice) Reverse() {
+	for i, j := 0, len(s)-1; i < j; i, j = i+1, j-1 {
+		s[i], s[j] = s[j], s[i]
+	}
+}
+
+func (s RatioSlice) Invert() {
+	for i := range s {
+		s[i] = s[i].Inverse()
+	}
+}
+
+var IdentityRatio = Ratio{1, 1}
+
+var DecreasingRatios = RatioSlice{
 	{3, 4},
 	{2, 3},
 	{1, 2},
@@ -23,6 +41,22 @@ var WellKnownRatios = []Ratio{
 	{1, 32},
 }
 
+var IncreasingRatios, CommonRatios RatioSlice
+
+// var CommonRatios = make([]Ratio, len(IncreasingRatios)+1+len(DecreasingRatios))
+
+func init() {
+	IncreasingRatios = make(RatioSlice, len(DecreasingRatios))
+	copy(IncreasingRatios, DecreasingRatios)
+	IncreasingRatios.Invert()
+
+	CommonRatios = make(RatioSlice, len(DecreasingRatios))
+	copy(CommonRatios, DecreasingRatios)
+	CommonRatios.Reverse()
+	CommonRatios = append(CommonRatios, IdentityRatio)
+	CommonRatios = append(CommonRatios, IncreasingRatios...)
+}
+
 func (r Ratio) ToFloat() float64 {
 	if r.Denominator == 0 {
 		return 0
@@ -32,32 +66,4 @@ func (r Ratio) ToFloat() float64 {
 
 func (r Ratio) Label() string {
 	return fmt.Sprintf("%d:%d", r.Numerator, r.Denominator)
-}
-
-type ObservableRatioDial struct {
-	DiscreteDial[Ratio]
-	Observers[Ratio]
-}
-
-func NewObservableRatioDial() *ObservableRatioDial {
-	return &ObservableRatioDial{
-		DiscreteDial: *NewDiscreteDial(WellKnownRatios),
-		Observers:    *NewObservable[Ratio](),
-	}
-}
-
-type ratioJSON struct {
-	Value       float64 `json:"value"`
-	Numerator   int     `json:"numerator"`
-	Denominator int     `json:"denominator"`
-	Label       string  `json:"label"`
-}
-
-func (r Ratio) MarshalJSON() ([]byte, error) {
-	return json.Marshal(ratioJSON{
-		Value:       r.ToFloat(),
-		Numerator:   r.Numerator,
-		Denominator: r.Denominator,
-		Label:       r.Label(),
-	})
 }

@@ -2,7 +2,6 @@ package patterns
 
 import (
 	"context"
-	"log"
 	"time"
 
 	"github.com/fogleman/ease"
@@ -17,7 +16,7 @@ type FallInControls struct {
 func (c FallInControls) FallIn(fixtures *fixture.AddressableFixtures[fixture.Fixture]) controls.Triggers {
 
 	down := c.Clock.On(controls.TriggerOnBeat(0), func() {
-		log.Printf("fall in: start down")
+		// log.Printf("fall in: start down")
 		fixtures.SetChannelValue("dimmer", 255)
 		fixtures.SetChannelValue("speed", 240) // should be a function to compute the speed needed to get to the tilt=0 by beat 3
 
@@ -30,7 +29,7 @@ func (c FallInControls) FallIn(fixtures *fixture.AddressableFixtures[fixture.Fix
 	})
 
 	up := c.Clock.On(controls.TriggerOnBeat(3), func() {
-		log.Printf("fall in: start up")
+		// log.Printf("fall in: start up")
 		fixtures.SetChannelValue("dimmer", 0)
 		fixtures.SetChannelValue("speed", 0)
 		fixtures.SetChannelValue("tilt", 128)

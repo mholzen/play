@@ -101,7 +101,7 @@ func ContainerPostHandler(container controls.Container) echo.HandlerFunc {
 		case controls.Container:
 			return echo.NewHTTPError(http.StatusMethodNotAllowed, fmt.Sprintf("Cannot post directly to amake test container '%s'", path))
 		default:
-			return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Item '%s' is not a control (got '%T')", path, item))
+			return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Item '%s' is not a Control (got '%T')", path, item))
 		}
 
 		return c.JSON(http.StatusOK, item)

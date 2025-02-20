@@ -3,6 +3,7 @@ package patterns
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/fogleman/ease"
@@ -11,10 +12,11 @@ import (
 )
 
 type RainbowControls struct {
-	Clock   *controls.Clock     `json:"-"`
-	Speed   *controls.FloatDial `json:"speed"`
-	Chase   *controls.FloatDial `json:"chase"`
-	Reverse *controls.Toggle    `json:"reverse"`
+	// controls are more than just the configurable parameters.  it also contains the dials, knobs and buttons used to select the parameters.
+	Clock   *controls.Clock               `json:"-"`
+	Speed   *controls.ObservableRatioDial `json:"speed"` // TODO: doesn't have to be observable
+	Chase   *controls.FloatDial           `json:"chase"`
+	Reverse *controls.Toggle              `json:"reverse"`
 }
 
 func (c RainbowControls) Rainbow(fixtures *fixture.AddressableFixtures[fixture.Fixture]) controls.Triggers {
@@ -30,8 +32,8 @@ func (c RainbowControls) Rainbow(fixtures *fixture.AddressableFixtures[fixture.F
 	transition := func() {
 		// log.Printf("rainbow speed: %v", c.Speed.Value)
 
-		ratio := float64(16) / float64(c.Speed.Value)
-		// log.Printf("rainbow ratio: %v", ratio)
+		ratio := c.Speed.Get().ToFloat()
+		log.Printf("rainbow ratio: %v", ratio)
 
 		duration := time.Duration(float64(c.Clock.PhrasePeriod().Nanoseconds()) * ratio)
 		// log.Printf("rainbow transition duration: %v", duration)
@@ -48,19 +50,20 @@ func (c RainbowControls) Rainbow(fixtures *fixture.AddressableFixtures[fixture.F
 			f.SetChannelValue("dimmer", 255)
 			f.SetChannelValue("tilt", 127)
 
+			j := i
 			if c.Reverse.GetValue() {
-				i = max - i
+				j = max - i - 1
 			}
 
-			if cancels[i] != nil {
-				cancels[i]()
+			if cancels[j] != nil {
+				cancels[j]()
 			}
-			contexts[i], cancels[i] = context.WithCancel(context.Background())
-			action := Transition(f, start, end, duration, ease.InOutSine, fixture.REFRESH, contexts[i])
+			contexts[j], cancels[j] = context.WithCancel(context.Background())
+			action := Transition(f, start, end, duration, ease.InOutSine, fixture.REFRESH, contexts[j])
 
 			chaseDelay := time.Duration(float64(c.Clock.BeatPeriod().Nanoseconds()) * c.Chase.Value * float64(i))
 			// log.Printf("rainbow chaseDelay: %v", chaseDelay)
-			go Delay(chaseDelay, action, contexts[i])
+			go Delay(chaseDelay, action, contexts[j])
 		}
 	}
 
@@ -87,41 +90,22 @@ func (c RainbowControls) GetItem(name string) (controls.Item, error) {
 }
 
 func NewRainbowControls(clock *controls.Clock) RainbowControls {
-	speed := controls.ObservableFloatDial{
-		FloatDial: controls.FloatDial{
-			Value: 16,
-			Min:   0,
-			Max:   10,
-		},
-		Observers: *controls.NewObservable[controls.FloatDial](),
-	}
-	speed.Observers.AddObserverFunc(func(value controls.FloatDial) {
-		speed.FloatDial = value
-	})
-
+	speed := controls.NewObservableRatioDial()
 	chase := controls.ObservableFloatDial{ // TODO: should be a ratio of period (from 16x to 1/16x)
 		FloatDial: controls.FloatDial{
 			Value: 1,
 			Min:   0,
 			Max:   10,
 		},
-		Observers: *controls.NewObservable[controls.FloatDial](),
 	}
-	chase.Observers.AddObserverFunc(func(value controls.FloatDial) {
-		chase.FloatDial = value
-	})
 
 	reverse := controls.ObservableToggle{
-		Toggle:    *controls.NewToggle(),
-		Observers: *controls.NewObservable[controls.Toggle](),
+		Toggle: *controls.NewToggle(),
 	}
-	reverse.Observers.AddObserverFunc(func(value controls.Toggle) {
-		reverse.Toggle = value
-	})
 
 	return RainbowControls{
 		Clock:   clock,
-		Speed:   &speed.FloatDial,
+		Speed:   speed,
 		Chase:   &chase.FloatDial,
 		Reverse: &reverse.Toggle,
 	}

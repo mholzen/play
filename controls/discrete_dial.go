@@ -2,52 +2,99 @@ package controls
 
 import (
 	"encoding/json"
+	"strconv"
 )
 
-type DiscreteDial[T comparable] struct {
-	Index int `json:"index"`
-	// Value T   `json:"value"`
-	Marks []T `json:"marks"`
+type Labelable interface {
+	comparable
+	Label() string
 }
 
-func NewDiscreteDial[T comparable](marks []T) *DiscreteDial[T] {
-	return &DiscreteDial[T]{
-		Index: 0,
-		Marks: marks,
+type Options[T comparable] struct {
+	Value T `json:"value"`
+}
+
+type DiscreteDial[T Labelable] struct {
+	Index   int          `json:"index"`
+	Options []Options[T] `json:"options"`
+}
+
+func NewDiscreteDial[T Labelable](options []T) *DiscreteDial[T] {
+	labeledOptions := make([]Options[T], len(options))
+	for i, option := range options {
+		labeledOptions[i] = Options[T]{
+			Value: option,
+		}
 	}
-}
-
-type discreteDialJSON[T comparable] struct {
-	Value T   `json:"value"`
-	Marks []T `json:"marks"`
-	Min   int `json:"min"`
-	Max   int `json:"max"`
+	return &DiscreteDial[T]{
+		Index:   0,
+		Options: labeledOptions,
+	}
 }
 
 func (d *DiscreteDial[T]) Get() T {
-	return d.Marks[d.Index]
+	return d.Options[d.Index].Value
+}
+
+func (d *DiscreteDial[T]) GetMark() Options[T] {
+	return d.Options[d.Index]
 }
 
 func (d *DiscreteDial[T]) Set(value T) {
-	// TODO: avoid failing silently if the value is not in the marks
-	for i, mark := range d.Marks {
-		if mark == value {
+	for i, option := range d.Options {
+		if option.Value == value {
 			d.Index = i
-			// d.Value = value
 			return
 		}
 	}
+	panic("value not found")
+}
+
+func (d *DiscreteDial[T]) SetIndex(index int) {
+	d.Index = index
+}
+
+func (d *DiscreteDial[T]) GetValueString() string {
+	return d.Get().Label()
+}
+
+func (d *DiscreteDial[T]) SetValueString(index string) {
+	indexInt, err := strconv.Atoi(index)
+	if err != nil {
+		panic(err)
+	}
+	d.SetIndex(indexInt)
 }
 
 func (d *DiscreteDial[T]) MarshalJSON() ([]byte, error) {
-	if len(d.Marks) == 0 {
+	if len(d.Options) == 0 {
 		return json.Marshal(d)
 	}
 
-	return json.Marshal(discreteDialJSON[T]{
-		Value: d.Get(),
-		Marks: d.Marks,
+	marks := make([]sliderMarksJSON, len(d.Options))
+	for i, option := range d.Options {
+		marks[i] = sliderMarksJSON{
+			Value: i,
+			Label: option.Value.Label(),
+		}
+	}
+
+	return json.Marshal(sliderJSON[T]{
+		Value: d.Index,
+		Marks: marks,
 		Min:   0,
-		Max:   len(d.Marks) - 1,
+		Max:   len(d.Options) - 1,
 	})
+}
+
+type sliderMarksJSON struct {
+	Value int    `json:"value"`
+	Label string `json:"label"`
+}
+
+type sliderJSON[T comparable] struct {
+	Value int               `json:"value"`
+	Marks []sliderMarksJSON `json:"marks"`
+	Min   int               `json:"min"`
+	Max   int               `json:"max"`
 }

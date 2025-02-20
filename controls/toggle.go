@@ -6,8 +6,14 @@ import (
 	"strings"
 )
 
+type ToggleLabelable bool
+
+func (t ToggleLabelable) Label() string {
+	return fmt.Sprintf("%v", t)
+}
+
 type Toggle struct {
-	DiscreteDial[bool] `json:"Value"`
+	DiscreteDial[ToggleLabelable] `json:"Value"`
 }
 
 func (t *Toggle) MarshalJSON() ([]byte, error) {
@@ -16,7 +22,7 @@ func (t *Toggle) MarshalJSON() ([]byte, error) {
 
 func NewToggle() *Toggle {
 	return &Toggle{
-		DiscreteDial: *NewDiscreteDial([]bool{false, true}),
+		DiscreteDial: *NewDiscreteDial([]ToggleLabelable{false, true}),
 	}
 }
 
@@ -54,11 +60,11 @@ func (t *Toggle) SetValueString(value string) {
 }
 
 func (t *Toggle) GetValue() bool {
-	return t.Get()
+	return bool(t.DiscreteDial.Get())
 }
 
 func (t *Toggle) GetValueString() string {
-	return fmt.Sprintf("%v", t.Get())
+	return fmt.Sprintf("%v", t.DiscreteDial.Get())
 }
 
 type ObservableToggle struct {
