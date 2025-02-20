@@ -20,7 +20,8 @@ func ContainerGetHandler(container controls.Container) echo.HandlerFunc {
 			return err
 		}
 
-		endsWithSlash := path[len(path)-1] == '/'
+		// endsWithSlash := path[len(path)-1] == '/'
+		endsWithSlash := strings.HasSuffix(path, "/")
 
 		if endsWithSlash {
 			// Try to convert item to a map/array-like structure
@@ -68,7 +69,7 @@ func PathResolve(container controls.Container, path string) (controls.Item, stri
 func resolvePathToItem(c echo.Context, container controls.Container) (controls.Item, string, error) {
 	path := c.Param("*")
 	if path == "" {
-		return nil, path, echo.NewHTTPError(http.StatusBadRequest, "path is required")
+		return container, path, nil // the root container is returned
 	}
 
 	item, _, err := PathResolve(container, path)

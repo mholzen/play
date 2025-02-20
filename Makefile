@@ -66,7 +66,7 @@ run-docker:
 	docker run -p 8080:8080 --device=/dev/tty.usbserial-ENVVVCOF:/dev/tty.usbserial-ENVVVCOF play-go
 
 run-docker-remote:
-	ssh marc@$(host) "docker run -p 1300:1300 --add-host=host.docker.internal:host-gateway --device=/dev/ttyUSB0:/dev/ttyUSB0 ubuntu-1:5000/play-go"
+	ssh marc@$(host) "docker pull ubuntu-1:5000/play-go &&  docker run -p 1300:1300 --add-host=host.docker.internal:host-gateway --device=/dev/ttyUSB0:/dev/ttyUSB0 ubuntu-1:5000/play-go"
 
 push-docker:
 	docker tag play-go $(host):5000/play-go

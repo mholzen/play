@@ -26,7 +26,7 @@ func GetHome() Home {
 }
 
 func GetRootSurface(universe fixture.Fixtures[fixture.Fixture], clock *controls.Clock) controls.Container {
-	surface := controls.NewList(5)
+	surface := controls.NewList(4)
 
 	// dial map
 	dialFixtures := fixture.NewObservableFixtures(universe.Clone())
@@ -56,8 +56,12 @@ func GetRootSurface(universe fixture.Fixtures[fixture.Fixture], clock *controls.
 
 	surface.SetItem(0, mux)
 	surface.SetItem(1, dialList)
-	surface.SetItem(2, dialMap)
-	surface.SetItem(3, rainbowControls)
+	// surface.SetItem(2, dialMap)
+	surface.SetItem(2, rainbowControls)
+
+	// newList := controls.NewList(1)
+	// surface.SetItem(4, newList)
+	// newList.SetItem(0, mux)
 
 	return surface
 }

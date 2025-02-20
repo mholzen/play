@@ -1,6 +1,9 @@
 package controls
 
-import "strconv"
+import (
+	"encoding/json"
+	"strconv"
+)
 
 type List struct {
 	items []Item `json:"-"`
@@ -46,4 +49,8 @@ func (l *List) Map() map[string]any {
 		m[strconv.Itoa(i)] = item
 	}
 	return m
+}
+
+func (l *List) MarshalJSON() ([]byte, error) {
+	return json.Marshal(l.Items())
 }

@@ -157,7 +157,7 @@ func Test_ContainerGetDial(t *testing.T) {
 	assert.Equal(t, `42`+"\n", recorder.Body.String())
 }
 
-func Test_ContainerGetContainer2(t *testing.T) {
+func Test_ContainerGetContainer(t *testing.T) {
 	handler := ContainerGetHandler(getTestContainer())
 
 	ctx, recorder := newGetResponseRecorder("/container1")
@@ -171,7 +171,7 @@ func Test_ContainerGetContainer2(t *testing.T) {
 	assert.Contains(t, recorder.Body.String(), `42`)
 }
 
-func Test_ContainerGetContainerSlash2(t *testing.T) {
+func Test_ContainerGetContainerSlash(t *testing.T) {
 	handler := ContainerGetHandler(getTestContainer())
 
 	ctx, recorder := newGetResponseRecorder("/container1/")

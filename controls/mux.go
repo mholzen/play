@@ -54,17 +54,17 @@ func (m *Mux[T]) SetSource(name string) error {
 
 func (m *Mux[T]) MarshalJSON() ([]byte, error) {
 	res := struct {
-		Sources []string `json:"sources"`
-		Source  string   `json:"source"`
+		Options []string `json:"options"`
+		Value   string   `json:"value"`
 	}{
-		Sources: make([]string, 0, len(m.Sources)),
-		Source:  m.Source,
+		Options: make([]string, 0, len(m.Sources)),
+		Value:   m.Source,
 	}
 
 	for name := range m.Sources {
-		res.Sources = append(res.Sources, name)
+		res.Options = append(res.Options, name)
 	}
-	slices.Sort(res.Sources)
+	slices.Sort(res.Options)
 
 	return json.Marshal(res)
 }
