@@ -14,12 +14,17 @@ import (
 type RainbowControls struct {
 	// controls are more than just the configurable parameters.  it also contains the dials, knobs and buttons used to select the parameters.
 	Clock   *controls.Clock               `json:"-"`
+	Cycle   *controls.ObservableRatioDial `json:"cycle"`
 	Speed   *controls.ObservableRatioDial `json:"speed"` // TODO: doesn't have to be observable
 	Chase   *controls.FloatDial           `json:"chase"`
 	Reverse *controls.Toggle              `json:"reverse"`
 }
 
-func (c RainbowControls) Rainbow(fixtures *fixture.AddressableFixtures[fixture.Fixture]) controls.Triggers {
+func (c RainbowControls) Rainbow(fixtures *fixture.AddressableFixtures[fixture.Fixture]) {
+	// initial setup -- could be optional
+	fixtures.SetChannelValue("dimmer", 255)
+	fixtures.SetChannelValue("tilt", 127)
+
 	seq := controls.NewSequence([]controls.ChannelValues{
 		controls.AllColors["red"].Values(), // TODO: if `red` doesn't exist, this should fail fast rather than return a the 0 (ie. black) color
 		controls.AllColors["yellow"].Values(),
@@ -29,26 +34,21 @@ func (c RainbowControls) Rainbow(fixtures *fixture.AddressableFixtures[fixture.F
 		controls.AllColors["purple"].Values(),
 	})
 
-	transition := func() {
-		// log.Printf("rainbow speed: %v", c.Speed.Value)
+	max := len(fixtures.GetFixtureList())
+	contexts := make([]context.Context, max)
+	cancels := make([]context.CancelFunc, max)
 
+	transition := func() {
 		ratio := c.Speed.Get().ToFloat()
-		log.Printf("rainbow ratio: %v", ratio)
+		// log.Printf("rainbow ratio: %v", ratio)
 
 		duration := time.Duration(float64(c.Clock.PhrasePeriod().Nanoseconds()) * ratio)
-		// log.Printf("rainbow transition duration: %v", duration)
+		log.Printf("rainbow transition duration: %v", duration)
 
 		start, end := seq.IncValues()
 		// log.Printf("transition %v to %v (duration: %v)\n", start, end, duration)
 
-		max := len(fixtures.GetFixtureList())
-		contexts := make([]context.Context, max)
-		cancels := make([]context.CancelFunc, max)
-
 		for i, f := range fixtures.GetFixtureList() {
-
-			f.SetChannelValue("dimmer", 255)
-			f.SetChannelValue("tilt", 127)
 
 			j := i
 			if c.Reverse.GetValue() {
@@ -63,15 +63,17 @@ func (c RainbowControls) Rainbow(fixtures *fixture.AddressableFixtures[fixture.F
 
 			chaseDelay := time.Duration(float64(c.Clock.BeatPeriod().Nanoseconds()) * c.Chase.Value * float64(i))
 
-			log.Printf("rainbow chaseDelay: %v", chaseDelay)
+			// log.Printf("rainbow chaseDelay: %v", chaseDelay)
 			go Delay(chaseDelay, action, contexts[j])
 		}
 	}
 
-	t := c.Clock.On(controls.TriggerOnBar(1), transition)
-	return controls.Triggers{
-		*t,
+	setupTrigger := func(ratio controls.Ratio) {
+		c.Clock.On(controls.TriggerOnPhraseRatio(ratio.Numerator, ratio.Denominator), transition)
 	}
+
+	setupTrigger(c.Cycle.Get())
+	controls.OnChange(c.Cycle, setupTrigger)
 }
 
 func (c RainbowControls) Items() map[string]controls.Item {
@@ -79,6 +81,7 @@ func (c RainbowControls) Items() map[string]controls.Item {
 		"speed":   c.Speed,
 		"chase":   c.Chase,
 		"reverse": c.Reverse,
+		"cycle":   c.Cycle,
 	}
 }
 
@@ -92,6 +95,8 @@ func (c RainbowControls) GetItem(name string) (controls.Item, error) {
 
 func NewRainbowControls(clock *controls.Clock) RainbowControls {
 	speed := controls.NewObservableRatioDial()
+	cycle := controls.NewObservableRatioDial()
+
 	chase := controls.ObservableFloatDial{ // TODO: should be a ratio of period (from 16x to 1/16x)
 		FloatDial: controls.FloatDial{
 			Value: 1,
@@ -106,6 +111,7 @@ func NewRainbowControls(clock *controls.Clock) RainbowControls {
 
 	return RainbowControls{
 		Clock:   clock,
+		Cycle:   cycle,
 		Speed:   speed,
 		Chase:   &chase.FloatDial,
 		Reverse: &reverse.Toggle,

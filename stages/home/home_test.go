@@ -41,7 +41,6 @@ func Test_RootSurfaceMux(t *testing.T) {
 	// Get dialMap
 	item, err := rootSurface.GetItem("1")
 	require.NoError(t, err)
-
 	require.IsType(t, &controls.DialList{}, item)
 
 	dialList, ok := item.(*controls.DialList)
@@ -69,6 +68,7 @@ func Test_RootSurfaceMux(t *testing.T) {
 		t.Helper() // Marks this function as a test helper
 
 		dialList.SetChannelValue("r", 0xa)
+		log.Printf("set r to 0xa")
 		<-advance // wait for 1
 
 		redDial.SetValue(0xb)

@@ -50,3 +50,14 @@ func (o *Observers[T]) AddObserverFunc(observer func(T)) {
 		}
 	}()
 }
+
+func OnChange[T any](observable Observable[T], trigger func(value T)) chan T {
+	ch := make(chan T)
+	observable.AddObserver(ch)
+	go func() {
+		for event := range ch {
+			trigger(event)
+		}
+	}()
+	return ch
+}

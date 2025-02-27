@@ -38,6 +38,7 @@ var DecreasingRatios = RatioSlice{
 	{1, 8},
 	{1, 12},
 	{1, 16},
+	{1, 24},
 	{1, 32},
 }
 

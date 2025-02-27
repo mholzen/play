@@ -17,11 +17,28 @@ type Settable interface {
 }
 
 type NumericDial struct {
-	Value byte
+	Value byte `json:"value"`
+	min   byte
+	max   byte
 }
 
-// Should a NumericDial automatically observable? No.  It can have just a polling interface.
+func (d *NumericDial) Set(value byte) {
+	d.Value = value
+}
 
+func (d *NumericDial) Get() byte {
+	return d.Value
+}
+
+func (d *NumericDial) Min() byte {
+	return d.min
+}
+
+func (d *NumericDial) Max() byte {
+	return d.max
+}
+
+// Should a NumericDial automatically observable? No, it can have just a polling API
 func (d *NumericDial) SetValue(value byte) {
 	d.Value = value
 }
@@ -39,11 +56,11 @@ func (d *NumericDial) SetValueString(value string) {
 }
 
 func (d *NumericDial) SetMax() {
-	d.SetValue(255)
+	d.SetValue(d.max)
 }
 
 func (d *NumericDial) SetMin() {
-	d.SetValue(0)
+	d.SetValue(d.min)
 }
 
 func (d *NumericDial) Toggle() {
@@ -69,30 +86,39 @@ func (d *NumericDial) MarshalJSON() ([]byte, error) {
 
 type ObservableNumericalDial struct {
 	Observers[byte]
-	Dial *NumericDial // TODO: can be embedded?
+	NumericDial
 }
 
 func (d *ObservableNumericalDial) SetValue(value byte) {
-	d.Dial.SetValue(value)
+	d.NumericDial.SetValue(value)
 	d.Notify(value)
 }
 
 func NewObservableNumericalDial(dial *NumericDial) *ObservableNumericalDial {
 	return &ObservableNumericalDial{
-		Observers: *NewObservable[byte](),
-		Dial:      dial,
+		Observers:   *NewObservable[byte](),
+		NumericDial: *dial,
 	}
 }
 
+func NewObservableNumericalDial2() Dial[byte] {
+	dial := NewNumericDial()
+	return NewObservableNumericalDial(dial)
+}
+
+func NewObservableNumericalDialFromChannel(channel string) *ObservableNumericalDial {
+	return NewObservableNumericalDial(NewNumericDial())
+}
+
 func (d *ObservableNumericalDial) GetValueString() string {
-	return d.Dial.GetValueString()
+	return d.NumericDial.GetValueString()
 }
 
 func (d *ObservableNumericalDial) SetValueString(value string) {
-	d.Dial.SetValueString(value)
-	d.Notify(d.Dial.Value)
+	d.NumericDial.SetValueString(value)
+	d.Notify(d.NumericDial.Value)
 }
 
 func (d *ObservableNumericalDial) MarshalJSON() ([]byte, error) {
-	return json.Marshal(d.Dial)
+	return json.Marshal(d.NumericDial)
 }

@@ -6,7 +6,7 @@ import (
 
 func Test_DialListHasOrder(t *testing.T) {
 	dialMap := NewObservableNumericDialMap("r", "g", "b")
-	dialList := NewDialList(dialMap)
+	dialList := NewDialListFromContainer(dialMap)
 
 	// Verify dialList implements Container interface
 	var _ OrderedContainer = dialList

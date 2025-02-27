@@ -30,11 +30,19 @@ func GetRootSurface(universe fixture.Fixtures[fixture.Fixture], clock *controls.
 
 	// dial map
 	dialFixtures := fixture.NewObservableFixtures(universe.Clone())
-	dialMap := fixture.NewObservableDialMapForAllChannels(dialFixtures)
-	dialList := controls.NewDialList(dialMap)
+	dialMap := controls.ChannelsToDialMap2(controls.DefaultChannelList, controls.NewObservableNumericalDial2)
+	dialList := controls.NewDialListFromDialMap(dialMap)
+
+	fixture.ConnectObservablesToFixtures2(dialList.GetObservables(), dialFixtures)
+
+	// TODO: have any changes to a dial of the list apply the entirety of the channel valuesto dialFixtures
+	// observableDialMap := controls.NewObservableFromDialMap(dialMap)
+	// fixture.ConnectObservableChannelValuesToFixtures(observableDialMap, dialFixtures)
 
 	// rainbow
 	rainbowFixtures := fixture.NewIndividualObservableFixtures(universe.Clone())
+	// A change to ANY individual observable fixtures SHUOLD notify all rainbow fixtures observers
+
 	rainbowControls := patterns.NewRainbowControls(clock)
 	rainbowControls.Rainbow(&rainbowFixtures.AddressableFixtures)
 
@@ -49,10 +57,10 @@ func GetRootSurface(universe fixture.Fixtures[fixture.Fixture], clock *controls.
 	mux.Add("rainbow", rainbowFixtures)
 	mux.Add("fall in", fallInFixtures)
 
-	mux.SetSource("dials")
+	mux.SetSource("rainbow")
 
 	// link mux emitter to universe fixture
-	fixture.LinkObservableToFixture(mux, &universe)
+	fixture.ConnectObservableValuesToFixtures(mux, universe)
 
 	surface.SetItem(0, mux)
 	surface.SetItem(1, dialList)

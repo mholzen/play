@@ -3,17 +3,23 @@ package controls
 import (
 	"fmt"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func Test_Observable(t *testing.T) {
+	wait := make(chan int)
+	var expected int
+
 	observable := NewObservable[int]()
-	observable.AddObserverFunc(func(value int) {
-		fmt.Println("value changed", value)
+	OnChange(observable, func(value int) {
+		fmt.Println("value received:", value)
+		expected = value
+		wait <- 1
 	})
 
 	observable.Notify(1)
-	observable.Notify(2)
-	observable.Notify(3)
-	observable.Notify(4)
-	observable.Notify(5)
+
+	<-wait
+	require.Equal(t, expected, 1)
 }

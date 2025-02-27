@@ -14,10 +14,12 @@ func (d *ObservableRatioDial) MarshalJSON() ([]byte, error) {
 }
 
 func NewObservableRatioDial() *ObservableRatioDial {
-	return &ObservableRatioDial{
+	res := &ObservableRatioDial{
 		RatioDial: *NewDiscreteDial(CommonRatios),
 		Observers: *NewObservable[Ratio](),
 	}
+	res.Set(IdentityRatio)
+	return res
 }
 
 func NewCommonIncreasingRatioDial() *ObservableRatioDial {

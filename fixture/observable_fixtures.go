@@ -1,8 +1,6 @@
 package fixture
 
 import (
-	"log"
-
 	"github.com/mholzen/play-go/controls"
 )
 
@@ -49,18 +47,25 @@ func (f *ObservableFixtures) SetChannelValues(values controls.ChannelValues) {
 	f.Notify(f.AddressableFixtures.GetValue())
 }
 
+func (f *ObservableFixtures) SetChannelValue(channel string, value byte) {
+	f.AddressableFixtures.SetChannelValue(channel, value)
+	f.Notify(f.AddressableFixtures.GetValue())
+}
+
 func NewObservableDialMapForAllChannels(fixtures *ObservableFixtures) *controls.ObservableDialMap2 {
 	dialMap := controls.NewObservableDialMap2()
 	channels := fixtures.GetChannels()
 	for _, channel := range channels {
+		// changes from the dial will notify the dialMap
 		dialMap.AddItem(channel, controls.NewObservableNumericalDial(controls.NewNumericDial()))
 	}
 
+	// changes to the dialMap will notify the fixtures
 	received := make(chan controls.ChannelValues)
 	dialMap.AddObserver(received)
 	go func() {
 		for valueMap := range received {
-			log.Printf("dial map received value map %v", valueMap)
+			// log.Printf("dial map received value map %v", valueMap)
 			fixtures.SetChannelValues(valueMap)
 		}
 	}()

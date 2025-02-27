@@ -147,7 +147,6 @@ func (c *Clock) Trigger() {
 	for _, callback := range c.tickCallbacks {
 		callback()
 	}
-	// c.SendToChannels()
 	c.CheckTriggers()
 }
 

@@ -24,6 +24,14 @@ func TriggerOnBar(bar int) TriggerFunc {
 	}
 }
 
+func TriggerOnPhraseRatio(numerator int, denominator int) TriggerFunc {
+	return func(c Clock) bool {
+		ticks := numerator * (c.TicksPerBeat * c.BeatsPerBar * c.BarPerPhrase) / denominator
+		trigger := c.Ticks()%ticks == 0
+		return trigger
+	}
+}
+
 func TriggerOnBars() TriggerFunc {
 	return TriggerOnBar(0)
 }

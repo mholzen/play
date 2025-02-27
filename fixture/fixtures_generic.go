@@ -8,15 +8,15 @@ import (
 
 type Fixtures[T Fixture] interface {
 	GetFixtures() map[int]T
-	GetChannels() []string
 	GetAddresses() []int
 	SetValue(fixtureValues FixtureValues)
+	SetChannelValue(channel string, value byte)
 	GetValue() FixtureValues
 	GetByteArray() []byte
 	Clone() Fixtures[T]
 }
 
-type AddressableFixtures[T Fixture] map[int]T
+type AddressableFixtures[T Fixture] map[int]T // TODO: not sure generic is useful here
 
 type AddressableChannelFixtures = AddressableFixtures[ChannelFixture]
 
@@ -185,4 +185,10 @@ func (f AddressableFixtures[T]) GetChannelValues() controls.ChannelValues {
 		}
 	}
 	return res
+}
+
+func SetChannelValues(f Fixtures[Fixture], values controls.ChannelValues) {
+	for _, fixture := range f.GetFixtures() {
+		fixture.SetChannelValues(values)
+	}
 }

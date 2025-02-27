@@ -11,20 +11,7 @@ build:
 	GOOS=$(OS) go build -o bin/server ./cmd/server
 
 run:
-	# go run ./cmd/server
 	CompileDaemon --build="go build -o bin/server ./cmd/server" --command="./bin/server"
-
-run-dev:
-	~/go/bin/air
-
-open:
-	open http://$(host):1300
-
-on:
-	curl -vvv http://$(host):1300/controls/dimmer/255
-
-off:
-	curl -vvv http://$(host):1300/controls/dimmer/0
 
 ssh:
 	ssh -A $(host) -l marc -t "cd play; source .setup; zsh --login --interactive"
@@ -58,6 +45,9 @@ live:
 
 test:
 	env ROOT=$(cwd) go test ./... | grcat .grc.conf
+
+test-watch:
+	CompileDaemon --build="make test || false" --command="echo 'Tests completed'" --pattern="(.+\.go|.+\.yaml)"
 
 build-docker:
 	docker buildx build --platform linux/amd64 -t play-go --load .
