@@ -21,7 +21,7 @@ func Test_ObservableDialMapIsContainer(t *testing.T) {
 
 func Test_ObservableDialMap2(t *testing.T) {
 	dialMap := NewObservableDialMap2()
-	dialMap.AddItem("r", NewObservableNumericalDial(NewNumericDial()))
+	dialMap.AddItem("r", NewObservableNumericalDial())
 
 	item, err := dialMap.GetItem("r")
 	assert.Nil(t, err)

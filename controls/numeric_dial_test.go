@@ -10,11 +10,12 @@ func Test_NumericDial(t *testing.T) {
 	numericDial := NewNumericDial()
 
 	var _ Control = numericDial
+	var _ Settable = numericDial
+	var _ Dial[byte] = numericDial
 }
 
 func Test_ObservableNumericDial(t *testing.T) {
-	numericDial := NewNumericDial()
-	observableNumericDial := NewObservableNumericalDial(numericDial)
+	observableNumericDial := NewObservableNumericalDial()
 
 	var _ Control = observableNumericDial
 

@@ -21,9 +21,9 @@ func Test_DialListIsContainer(t *testing.T) {
 
 func Test_NewDialListFromChannels(t *testing.T) {
 	channels := []string{"r", "g", "b"}
-	dial := NewObservableNumericalDial2()
+	dial := NewDialObservableNumeric()
 	var _ Dial[byte] = dial
-	dialMap := ChannelsToDialMap2(channels, NewObservableNumericalDial2)
+	dialMap := ChannelsToDialMap(channels, NewDialObservableNumeric)
 
 	bytes, err := json.Marshal(dialMap)
 	assert.Nil(t, err)

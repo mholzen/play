@@ -95,13 +95,10 @@ func (m *ObservableDialMap2) AddItem(name string, item Item) {
 	}()
 }
 
-func NewObservableDialMap2(channels ...string) *ObservableDialMap2 {
+func NewObservableDialMap2() *ObservableDialMap2 {
 	res := &ObservableDialMap2{
 		Observers: *NewObservable[ChannelValues](),
 		ItemMap:   NewItemMap(),
-	}
-	for _, channel := range channels {
-		res.AddItem(channel, NewObservableNumericalDial(NewNumericDial()))
 	}
 	return res
 }

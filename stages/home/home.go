@@ -30,12 +30,12 @@ func GetRootSurface(universe fixture.Fixtures[fixture.Fixture], clock *controls.
 
 	// dial map
 	dialFixtures := fixture.NewObservableFixtures(universe.Clone())
-	dialMap := controls.ChannelsToDialMap2(controls.DefaultChannelList, controls.NewObservableNumericalDial2)
+	dialMap := controls.ChannelsToDialMap(controls.DefaultChannelList, controls.NewDialObservableNumeric)
 	dialList := controls.NewDialListFromDialMap(dialMap)
 
-	fixture.ConnectObservablesToFixtures2(dialList.GetObservables(), dialFixtures)
+	fixture.ConnectObservablesToFixtures(dialList.GetObservables(), dialFixtures)
 
-	// TODO: have any changes to a dial of the list apply the entirety of the channel valuesto dialFixtures
+	// TODO: have any changes to a dial of the list apply the entirety of the channel values to dialFixtures
 	// observableDialMap := controls.NewObservableFromDialMap(dialMap)
 	// fixture.ConnectObservableChannelValuesToFixtures(observableDialMap, dialFixtures)
 

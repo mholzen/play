@@ -9,11 +9,15 @@ type ObservableFixtures struct {
 	controls.Observers[FixtureValues]
 }
 
-func NewObservableFixtures(fixtures Fixtures[Fixture]) *ObservableFixtures {
-	res := &ObservableFixtures{
+func newObservableFixtures() *ObservableFixtures {
+	return &ObservableFixtures{
 		AddressableFixtures: *NewAddressableFixtures[Fixture](),
 		Observers:           *controls.NewObservable[FixtureValues](),
 	}
+}
+
+func NewObservableFixtures(fixtures Fixtures[Fixture]) *ObservableFixtures {
+	res := newObservableFixtures()
 	for address, fixture := range fixtures.GetFixtures() {
 		res.AddFixture(fixture, address)
 	}
@@ -21,16 +25,14 @@ func NewObservableFixtures(fixtures Fixtures[Fixture]) *ObservableFixtures {
 }
 
 func NewIndividualObservableFixtures(fixtures Fixtures[Fixture]) *ObservableFixtures {
-	res := &ObservableFixtures{
-		AddressableFixtures: *NewAddressableFixtures[Fixture](),
-		Observers:           *controls.NewObservable[FixtureValues](),
-	}
+	res := newObservableFixtures()
 
 	ch := make(chan controls.ChannelValues)
 	for address, fixture := range fixtures.GetFixtures() {
 		observableFixture := NewObservableFixture(fixture)
-		res.AddFixture(observableFixture, address)
 		observableFixture.AddObserver(ch)
+
+		res.AddFixture(observableFixture, address)
 	}
 	go func() {
 		for range ch {
@@ -50,24 +52,4 @@ func (f *ObservableFixtures) SetChannelValues(values controls.ChannelValues) {
 func (f *ObservableFixtures) SetChannelValue(channel string, value byte) {
 	f.AddressableFixtures.SetChannelValue(channel, value)
 	f.Notify(f.AddressableFixtures.GetValue())
-}
-
-func NewObservableDialMapForAllChannels(fixtures *ObservableFixtures) *controls.ObservableDialMap2 {
-	dialMap := controls.NewObservableDialMap2()
-	channels := fixtures.GetChannels()
-	for _, channel := range channels {
-		// changes from the dial will notify the dialMap
-		dialMap.AddItem(channel, controls.NewObservableNumericalDial(controls.NewNumericDial()))
-	}
-
-	// changes to the dialMap will notify the fixtures
-	received := make(chan controls.ChannelValues)
-	dialMap.AddObserver(received)
-	go func() {
-		for valueMap := range received {
-			// log.Printf("dial map received value map %v", valueMap)
-			fixtures.SetChannelValues(valueMap)
-		}
-	}()
-	return dialMap
 }

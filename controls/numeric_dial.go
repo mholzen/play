@@ -38,7 +38,6 @@ func (d *NumericDial) Max() byte {
 	return d.max
 }
 
-// Should a NumericDial automatically observable? No, it can have just a polling API
 func (d *NumericDial) SetValue(value byte) {
 	d.Value = value
 }
@@ -85,6 +84,7 @@ func (d *NumericDial) MarshalJSON() ([]byte, error) {
 }
 
 type ObservableNumericalDial struct {
+	// NOTE: a NumericDial should not be automatically observable: it is useful even with only a polling API
 	Observers[byte]
 	NumericDial
 }
@@ -92,22 +92,6 @@ type ObservableNumericalDial struct {
 func (d *ObservableNumericalDial) SetValue(value byte) {
 	d.NumericDial.SetValue(value)
 	d.Notify(value)
-}
-
-func NewObservableNumericalDial(dial *NumericDial) *ObservableNumericalDial {
-	return &ObservableNumericalDial{
-		Observers:   *NewObservable[byte](),
-		NumericDial: *dial,
-	}
-}
-
-func NewObservableNumericalDial2() Dial[byte] {
-	dial := NewNumericDial()
-	return NewObservableNumericalDial(dial)
-}
-
-func NewObservableNumericalDialFromChannel(channel string) *ObservableNumericalDial {
-	return NewObservableNumericalDial(NewNumericDial())
 }
 
 func (d *ObservableNumericalDial) GetValueString() string {
@@ -121,4 +105,16 @@ func (d *ObservableNumericalDial) SetValueString(value string) {
 
 func (d *ObservableNumericalDial) MarshalJSON() ([]byte, error) {
 	return json.Marshal(d.NumericDial)
+}
+
+func NewObservableNumericalDial() *ObservableNumericalDial {
+	return &ObservableNumericalDial{
+		Observers:   *NewObservable[byte](),
+		NumericDial: *NewNumericDial(),
+	}
+}
+
+func NewDialObservableNumeric() Dial[byte] {
+	// TODO: can this be constructed functionally?
+	return NewObservableNumericalDial()
 }

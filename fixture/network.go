@@ -27,7 +27,7 @@ func ConnectObservableToFixtures(source controls.Observable[byte], channel strin
 	}()
 }
 
-func ConnectObservablesToFixtures2(sources map[string]controls.Observable[byte], target Fixtures[Fixture]) {
+func ConnectObservablesToFixtures(sources map[string]controls.Observable[byte], target Fixtures[Fixture]) {
 	for channel, dial := range sources {
 		ConnectObservableToFixtures(dial, channel, target)
 	}
