@@ -33,77 +33,50 @@ func setup() {
 
 	frequency := controls.NewTimeKeeper(10)
 
-	// Create maps of labeled functions with descriptive labels
-	keys := map[termbox.Key]controls.LabeledFunc{
-		termbox.KeyCtrlC: controls.SimpleFunc{
-			Fn:    func() { log.Printf("quitting"); os.Exit(0) },
-			Descr: "Quit the application",
-		},
-		termbox.Key('t'): controls.SimpleFunc{
-			Fn: func() {
+	controls.NewTermTrigger(
+		map[termbox.Key]func(){
+			termbox.KeyCtrlC: func() {
+				log.Printf("quitting")
+				os.Exit(0)
+			},
+			termbox.Key('t'): func() {
 				frequency.AddTime(time.Now())
 				bpm, _ := frequency.GetBpm()
 				log.Printf("=== TAP bpm: %f", bpm)
 			},
-			Descr: "Tap to set tempo",
-		},
-		termbox.Key('s'): controls.SimpleFunc{
-			Fn: func() {
+			termbox.Key('s'): func() {
 				bpm, _ := frequency.GetBpm()
 				clock.SetBpm(bpm)
 				log.Printf("=== SYNC bpm: %f", bpm)
 			},
-			Descr: "Sync clock to tapped tempo",
-		},
-		termbox.Key('r'): controls.SimpleFunc{
-			Fn: func() {
+			termbox.Key('r'): func() {
 				clock.Reset()
 				log.Printf("=== RESET")
 			},
-			Descr: "Reset the clock",
-		},
-		termbox.Key('['): controls.SimpleFunc{
-			Fn: func() {
+			termbox.Key('['): func() {
 				clock.Nudge(-10 * time.Millisecond)
 				log.Printf("=== NUDGE BACK -10ms")
 			},
-			Descr: "Nudge clock backward by 10ms",
-		},
-		termbox.Key(']'): controls.SimpleFunc{
-			Fn: func() {
+			termbox.Key(']'): func() {
 				clock.Nudge(10 * time.Millisecond)
 				log.Printf("=== NUDGE FORWARD +10ms")
 			},
-			Descr: "Nudge clock forward by 10ms",
-		},
-		termbox.Key('+'): controls.SimpleFunc{
-			Fn: func() {
+			termbox.Key('+'): func() {
 				clock.Pace(.01)
 				log.Printf("=== PACE UP .01")
 			},
-			Descr: "Increase tempo by 0.01 BPM",
-		},
-		termbox.Key('-'): controls.SimpleFunc{
-			Fn: func() {
+			termbox.Key('-'): func() {
 				clock.Pace(-.01)
 				log.Printf("=== PACE DOWN .01")
 			},
-			Descr: "Decrease tempo by 0.01 BPM",
 		},
-	}
-
-	floatKeys := map[termbox.Key]controls.FloatFunc{
-		termbox.Key('m'): controls.FloatFunc{
-			Fn: func(bpm float64) {
+		map[termbox.Key]func(float64){
+			termbox.Key('m'): func(bpm float64) {
 				clock.SetBpm(bpm)
 				log.Printf("=== SET bpm: %f", bpm)
 			},
-			Descr: "Set BPM to specific value",
 		},
-	}
-
-	// Use the new constructor that takes labeled functions
-	controls.NewLabeledTermTrigger(keys, floatKeys).Start()
+	).Start()
 
 	clock.On(controls.TriggerOnBeats(), func() { log.Printf("clock: %s", clock.String()) })
 	clock.Start()
