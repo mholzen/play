@@ -1,3 +1,7 @@
-main
 .pid
 *.log
+
+# build artifacts
+main
+cmd/live/live
+cmd/clock/clock
