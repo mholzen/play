@@ -1,16 +1,22 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
-	"log"
-	"maps"
 	"net/http"
-	"slices"
+	"regexp"
 	"strconv"
+	"strings"
 
 	"github.com/labstack/echo/v4"
 	"github.com/mholzen/play-go/controls"
 )
+
+// sanitizePath collapses multiple consecutive slashes into a single slash
+func sanitizePath(path string) string {
+	re := regexp.MustCompile(`/{2,}`)
+	return re.ReplaceAllString(path, "/")
+}
 
 func ControlsGetHandler(dialList controls.DialList) echo.HandlerFunc {
 	return func(c echo.Context) error {
@@ -49,19 +55,17 @@ func ControlsPostHandler(dialMap *controls.ObservableDialMap) echo.HandlerFunc {
 
 func ContainerGetHandler(container controls.Container) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		name := c.Param("name")
-		if name == "" {
-			path := c.Path()
-			if path[len(path)-1] == '/' {
-				return c.JSON(http.StatusOK, slices.Sorted(maps.Keys(container.Items())))
-			} else {
-				return c.JSON(http.StatusOK, container.Items())
-			}
+		path := c.Param("*")
+		if path == "" {
+			return c.JSON(http.StatusOK, container.Items())
 		}
-		// request path ends with /
-		item, err := container.GetItem(name)
+
+		// Sanitize path by collapsing duplicate slashes
+		path = sanitizePath(path)
+		segments := strings.Split(path, "/")
+		item, err := controls.ContainerFollowPath(container, segments)
 		if err != nil {
-			return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Error finding control named '%s'", name))
+			return echo.NewHTTPError(http.StatusNotFound, fmt.Errorf("error following path '%s': %w", path, err))
 		}
 
 		return c.JSON(http.StatusOK, item)
@@ -70,35 +74,40 @@ func ContainerGetHandler(container controls.Container) echo.HandlerFunc {
 
 func ContainerPostHandler(container controls.Container) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		name := c.Param("name")
-		item, err := container.GetItem(name)
+		path := c.Param("*")
+		if path == "" {
+			return echo.NewHTTPError(http.StatusNotFound, "Path is empty")
+		}
+		path = sanitizePath(path)
+		segments := strings.Split(path, "/")
+		item, err := controls.ContainerFollowPath(container, segments)
 		if err != nil {
-			return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Error finding control named '%s'", name))
+			return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Error following path '%s': %s", path, err))
 		}
 
-		// convert this to a control -- make observable dialmap a subcase
-		switch control := item.(type) {
-		case *controls.ObservableDialMap:
-			// Continue with existing control
-			channel := c.Param("channel")
-			value := c.Param("value")
-			b, err := strconv.Atoi(value)
-			if err != nil {
+		if control, ok := item.(controls.Control); ok {
+			var value interface{}
+			if err := json.NewDecoder(c.Request().Body).Decode(&value); err != nil {
 				return err
 			}
-			control.SetChannelValue(channel, byte(b))
-			log.Printf("Dial Map updated: %s:%s", name, value)
 
-		case controls.Control:
-			value := c.Param("value")
-			control.SetValueString(value)
-			log.Printf("Control updated: %s", value)
-
-		default:
-			return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Item is not a control (item: '%s')", name))
+			switch v := value.(type) {
+			case int:
+				control.SetValueString(strconv.Itoa(v))
+			case float64:
+				floatValue := fmt.Sprintf("%f", v)
+				control.SetValueString(floatValue)
+			case string:
+				control.SetValueString(v)
+			case bool:
+				control.SetValueString(strconv.FormatBool(v))
+			default:
+				return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid value type: %T", v))
+			}
+			return c.JSON(http.StatusOK, control.GetValueString())
+		} else {
+			return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Item is not a Control (got '%T')", item))
 		}
-
-		return c.JSON(http.StatusOK, item)
 	}
 }
 

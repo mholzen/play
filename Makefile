@@ -57,4 +57,4 @@ live:
 	(cd cmd/live; go run live.go)
 
 test:
-	env ROOT=$(cwd) go test ./... | grcat ~/.grc/go.conf
+	env ROOT=$(cwd) go test ./... | grcat ~/.grc/conf.go-test

@@ -35,6 +35,7 @@ func (o *Observable[T]) RemoveObserver(observer chan T) {
 }
 
 func (o *Observable[T]) Notify(event T) {
+	// log.Printf("Notifying observers of event: %v", event)
 	o.lock.Lock()
 	defer o.lock.Unlock()
 	for observer := range o.observers {

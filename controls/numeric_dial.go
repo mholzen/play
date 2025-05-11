@@ -2,18 +2,18 @@ package controls
 
 import (
 	"encoding/json"
+	"fmt"
+	"log"
 )
 
 func NewNumericDial() *NumericDial {
 	return &NumericDial{
-		Value:   0,
-		channel: make(chan byte),
+		Value: 0,
 	}
 }
 
 type NumericDial struct {
-	Value   byte
-	channel chan byte `json:"-"`
+	Value byte
 }
 
 func (d *NumericDial) SetValue(value byte) {
@@ -47,4 +47,17 @@ func (d NumericDial) Opposite() byte {
 
 func (d *NumericDial) MarshalJSON() ([]byte, error) {
 	return json.Marshal(d.Value)
+}
+
+func (d *NumericDial) SetValueString(value string) {
+	var b byte
+	if _, err := fmt.Sscanf(value, "%d", &b); err == nil {
+		d.SetValue(b)
+	} else {
+		log.Printf("Error setting value '%s': %s", value, err)
+	}
+}
+
+func (d *NumericDial) GetValueString() string {
+	return fmt.Sprintf("%d", d.Value)
 }

@@ -9,7 +9,15 @@ import (
 
 type ObservableDialMap struct {
 	Observable[ChannelValues]
-	Dials *NumericDialMap
+	Dials *ObservableNumericalDialmap
+}
+
+func (m *ObservableDialMap) GetItem(name string) (Item, error) {
+	return m.Dials.GetItem(name)
+}
+
+func (m *ObservableDialMap) Items() map[string]Item {
+	return m.Dials.Items()
 }
 
 func (m *ObservableDialMap) SetValue(values ChannelValues) {
@@ -41,10 +49,26 @@ func (m *ObservableDialMap) GetValue() ChannelValues {
 }
 
 func NewObservableNumericDialMap(channels ...string) *ObservableDialMap {
-	return &ObservableDialMap{
-		Observable: *NewObservable[ChannelValues](),
-		Dials:      NewNumericDialMap2(channels...),
+	dialMap := NewObservableNumericDialMap2(channels...)
+
+	ch := make(chan byte)
+	for _, dial := range *dialMap {
+		dial.AddObserver(ch)
 	}
+
+	res := &ObservableDialMap{
+		Observable: *NewObservable[ChannelValues](),
+		Dials:      dialMap,
+	}
+
+	go func() {
+		for range ch {
+			channelValues := dialMap.GetChannelValues()
+			res.Observable.Notify(channelValues)
+		}
+	}()
+
+	return res
 }
 
 func (m *ObservableDialMap) MarshalJSON() ([]byte, error) {

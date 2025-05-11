@@ -1,6 +1,9 @@
 package controls
 
-import "strconv"
+import (
+	"fmt"
+	"strconv"
+)
 
 type List struct {
 	items []Item `json:"-"`
@@ -16,6 +19,10 @@ func (l *List) SetItem(index int, item Item) {
 }
 
 func (l *List) GetItem(index string) (Item, error) {
+	if index == "" {
+		return nil, fmt.Errorf("index is empty") // WARN: could not be considered an error
+	}
+
 	i, err := strconv.Atoi(index)
 	if err != nil {
 		return nil, err
