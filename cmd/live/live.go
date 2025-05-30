@@ -59,7 +59,7 @@ func main() {
 
 	setup()
 
-	home.Rainbow()
+	// home.Rainbow()
 	// moveDownTomshine()
 	// twoColors()
 	// gold()

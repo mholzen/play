@@ -1,30 +1,36 @@
 package controls
 
-import "encoding/json"
-
-type ChannelList []string
-
-type DialList struct {
-	DialMap *ObservableDialMap
-	ChannelList
+type Dial[T any] interface {
+	Get() T
+	Set(T)
+	Min() T
+	Max() T
 }
 
-// marshalJSON is a custom JSON marshaller for DialList
-func (dl DialList) MarshalJSON() ([]byte, error) {
-	type DialListItem struct {
-		Channel string
-		Value   *byte
-	}
-	res := make([]DialListItem, 0)
-	for _, channel := range dl.ChannelList {
-		// could account for spaces in channel names here
-		item := DialListItem{channel, nil}
-		dial, ok := (*dl.DialMap.Dials)[channel]
-		if ok {
-			item.Value = &dial.Value
-		}
+type DialMap[T any] map[string]Dial[T]
 
-		res = append(res, item)
-	}
-	return json.Marshal(res)
+func NewDialMap[T any]() DialMap[T] {
+	return make(DialMap[T])
 }
+
+func (d DialMap[T]) Add(name string, dial Dial[T]) {
+	d[name] = dial
+}
+
+func (d DialMap[T]) Items() map[string]Item {
+	items := make(map[string]Item)
+	for name, dial := range d {
+		items[name] = dial
+	}
+	return items
+}
+
+func ChannelsToDialMap[T any](channels []string, constructor DialConstructor[T]) DialMap[T] {
+	dialMap := NewDialMap[T]()
+	for _, channel := range channels {
+		dialMap.Add(channel, constructor())
+	}
+	return dialMap
+}
+
+type DialConstructor[T any] func() Dial[T]

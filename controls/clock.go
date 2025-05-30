@@ -147,7 +147,6 @@ func (c *Clock) Trigger() {
 	for _, callback := range c.tickCallbacks {
 		callback()
 	}
-	// c.SendToChannels()
 	c.CheckTriggers()
 }
 
@@ -160,6 +159,7 @@ func (c *Clock) On(trigger TriggerFunc, callback func()) *Trigger {
 func (c *Clock) CheckTriggers() {
 	for _, trigger := range c.Triggers {
 		if trigger.When(*c) && trigger.Enabled {
+			// log.Printf("trigger %d", i)
 			go trigger.Do()
 		}
 	}

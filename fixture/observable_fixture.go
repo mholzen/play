@@ -3,14 +3,14 @@ package fixture
 import "github.com/mholzen/play-go/controls"
 
 type ObservableFixture struct {
-	controls.Observable[controls.ChannelValues]
+	controls.Observers[controls.ChannelValues]
 	Fixture Fixture
 }
 
 func NewObservableFixture(initial Fixture) *ObservableFixture {
 	return &ObservableFixture{
-		Fixture:    initial,
-		Observable: *controls.NewObservable[controls.ChannelValues](),
+		Fixture:   initial,
+		Observers: *controls.NewObservable[controls.ChannelValues](),
 	}
 }
 
@@ -34,6 +34,10 @@ func (f *ObservableFixture) GetValues() []byte {
 func (f *ObservableFixture) SetAll(value byte) {
 	f.Fixture.SetAll(value)
 	f.Notify(f.GetChannelValues())
+}
+
+func (f *ObservableFixture) GetChannelValue(name string) byte {
+	return f.Fixture.GetChannelValue(name)
 }
 
 func (f *ObservableFixture) SetChannelValue(name string, value byte) {

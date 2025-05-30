@@ -1,21 +1,23 @@
 package fixture
 
 import (
-	"log"
-
 	"github.com/mholzen/play-go/controls"
 )
 
 type ObservableFixtures struct {
 	AddressableFixtures[Fixture]
-	controls.Observable[FixtureValues]
+	controls.Observers[FixtureValues]
+}
+
+func newObservableFixtures() *ObservableFixtures {
+	return &ObservableFixtures{
+		AddressableFixtures: *NewAddressableFixtures[Fixture](),
+		Observers:           *controls.NewObservable[FixtureValues](),
+	}
 }
 
 func NewObservableFixtures(fixtures Fixtures[Fixture]) *ObservableFixtures {
-	res := &ObservableFixtures{
-		AddressableFixtures: *NewFixturesGeneric[Fixture](),
-		Observable:          *controls.NewObservable[FixtureValues](),
-	}
+	res := newObservableFixtures()
 	for address, fixture := range fixtures.GetFixtures() {
 		res.AddFixture(fixture, address)
 	}
@@ -23,16 +25,14 @@ func NewObservableFixtures(fixtures Fixtures[Fixture]) *ObservableFixtures {
 }
 
 func NewIndividualObservableFixtures(fixtures Fixtures[Fixture]) *ObservableFixtures {
-	res := &ObservableFixtures{
-		AddressableFixtures: *NewFixturesGeneric[Fixture](),
-		Observable:          *controls.NewObservable[FixtureValues](),
-	}
+	res := newObservableFixtures()
 
 	ch := make(chan controls.ChannelValues)
 	for address, fixture := range fixtures.GetFixtures() {
 		observableFixture := NewObservableFixture(fixture)
-		res.AddFixture(observableFixture, address)
 		observableFixture.AddObserver(ch)
+
+		res.AddFixture(observableFixture, address)
 	}
 	go func() {
 		for range ch {
@@ -49,15 +49,7 @@ func (f *ObservableFixtures) SetChannelValues(values controls.ChannelValues) {
 	f.Notify(f.AddressableFixtures.GetValue())
 }
 
-func NewObservableDialMapForAllChannels(channels []string, fixtures *ObservableFixtures) *controls.ObservableDialMap {
-	dialMap := controls.NewObservableNumericDialMap(channels...)
-	received := make(chan controls.ChannelValues)
-	dialMap.AddObserver(received)
-	go func() {
-		for valueMap := range received {
-			log.Printf("dial map received value map %v", valueMap)
-			fixtures.SetChannelValues(valueMap)
-		}
-	}()
-	return dialMap
+func (f *ObservableFixtures) SetChannelValue(channel string, value byte) {
+	f.AddressableFixtures.SetChannelValue(channel, value)
+	f.Notify(f.AddressableFixtures.GetValue())
 }

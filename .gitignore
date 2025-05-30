@@ -5,3 +5,4 @@
 main
 cmd/live/live
 cmd/clock/clock
+bin/server

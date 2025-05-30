@@ -2,7 +2,7 @@ package controls
 
 type ObservableNumericDial struct {
 	NumericDial
-	*Observable[byte]
+	Observable[byte]
 }
 
 func NewObservableNumericDial() *ObservableNumericDial {

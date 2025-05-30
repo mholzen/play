@@ -36,3 +36,24 @@ func ContainerFollowPath(c Container, segments []string) (Item, error) {
 	}
 	return c, nil
 }
+
+func ContainerMarshalJSON(c Container) ([]byte, error) {
+	return containerMarshalJSON(c, ContainerKeys(c))
+}
+
+type ItemMap map[string]Item
+
+func (m ItemMap) GetItem(name string) (Item, error) {
+	if item, ok := m[name]; ok {
+		return item, nil
+	}
+	return nil, fmt.Errorf("item not found: '%s'", name)
+}
+
+func (m ItemMap) Items() map[string]Item {
+	return m
+}
+
+func NewItemMap() ItemMap {
+	return ItemMap{}
+}

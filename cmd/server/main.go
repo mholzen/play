@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	"time"
 
 	"github.com/mholzen/play-go/controls"
 	"github.com/mholzen/play-go/fixture"
@@ -26,7 +25,7 @@ func main() {
 	universe.SetChannelValues(soft_white.Values())
 
 	clock := controls.NewClock(120)
-	clock.On(controls.TriggerOnBars(), func() { log.Printf("clock: %s", clock.String()) })
+	// clock.On(controls.TriggerOnBeats(), func() { log.Printf("clock: %s", clock.String()) })
 	clock.Start()
 
 	surface := home.GetRootSurface(universe, clock)
@@ -40,18 +39,4 @@ func main() {
 	}
 
 	StartServer(surface)
-
-	time.Sleep(100 * time.Second)
-}
-
-func LinkToggleToEnable(toggle *controls.Toggle, recipient controls.Triggers) {
-	go func() {
-		for value := range toggle.C {
-			if value {
-				recipient.Enable()
-			} else {
-				recipient.Disable()
-			}
-		}
-	}()
 }

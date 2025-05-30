@@ -7,7 +7,6 @@ import (
 )
 
 func Test_ToggleInContainer(t *testing.T) {
-	// Create a toggle and container
 	toggle := NewToggle()
 	list := NewList(1)
 	list.SetItem(0, toggle)

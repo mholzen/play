@@ -8,23 +8,10 @@ cwd := $(shell pwd)
 OS := $(shell uname -s |  tr '[:upper:]' '[:lower:]')
 
 build:
-	GOOS=$(OS) go build -o main main.go server.go handlers.go
+	GOOS=$(OS) go build -o bin/server ./cmd/server
 
 run:
-	# go run main.go server.go
-	CompileDaemon --build="go build -o main main.go server.go handlers.go" --command="./main"
-
-run-dev:
-	~/go/bin/air
-
-open:
-	open http://$(host):1300
-
-on:
-	curl -vvv http://$(host):1300/controls/dimmer/255
-
-off:
-	curl -vvv http://$(host):1300/controls/dimmer/0
+	CompileDaemon --build="go build -o bin/server ./cmd/server" --command="./bin/server"
 
 ssh:
 	ssh -A $(host) -l marc -t "cd play; source .setup; zsh --login --interactive"
@@ -58,3 +45,19 @@ live:
 
 test:
 	env ROOT=$(cwd) go test ./... | grcat ~/.grc/conf.go-test
+
+test-watch:
+	CompileDaemon --build="make test || false" --command="echo 'Tests completed'" --pattern="(.+\.go|.+\.yaml)"
+
+build-docker:
+	docker buildx build --platform linux/amd64 -t play-go --load .
+
+run-docker:
+	docker run -p 8080:8080 --device=/dev/tty.usbserial-ENVVVCOF:/dev/tty.usbserial-ENVVVCOF play-go
+
+run-docker-remote:
+	ssh marc@$(host) "docker pull ubuntu-1:5000/play-go &&  docker run -p 1300:1300 --add-host=host.docker.internal:host-gateway --device=/dev/ttyUSB0:/dev/ttyUSB0 ubuntu-1:5000/play-go"
+
+push-docker:
+	docker tag play-go $(host):5000/play-go
+	docker push $(host):5000/play-go

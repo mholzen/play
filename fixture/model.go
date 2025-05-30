@@ -39,21 +39,6 @@ func (m ModelChannels) GetChannelValues() controls.ChannelValues {
 	return make(controls.ChannelValues)
 }
 
-func (m ModelChannels) SetChannelValues(values controls.ChannelValues) {
-}
-
-func (m ModelChannels) GetValues() []byte {
+func (m ModelChannels) GetEmptyValues() []byte {
 	return make([]byte, len(m.Channels))
-}
-
-func (m ModelChannels) SetAll(value byte) {
-}
-
-func (m ModelChannels) SetChannelValue(name string, value byte) {
-}
-
-func (m ModelChannels) Clone() Fixture {
-	clone := NewModelChannels(m.Name, m.GetChannels())
-	clone.SetChannelValues(m.GetChannelValues())
-	return clone
 }

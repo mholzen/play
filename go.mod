@@ -1,6 +1,6 @@
 module github.com/mholzen/play-go
 
-go 1.20
+go 1.23
 
 require (
 	github.com/akualab/dmx v0.0.0-20130922234952-1ec6837faba7
@@ -14,6 +14,12 @@ require (
 	gitlab.com/gomidi/midi v1.23.7
 	gitlab.com/gomidi/rtmididrv v0.15.0
 	go.bug.st/serial v1.6.2
+)
+
+require (
+	github.com/fatih/color v1.9.0 // indirect
+	github.com/githubnemo/CompileDaemon v1.4.0 // indirect
+	github.com/radovskyb/watcher v1.0.7 // indirect
 )
 
 require (

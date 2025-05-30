@@ -1,6 +1,7 @@
 package controls
 
 import (
+	"encoding/json"
 	"fmt"
 	"strconv"
 )
@@ -53,4 +54,8 @@ func (l *List) Map() map[string]any {
 		m[strconv.Itoa(i)] = item
 	}
 	return m
+}
+
+func (l *List) MarshalJSON() ([]byte, error) {
+	return json.Marshal(l.items)
 }

@@ -15,7 +15,7 @@ type Home struct {
 }
 
 func GetHome() Home {
-	universe := fixture.NewFixturesGeneric[fixture.ChannelFixture]()
+	universe := fixture.NewAddressableFixtures[fixture.ChannelFixture]()
 	return Home{
 		FreedomPars: universe.AddFixtures(fixture.NewFreedomPar, 65, 81, 97, 113),
 		TomeShine:   universe.AddFixtures(fixture.NewTomeshine, 1, 17, 33, 49),
@@ -26,27 +26,45 @@ func GetHome() Home {
 }
 
 func GetRootSurface(universe fixture.Fixtures[fixture.Fixture], clock *controls.Clock) controls.Container {
-	surface := controls.NewList(3)
+	surface := controls.NewList(4)
 
-	// dials
+	// dial map
 	dialFixtures := fixture.NewObservableFixtures(universe.Clone())
-	channelDials := fixture.NewObservableDialMapForAllChannels(dialFixtures.GetChannels(), dialFixtures)
-	surface.SetItem(0, channelDials)
+	dialMap := controls.ChannelsToDialMap(controls.DefaultChannelList, controls.NewDialObservableNumeric)
+	dialList := controls.NewDialListFromDialMap(dialMap)
+
+	fixture.ConnectObservablesToFixtures(dialList.GetObservables(), dialFixtures)
+
+	// TODO: have any changes to a dial of the list apply the entirety of the channel values to dialFixtures
+	// observableDialMap := controls.NewObservableFromDialMap(dialMap)
+	// fixture.ConnectObservableChannelValuesToFixtures(observableDialMap, dialFixtures)
 
 	// rainbow
 	rainbowFixtures := fixture.NewIndividualObservableFixtures(universe.Clone())
-	patterns.Rainbow(&rainbowFixtures.AddressableFixtures, clock)
+	// A change to ANY individual observable fixtures SHUOLD notify all rainbow fixtures observers
+
+	rainbowControls := patterns.NewRainbowControls(clock)
+	rainbowControls.Rainbow(&rainbowFixtures.AddressableFixtures)
+
+	// fall in
+	fallInFixtures := fixture.NewIndividualObservableFixtures(universe.Clone())
+	fallInControls := patterns.FallInControls{Clock: clock}
+	fallInControls.FallIn(&fallInFixtures.AddressableFixtures)
 
 	// mux
 	mux := controls.NewMux[fixture.FixtureValues]()
 	mux.Add("dials", dialFixtures)
 	mux.Add("rainbow", rainbowFixtures)
-	surface.SetItem(2, mux)
+	mux.Add("fall in", fallInFixtures)
 
 	mux.SetSource("dials")
 
 	// link mux emitter to universe fixture
-	fixture.LinkObservableToFixture(mux, &universe)
+	fixture.ConnectObservableValuesToFixtures(mux, universe)
+
+	surface.SetItem(0, mux)
+	surface.SetItem(1, dialList)
+	surface.SetItem(2, rainbowControls)
 
 	return surface
 }
