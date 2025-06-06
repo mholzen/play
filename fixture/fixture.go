@@ -78,6 +78,13 @@ func (f ChannelFixture) Clone() ChannelFixture {
 	}
 }
 
+func NewChannelFixture(model ModelChannels) ChannelFixture {
+	return ChannelFixture{
+		Model:  &model,
+		Values: make([]byte, len(model.Channels)),
+	}
+}
+
 func ApplyTo(values controls.ChannelValues, f Fixture) {
 	for k, v := range values {
 		f.SetChannelValue(k, v)

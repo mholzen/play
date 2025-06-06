@@ -12,7 +12,13 @@ type ModelChannels struct {
 	IndexByChannel map[string]int
 }
 
-func NewModelChannels(name string, channels []string) ModelChannels {
+func NewModelChannels(channels ...string) ModelChannels {
+	m := ModelChannels{}
+	m.SetChannels(channels)
+	return m
+}
+
+func NewModelChannelsWithName(name string, channels []string) ModelChannels {
 	m := ModelChannels{Name: name}
 	m.SetChannels(channels)
 	return m
@@ -35,8 +41,12 @@ func (m *ModelChannels) SetChannels(channels []string) {
 	m.IndexByChannel = ArrayToIndex(m.Channels)
 }
 
-func (m ModelChannels) GetChannelValues() controls.ChannelValues {
-	return make(controls.ChannelValues)
+func (m ModelChannels) GetChannelValues(values []byte) controls.ChannelValues {
+	res := make(controls.ChannelValues)
+	for i, channel := range m.Channels {
+		res[channel] = values[i]
+	}
+	return res
 }
 
 func (m ModelChannels) GetEmptyValues() []byte {

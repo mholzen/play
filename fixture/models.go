@@ -7,7 +7,7 @@ type FreedomPar struct {
 type FixtureConstructor func() Fixture
 
 func NewFreedomPar() ChannelFixture {
-	model := NewModelChannels(
+	model := NewModelChannelsWithName(
 		"Freedom Par",
 		[]string{
 			"dimmer",
@@ -22,7 +22,7 @@ func NewFreedomPar() ChannelFixture {
 }
 
 func NewTomeshine() ChannelFixture {
-	model := NewModelChannels(
+	model := NewModelChannelsWithName(
 		"Tomshine",
 		[]string{
 			"pan", "tilt", "speed", "dimmer", "strobe",
@@ -36,7 +36,7 @@ func NewTomeshine() ChannelFixture {
 }
 
 func NewColorstripMini() ChannelFixture {
-	model := NewModelChannels(
+	model := NewModelChannelsWithName(
 		"Colorstrip Mini",
 		[]string{
 			"mode",
@@ -96,7 +96,7 @@ func NewColorstripMini() ChannelFixture {
 //
 
 func NewParCan() ChannelFixture {
-	model := NewModelChannels(
+	model := NewModelChannelsWithName(
 		"Battery Par Can",
 		[]string{
 			"dimmer",

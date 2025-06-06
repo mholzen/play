@@ -7,7 +7,7 @@ import (
 )
 
 func Test_ObservableFixtures2(t *testing.T) {
-	model := NewModelChannels("a Model Name", []string{"r", "g", "b"})
+	model := NewModelChannelsWithName("a Model Name", []string{"r", "g", "b"})
 	var aFixture Fixture = ChannelFixture{Model: &model, Values: model.GetEmptyValues()}
 
 	fixtures := NewAddressableFixtures[Fixture]()

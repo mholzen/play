@@ -7,7 +7,9 @@ import (
 )
 
 func Test_ModelChannels(t *testing.T) {
-	model := NewModelChannels("Foo", []string{"r", "g", "b"})
+	model := NewModelChannelsWithName("Foo", []string{"r", "g", "b"})
 
 	assert.Equal(t, []string{"r", "g", "b"}, model.GetChannels())
+
+	// var _ Fixture = model
 }

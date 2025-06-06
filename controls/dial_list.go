@@ -4,16 +4,22 @@ type ChannelList []string
 
 var DefaultChannelList = ChannelList{"r", "g", "b", "a", "w", "uv", "dimmer", "strobe", "speed", "tilt", "pan", "mode"}
 
+var MotionChannelList = ChannelList{"speed", "tilt", "pan"}
+
+var ColorChannelList = ChannelList{"r", "g", "b", "a", "w", "uv"}
+
+var LightChannelList = ChannelList{"dimmer", "strobe"}
+
 type DialList struct { // TODO: should be "ordered dial map", perhaps simply "dials"
 	ItemMap
 	// DialMap[byte]
 	ChannelList
 }
 
-func NewDialList() *DialList {
+func NewDialList(container Container, channelList ChannelList) *DialList {
 	return &DialList{
-		ItemMap:     NewItemMap(),
-		ChannelList: DefaultChannelList,
+		ItemMap:     container.Items(),
+		ChannelList: channelList,
 	}
 }
 
@@ -23,6 +29,10 @@ func NewDialListFromContainer(container Container) *DialList {
 
 func NewDialListFromDialMap(dialMap DialMap[byte]) *DialList {
 	return &DialList{ItemMap: dialMap.Items(), ChannelList: DefaultChannelList}
+}
+
+func NewDialListFromChannelList(channelList ChannelList) *DialList {
+	return &DialList{ItemMap: NewItemMap(), ChannelList: channelList}
 }
 
 func (dl *DialList) Add(channel string, dial Dial[byte]) {

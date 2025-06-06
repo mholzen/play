@@ -8,7 +8,7 @@ import (
 )
 
 func Test_ObservableFixture(t *testing.T) {
-	model := NewModelChannels("a Model Name", []string{"r", "g", "b"})
+	model := NewModelChannelsWithName("a Model Name", []string{"r", "g", "b"})
 	var fixture Fixture = ChannelFixture{Model: &model, Values: model.GetEmptyValues()}
 
 	observableFixture := NewObservableFixture(fixture)

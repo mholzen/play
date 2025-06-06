@@ -25,12 +25,19 @@ func GetHome() Home {
 	}
 }
 
+func createObservableFixturesForChannels(universe fixture.Fixtures[fixture.Fixture], channelList []string) *fixture.ObservableFixtures {
+	modelFixture := fixture.NewModelChannels(channelList...)
+	addresses := universe.GetAddressesWithChannel(channelList[0])
+	addressableFixtures := fixture.NewAddressableFixturesFromAddresses(modelFixture, addresses...)
+	return fixture.NewIndividualObservableFixtures(addressableFixtures)
+}
+
 func GetRootSurface(universe fixture.Fixtures[fixture.Fixture], clock *controls.Clock) controls.Container {
 	surface := controls.NewList(4)
 
 	// dial map
 	dialFixtures := fixture.NewObservableFixtures(universe.Clone())
-	dialMap := controls.ChannelsToDialMap(controls.DefaultChannelList, controls.NewDialObservableNumeric)
+	dialMap := controls.NewDialMapFromChannels(controls.DefaultChannelList, controls.NewDialObservableNumeric)
 	dialList := controls.NewDialListFromDialMap(dialMap)
 
 	fixture.ConnectObservablesToFixtures(dialList.GetObservables(), dialFixtures)
@@ -39,14 +46,16 @@ func GetRootSurface(universe fixture.Fixtures[fixture.Fixture], clock *controls.
 	// observableDialMap := controls.NewObservableFromDialMap(dialMap)
 	// fixture.ConnectObservableChannelValuesToFixtures(observableDialMap, dialFixtures)
 
+	//
 	// rainbow
-	rainbowFixtures := fixture.NewIndividualObservableFixtures(universe.Clone())
-	// A change to ANY individual observable fixtures SHUOLD notify all rainbow fixtures observers
-
+	//
+	rainbowFixtures := createObservableFixturesForChannels(universe, controls.ColorChannelList)
 	rainbowControls := patterns.NewRainbowControls(clock)
 	rainbowControls.Rainbow(&rainbowFixtures.AddressableFixtures)
 
+	//
 	// fall in
+	//
 	fallInFixtures := fixture.NewIndividualObservableFixtures(universe.Clone())
 	fallInControls := patterns.FallInControls{Clock: clock}
 	fallInControls.FallIn(&fallInFixtures.AddressableFixtures)
@@ -65,6 +74,38 @@ func GetRootSurface(universe fixture.Fixtures[fixture.Fixture], clock *controls.
 	surface.SetItem(0, mux)
 	surface.SetItem(1, dialList)
 	surface.SetItem(2, rainbowControls)
+
+	//
+	// motion
+	//
+	motionDialMap := controls.NewDialMapFromChannels(controls.MotionChannelList, controls.NewDialObservableNumeric)
+	motionDialList := controls.NewDialList(motionDialMap, controls.MotionChannelList)
+	surface.SetItem(3, motionDialList)
+
+	motionFixtures := createObservableFixturesForChannels(universe, controls.MotionChannelList)
+
+	fixture.ConnectObservablesToFixtures(motionDialList.GetObservables(), motionFixtures)
+
+	//
+	// light
+	//
+	lightDialMap := controls.NewDialMapFromChannels(controls.LightChannelList, controls.NewDialObservableNumeric)
+	lightDialList := controls.NewDialList(lightDialMap, controls.LightChannelList)
+	surface.SetItem(4, lightDialList)
+
+	lightFixtures := createObservableFixturesForChannels(universe, controls.LightChannelList)
+
+	fixture.ConnectObservablesToFixtures(lightDialList.GetObservables(), lightFixtures)
+
+	//
+	// joiner
+	//
+	joiner := controls.NewJoiner[fixture.FixtureValues]()
+	joiner.Add(motionFixtures)
+	joiner.Add(lightFixtures)
+	joiner.Add(mux)
+
+	fixture.ConnectObservableValuesToFixtures(joiner, universe)
 
 	return surface
 }

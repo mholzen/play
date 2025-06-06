@@ -6,7 +6,7 @@ import (
 
 type Container interface {
 	Item
-	GetItem(string) (Item, error)
+	GetItem(string) (Item, error) // TODO: should return (Item, bool)
 	Items() map[string]Item
 }
 

@@ -88,7 +88,7 @@ func ContainerPostHandler(container controls.Container) echo.HandlerFunc {
 
 		control, ok := item.(controls.Control)
 		if !ok {
-			return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Item '%s' is not a Control (got '%T')", path, item))
+			return echo.NewHTTPError(http.StatusMethodNotAllowed, fmt.Sprintf("Item '%s' is not a Control (got '%T')", path, item))
 		}
 
 		var data interface{}
@@ -100,16 +100,23 @@ func ContainerPostHandler(container controls.Container) echo.HandlerFunc {
 		case string:
 			control.SetValueString(value)
 			log.Printf("control '%s' updated to '%s'", path, value)
+
+		case int:
+			stringValue := fmt.Sprintf("%d", value)
+			control.SetValueString(stringValue)
+			log.Printf("control '%s' updated to '%d'", path, value)
+
 		case float64:
 			stringValue := fmt.Sprintf("%d", int(value))
 			control.SetValueString(stringValue)
 			log.Printf("control '%s' updated to '%f'", path, value)
+
 		case bool:
 			stringValue := fmt.Sprintf("%t", value)
 			control.SetValueString(stringValue)
 			log.Printf("control '%s' updated to '%t'", path, value)
 		default:
-			return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("request body of type %T cannot be converted to a string", value))
+			return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("request body of type '%T' cannot be converted to a string", value))
 		}
 
 		return c.JSON(http.StatusOK, item)

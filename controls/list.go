@@ -16,6 +16,14 @@ func NewList(count int) *List {
 }
 
 func (l *List) SetItem(index int, item Item) {
+	if index < 0 {
+		panic(fmt.Sprintf("index %d is negative", index))
+	}
+	if index >= len(l.items) {
+		newItems := make([]Item, index+1)
+		copy(newItems, l.items)
+		l.items = newItems
+	}
 	l.items[index] = item
 }
 

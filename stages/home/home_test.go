@@ -100,7 +100,8 @@ func Test_RootSurfaceMux(t *testing.T) {
 	// wait for rainbow to set a non zero value
 	for i := 0; i < 100; i++ {
 		value = <-muxChannel
-		expected = value[address]["tilt"]
+		// log.Printf("value: %v", value)
+		expected = value[address]["r"]
 		if expected > 0 {
 			break
 		}

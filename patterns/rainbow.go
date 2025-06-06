@@ -21,6 +21,7 @@ type RainbowControls struct {
 
 func (c RainbowControls) Rainbow(fixtures *fixture.AddressableFixtures[fixture.Fixture]) {
 	// initial setup -- could be optional
+
 	fixtures.SetChannelValue("dimmer", 255)
 	fixtures.SetChannelValue("tilt", 127)
 

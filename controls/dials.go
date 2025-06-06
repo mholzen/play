@@ -1,5 +1,7 @@
 package controls
 
+import "fmt"
+
 type Dial[T any] interface {
 	Get() T
 	Set(T)
@@ -25,7 +27,15 @@ func (d DialMap[T]) Items() map[string]Item {
 	return items
 }
 
-func ChannelsToDialMap[T any](channels []string, constructor DialConstructor[T]) DialMap[T] {
+func (d DialMap[T]) GetItem(name string) (Item, error) {
+	res, ok := d[name]
+	if !ok {
+		return nil, fmt.Errorf("dial %s not found", name)
+	}
+	return res, nil
+}
+
+func NewDialMapFromChannels[T any](channels []string, constructor DialConstructor[T]) DialMap[T] {
 	dialMap := NewDialMap[T]()
 	for _, channel := range channels {
 		dialMap.Add(channel, constructor())

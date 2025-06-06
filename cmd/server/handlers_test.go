@@ -1,7 +1,6 @@
 package main
 
 import (
-	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -128,10 +127,11 @@ func Test_ContainerPostHandler(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// Setup request
-			c, rec := getResponseRecorder(http.MethodPost, "/api/v2/root/"+tt.path, "")
+			c, rec := getResponseRecorder(http.MethodPost, "/api/v2/root/"+tt.path, tt.value)
 			c.SetParamNames("*")
 			c.SetParamValues(tt.path)
-			c.Request().Body = io.NopCloser(strings.NewReader(tt.value))
+			// c.Request().Body = io.NopCloser(strings.NewReader(tt.value))
+			c.Request().Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
 			// Execute handler
 			err := ContainerPostHandler(rootContainer)(c)

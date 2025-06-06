@@ -6,19 +6,21 @@ import (
 	"github.com/mholzen/play-go/controls"
 )
 
-type Fixtures[T Fixture] interface {
+type Fixtures[T Fixture] interface { // TODO: not sure generic is useful here
 	GetFixtures() map[int]T
 	GetAddresses() []int
 	SetValue(fixtureValues FixtureValues)
 	SetChannelValue(channel string, value byte)
 	GetValue() FixtureValues
 	GetByteArray() []byte
+
 	Clone() Fixtures[T]
+	GetAddressesWithChannel(channel string) []int
 }
 
 type AddressableFixtures[T Fixture] map[int]T // TODO: not sure generic is useful here
 
-type AddressableChannelFixtures = AddressableFixtures[ChannelFixture]
+type AddressableChannelFixtures = AddressableFixtures[ChannelFixture] // TODO: rename (to Fixtures?) and use this where possible
 
 func NewAddressableFixtures[T Fixture]() *AddressableFixtures[T] {
 	f := make(AddressableFixtures[T])
@@ -187,8 +189,27 @@ func (f AddressableFixtures[T]) GetChannelValues() controls.ChannelValues {
 	return res
 }
 
+func (f AddressableFixtures[T]) GetAddressesWithChannel(channel string) []int {
+	res := make([]int, 0)
+	for addr, fixture := range f {
+		if _, ok := fixture.GetChannelValues()[channel]; ok {
+			res = append(res, addr)
+		}
+	}
+	return res
+}
+
 func SetChannelValues(f Fixtures[Fixture], values controls.ChannelValues) {
 	for _, fixture := range f.GetFixtures() {
 		fixture.SetChannelValues(values)
 	}
+}
+
+func NewAddressableFixturesFromAddresses(model ModelChannels, addresses ...int) Fixtures[Fixture] {
+	f := make(AddressableFixtures[Fixture])
+	for _, addr := range addresses {
+		fixture := NewChannelFixture(model)
+		f[addr] = NewObservableFixture(fixture)
+	}
+	return f
 }
