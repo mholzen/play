@@ -67,9 +67,32 @@ func (om *OrderedMap) Map() map[string]any {
 }
 
 func (om *OrderedMap) MarshalJSON() ([]byte, error) {
-	orderedItems := make([]map[string]Item, 0, len(om.keys))
-	for _, key := range om.keys {
-		orderedItems = append(orderedItems, map[string]Item{key: om.items[key]})
+	if len(om.keys) == 0 {
+		return []byte("{}"), nil
 	}
-	return json.Marshal(orderedItems)
+
+	var result []byte
+	result = append(result, '{')
+
+	for i, key := range om.keys {
+		if i > 0 {
+			result = append(result, ',')
+		}
+
+		keyBytes, err := json.Marshal(key)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, keyBytes...)
+		result = append(result, ':')
+
+		valueBytes, err := json.Marshal(om.items[key])
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, valueBytes...)
+	}
+
+	result = append(result, '}')
+	return result, nil
 }
