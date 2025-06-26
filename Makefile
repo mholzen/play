@@ -13,6 +13,9 @@ build:
 run:
 	CompileDaemon --build="go build -o bin/server ./cmd/server" --command="./bin/server"
 
+open:
+	open http://localhost:1300/api/v2/root
+
 ssh:
 	ssh -A $(host) -l marc -t "cd play; source .setup; zsh --login --interactive"
 
