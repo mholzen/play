@@ -33,7 +33,7 @@ func createObservableFixturesForChannels(universe fixture.Fixtures[fixture.Fixtu
 }
 
 func GetRootSurface(universe fixture.Fixtures[fixture.Fixture], clock *controls.Clock) controls.Container {
-	surface := controls.NewList(4)
+	surface := controls.NewOrderedMap()
 
 	// dial map
 	dialFixtures := fixture.NewObservableFixtures(universe.Clone())
@@ -71,16 +71,16 @@ func GetRootSurface(universe fixture.Fixtures[fixture.Fixture], clock *controls.
 	// link mux emitter to universe fixture
 	fixture.ConnectObservableValuesToFixtures(mux, universe)
 
-	surface.SetItem(0, mux)
-	surface.SetItem(1, dialList)
-	surface.SetItem(2, rainbowControls)
+	surface.SetItem("mux", mux)
+	surface.SetItem("dials", dialList)
+	surface.SetItem("rainbow", rainbowControls)
 
 	//
 	// motion
 	//
 	motionDialMap := controls.NewDialMapFromChannels(controls.MotionChannelList, controls.NewDialObservableNumeric)
 	motionDialList := controls.NewDialList(motionDialMap, controls.MotionChannelList)
-	surface.SetItem(3, motionDialList)
+	surface.SetItem("motion", motionDialList)
 
 	motionFixtures := createObservableFixturesForChannels(universe, controls.MotionChannelList)
 
@@ -91,7 +91,7 @@ func GetRootSurface(universe fixture.Fixtures[fixture.Fixture], clock *controls.
 	//
 	lightDialMap := controls.NewDialMapFromChannels(controls.LightChannelList, controls.NewDialObservableNumeric)
 	lightDialList := controls.NewDialList(lightDialMap, controls.LightChannelList)
-	surface.SetItem(4, lightDialList)
+	surface.SetItem("light", lightDialList)
 
 	lightFixtures := createObservableFixturesForChannels(universe, controls.LightChannelList)
 
