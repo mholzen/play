@@ -43,7 +43,12 @@ func (c *Counter) Reset() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	c.value = 0
-	c.Event <- c.value
+
+	// non-blocking send
+	select {
+	case c.Event <- c.value:
+	default:
+	}
 }
 
 func (c *Counter) On(values []int, callback func(int)) {
