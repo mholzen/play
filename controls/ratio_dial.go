@@ -13,6 +13,11 @@ func (d *ObservableRatioDial) MarshalJSON() ([]byte, error) {
 	return json.Marshal(&d.RatioDial)
 }
 
+func (d *ObservableRatioDial) SetValueString(value string) {
+	d.RatioDial.SetValueString(value)
+	d.Notify(d.Get())
+}
+
 func NewObservableRatioDial() *ObservableRatioDial {
 	res := &ObservableRatioDial{
 		RatioDial: *NewDiscreteDial(CommonRatios),
