@@ -54,6 +54,10 @@ func (c *Clock) Phrase() int {
 	return c.Phrases()
 }
 
+func (c *Clock) TicksPerPhrase() int {
+	return c.TicksPerBeat * c.BeatsPerBar * c.BarPerPhrase
+}
+
 func (c *Clock) TickPeriod() time.Duration {
 	ticksPerMin := c.Bpm * float64(c.TicksPerBeat)
 	return time.Duration(60000.0/ticksPerMin) * time.Millisecond
