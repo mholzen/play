@@ -24,7 +24,7 @@ func main() {
 	soft_white := controls.AllColors["soft_white"]
 	universe.SetChannelValues(soft_white.Values())
 
-	clock := controls.NewClock(240)
+	clock := controls.NewClock(120)
 	clock.On(controls.TriggerOnBeats(), func() { log.Printf("clock: %s", clock.String()) })
 	clock.Start()
 
