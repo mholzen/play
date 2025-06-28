@@ -7,6 +7,7 @@ import (
 
 	"github.com/fogleman/ease"
 	"github.com/mholzen/play-go/controls"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestSequenceEmitter(t *testing.T) {
@@ -31,12 +32,9 @@ func TestSequenceEmitter(t *testing.T) {
 		time.Sleep(100 * time.Millisecond) // Let it run for a bit
 		clock.Stop()
 
-		if len(receivedValues) == 0 {
-			t.Error("Expected to receive values but got none")
-		}
-
-		if receivedValues[0] != 10 {
-			t.Errorf("Expected first value to be 10, got %d", receivedValues[0])
+		assert.NotEmpty(t, receivedValues, "should receive values")
+		if len(receivedValues) > 0 {
+			assert.Equal(t, 10, receivedValues[0], "first value should be 10")
 		}
 	})
 
@@ -50,9 +48,7 @@ func TestSequenceEmitter(t *testing.T) {
 		sequence.Inc() // Move to second value
 		emitter.Reset()
 
-		if sequence.Values() != 1 {
-			t.Errorf("Expected sequence to reset to first value (1), got %d", sequence.Values())
-		}
+		assert.Equal(t, 1, sequence.Values(), "sequence should reset to first value")
 	})
 }
 
@@ -82,15 +78,7 @@ func TestChangeEmitter(t *testing.T) {
 		time.Sleep(10 * time.Millisecond) // Give goroutines time to process
 
 		expected := []int{10, 20, 30}
-		if len(receivedValues) != len(expected) {
-			t.Fatalf("Expected %d values, got %d: %v", len(expected), len(receivedValues), receivedValues)
-		}
-
-		for i, expectedValue := range expected {
-			if receivedValues[i] != expectedValue {
-				t.Errorf("At index %d: expected %d, got %d", i, expectedValue, receivedValues[i])
-			}
-		}
+		assert.Equal(t, expected, receivedValues, "should only emit changed values")
 
 		emitter.Close()
 	})
@@ -102,12 +90,8 @@ func TestChangeEmitter(t *testing.T) {
 		source.Notify(42)
 		emitter.Reset()
 
-		if emitter.hasValue {
-			t.Error("Expected hasValue to be false after reset")
-		}
-		if emitter.lastValue != nil {
-			t.Error("Expected lastValue to be nil after reset")
-		}
+		assert.False(t, emitter.hasValue, "hasValue should be false after reset")
+		assert.Nil(t, emitter.lastValue, "lastValue should be nil after reset")
 
 		emitter.Close()
 	})
@@ -149,18 +133,14 @@ func TestIntegration(t *testing.T) {
 		time.Sleep(200 * time.Millisecond)
 		stopClock()
 
-		if len(finalValues) == 0 {
-			t.Error("Expected to receive values but got none")
-		}
-
-		if finalValues[0] != 0 {
-			t.Errorf("Expected first value to be 0, got %d", finalValues[0])
+		assert.NotEmpty(t, finalValues, "should receive values")
+		if len(finalValues) > 0 {
+			assert.Equal(t, 0, finalValues[0], "first value should be 0")
 		}
 
 		for i := 1; i < len(finalValues); i++ {
-			if finalValues[i] == finalValues[i-1] {
-				t.Errorf("Change emitter should not emit duplicate consecutive values, but got %d twice", finalValues[i])
-			}
+			assert.NotEqual(t, finalValues[i-1], finalValues[i],
+				"change emitter should not emit duplicate consecutive values")
 		}
 
 		changeEmitter.Close()

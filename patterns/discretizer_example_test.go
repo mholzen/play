@@ -6,6 +6,7 @@ import (
 
 	"github.com/fogleman/ease"
 	"github.com/mholzen/play-go/controls"
+	"github.com/stretchr/testify/assert"
 )
 
 func ExampleDiscretizer() {
@@ -50,13 +51,9 @@ func TestDiscretizerWithSequence(t *testing.T) {
 
 		sequence := controls.NewSequenceT(values)
 
-		if sequence.Values() != values[0] {
-			t.Errorf("first sequence value should match first discretized value")
-		}
+		assert.Equal(t, values[0], sequence.Values(), "first sequence value should match first discretized value")
 
 		sequence.Inc()
-		if sequence.Values() != values[1] {
-			t.Errorf("second sequence value should match second discretized value")
-		}
+		assert.Equal(t, values[1], sequence.Values(), "second sequence value should match second discretized value")
 	})
 }
