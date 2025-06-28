@@ -74,6 +74,7 @@ func RepeatEvery(duration time.Duration, action func()) *controls.Trigger {
 func Delay(duration time.Duration, action func(), ctx context.Context) {
 	select {
 	case <-ctx.Done():
+		// log.Printf("delay cancelled")
 		return
 	case <-time.After(duration):
 		// log.Printf("executing action after delay: %v", duration)

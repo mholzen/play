@@ -93,6 +93,7 @@ func ContainerPostHandler(container controls.Container) echo.HandlerFunc {
 
 		var data interface{}
 		if err := c.Bind(&data); err != nil {
+			// this fails is content type is undefined.  it should default to application/json
 			return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("request body is required as the value: %v", err))
 		}
 
