@@ -23,16 +23,24 @@ func ExampleDiscretizer() {
 	}
 
 	// Output:
-	// Discretized values: [0 18 69 138 178 217 236 255]
+	// Discretized values: [0 10 42 94 161 213 245 255]
 	// Sequence values:
 	// Step 0: 0
-	// Step 1: 18
-	// Step 2: 69
-	// Step 3: 138
-	// Step 4: 178
-	// Step 5: 217
-	// Step 6: 236
-	// Step 7: 0
+	// Step 1: 10
+	// Step 2: 42
+	// Step 3: 94
+	// Step 4: 161
+	// Step 5: 213
+	// Step 6: 245
+	// Step 7: 255
+}
+
+func ExampleDiscretizer_square() {
+	discretizer := NewDiscretizer(0, 1, ease.Linear, 2)
+	values := discretizer.GetValues()
+	fmt.Printf("Discretized values: %v\n", values)
+	// Output:
+	// Discretized values: [0 1]
 }
 
 func TestDiscretizerWithSequence(t *testing.T) {
