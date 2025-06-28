@@ -89,7 +89,7 @@ type ObservableNumericalDial struct {
 	NumericDial
 }
 
-func (d *ObservableNumericalDial) SetValue(value byte) {
+func (d *ObservableNumericalDial) Set(value byte) {
 	d.NumericDial.SetValue(value)
 	d.Notify(value)
 }
