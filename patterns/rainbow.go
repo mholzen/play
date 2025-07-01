@@ -13,9 +13,9 @@ import (
 type RainbowControls struct {
 	// controls are more than just the configurable parameters.  it also contains the dials, knobs and buttons used to select the parameters.
 	Clock   *controls.Clock               `json:"-"`
-	Cycle   *controls.ObservableRatioDial `json:"cycle"`
-	Speed   *controls.ObservableRatioDial `json:"speed"` // TODO: doesn't have to be observable
-	Chase   *controls.FloatDial           `json:"chase"`
+	Cycle   *controls.ObservableRatioDial `json:"cycle"` // TODO: rename advance duration
+	Speed   *controls.ObservableRatioDial `json:"speed"` // TODO: doesn't have to be observable , name transition duration
+	Chase   *controls.FloatDial           `json:"chase"` // TODO: rename "chase delay"
 	Reverse *controls.Toggle              `json:"reverse"`
 }
 
@@ -25,7 +25,7 @@ func (c RainbowControls) Rainbow(fixtures *fixture.AddressableFixtures[fixture.F
 	fixtures.SetChannelValue("dimmer", 255)
 	fixtures.SetChannelValue("tilt", 127)
 
-	seq := controls.NewSequence([]controls.ChannelValues{
+	seq := controls.NewSequenceT([]controls.ChannelValues{
 		controls.AllColors["red"].Values(), // TODO: if `red` doesn't exist, this should fail fast rather than return a the 0 (ie. black) color
 		controls.AllColors["yellow"].Values(),
 		controls.AllColors["green"].Values(),
@@ -50,26 +50,31 @@ func (c RainbowControls) Rainbow(fixtures *fixture.AddressableFixtures[fixture.F
 
 		for i, f := range fixtures.GetFixtureList() {
 
-			j := i
+			fixtureIndex := i
 			if c.Reverse.GetValue() {
-				j = max - i - 1
+				fixtureIndex = max - i - 1
 			}
 
-			if cancels[j] != nil {
-				cancels[j]()
+			if cancels[fixtureIndex] != nil {
+				cancels[fixtureIndex]()
+				cancels[fixtureIndex] = nil
 			}
-			contexts[j], cancels[j] = context.WithCancel(context.Background())
-			action := Transition(f, start, end, duration, ease.InOutSine, fixture.REFRESH, contexts[j])
+			contexts[fixtureIndex], cancels[fixtureIndex] = context.WithCancel(context.Background())
+			action := Transition(f, start, end, duration, ease.InOutSine, fixture.REFRESH, contexts[fixtureIndex])
 
 			chaseDelay := time.Duration(float64(c.Clock.BeatPeriod().Nanoseconds()) * c.Chase.Value * float64(i))
 
 			// log.Printf("rainbow chaseDelay: %v", chaseDelay)
-			go Delay(chaseDelay, action, contexts[j])
+			go Delay(chaseDelay, action, contexts[fixtureIndex])
 		}
 	}
 
+	var trigger *controls.Trigger
 	setupTrigger := func(ratio controls.Ratio) {
-		c.Clock.On(controls.TriggerOnPhraseRatio(ratio.Numerator, ratio.Denominator), transition)
+		if trigger != nil {
+			c.Clock.Cancel(trigger)
+		}
+		trigger = c.Clock.On(controls.TriggerOnPhraseRatio(ratio.Numerator, ratio.Denominator), transition)
 	}
 
 	setupTrigger(c.Cycle.Get())
