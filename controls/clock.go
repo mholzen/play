@@ -22,7 +22,7 @@ type Clock struct {
 	BarC  chan struct{}
 
 	tickCallbacks []func()
-	Triggers      []Trigger
+	Triggers      []*Trigger
 
 	NudgeDelay  time.Duration
 	ResetPeriod bool
@@ -154,10 +154,20 @@ func (c *Clock) Trigger() {
 	c.CheckTriggers()
 }
 
-func (c *Clock) On(trigger TriggerFunc, callback func()) *Trigger {
-	t := Trigger{trigger, true, callback}
-	c.Triggers = append(c.Triggers, t)
+func (c *Clock) On(triggerFunc TriggerFunc, callback func()) *Trigger {
+	t := Trigger{triggerFunc, true, callback}
+	c.Triggers = append(c.Triggers, &t)
 	return &t
+}
+
+func (c *Clock) Cancel(trigger *Trigger) {
+	for i, t := range c.Triggers {
+		if t == trigger {
+			c.Triggers = append(c.Triggers[:i], c.Triggers[i+1:]...)
+			return
+		}
+	}
+	panic("trigger not found")
 }
 
 func (c *Clock) CheckTriggers() {
