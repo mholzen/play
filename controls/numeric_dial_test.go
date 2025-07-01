@@ -28,16 +28,13 @@ func Test_ObservableNumericDial(t *testing.T) {
 
 	var _ Control = observableNumericDial
 
-	testValidated := make(chan int)
 	ch := make(chan byte)
 	observableNumericDial.AddObserver(ch)
 
 	go func() {
 		observableNumericDial.SetValue(42)
-		testValidated <- 1
 	}()
 
 	value := <-ch
 	require.Equal(t, byte(42), value)
-	<-testValidated
 }

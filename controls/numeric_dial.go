@@ -94,6 +94,11 @@ func (d *ObservableNumericalDial) Set(value byte) {
 	d.Notify(value)
 }
 
+func (d *ObservableNumericalDial) SetValue(value byte) {
+	d.NumericDial.SetValue(value)
+	d.Notify(value)
+}
+
 func (d *ObservableNumericalDial) GetValueString() string {
 	return d.NumericDial.GetValueString()
 }
