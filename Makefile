@@ -47,7 +47,7 @@ live:
 	(cd cmd/live; go run live.go)
 
 test:
-	env ROOT=$(cwd) go test ./... | grcat ~/.grc/conf.go-test
+	env ROOT=$(cwd) go test -timeout 5s ./... | grcat ~/.grc/conf.go-test
 
 test-watch:
 	CompileDaemon --build="make test || false" --command="echo 'Tests completed'" --pattern="(.+\.go|.+\.yaml)"
