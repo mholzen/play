@@ -11,7 +11,7 @@ type Counter struct {
 	value  int
 	Period int
 	mu     sync.Mutex // Ensure thread-safe access
-	Event  chan int
+	Event  chan int   `json:"-"`
 }
 
 func NewCounter(period int) *Counter {
