@@ -82,7 +82,25 @@ func GetRootSurface(universe fixture.Fixtures[fixture.Fixture], clock *controls.
 	motionDialList := controls.NewDialList(motionDialMap, controls.MotionChannelList)
 	surface.SetItem("motion", motionDialList)
 
+	// pan, ok := motionDialMap["pan"]
+	// if !ok {
+	// 	panic("pan not found")
+	// }
+	// discretizer := GetDiscretizer(clock)
+	// controls.OnChange(discretizer, func(value int) {
+	// 	log.Println("discretizer setting pan to", value)
+	// 	pan.Set(byte(value))
+	// })
+	// surface.SetItem("discretizer", discretizer)
+
+	clockDial := GetDialPattern(clock)
+	surface.SetItem("dial_pattern", clockDial)
+
 	motionFixtures := createObservableFixturesForChannels(universe, controls.MotionChannelList)
+
+	controls.OnChange(clockDial.Mux, func(value byte) {
+		motionFixtures.AddressableFixtures.SetChannelValue("tilt", value)
+	})
 
 	fixture.ConnectObservablesToFixtures(motionDialList.GetObservables(), motionFixtures)
 
@@ -108,4 +126,8 @@ func GetRootSurface(universe fixture.Fixtures[fixture.Fixture], clock *controls.
 	fixture.ConnectObservableValuesToFixtures(joiner, universe)
 
 	return surface
+}
+
+func GetDialPattern(clock *controls.Clock) *patterns.DialPattern {
+	return patterns.NewDialPattern(clock)
 }
