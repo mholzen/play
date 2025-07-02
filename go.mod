@@ -1,6 +1,8 @@
 module github.com/mholzen/play-go
 
-go 1.23
+go 1.23.0
+
+toolchain go1.24.3
 
 require (
 	github.com/akualab/dmx v0.0.0-20130922234952-1ec6837faba7
@@ -8,7 +10,6 @@ require (
 	github.com/fogleman/ease v0.0.0-20170301025033-8da417bf1776
 	github.com/labstack/echo/v4 v4.12.0
 	github.com/nsf/termbox-go v1.1.1
-	github.com/reugn/go-streams v0.10.0
 	github.com/stretchr/testify v1.9.0
 	github.com/youpy/go-coremidi v0.0.0-20210828055444-d16028a71dfe
 	gitlab.com/gomidi/midi v1.23.7
@@ -16,11 +17,7 @@ require (
 	go.bug.st/serial v1.6.2
 )
 
-require (
-	github.com/fatih/color v1.9.0 // indirect
-	github.com/githubnemo/CompileDaemon v1.4.0 // indirect
-	github.com/radovskyb/watcher v1.0.7 // indirect
-)
+require golang.org/x/exp v0.0.0-20250620022241-b7579e27df2b
 
 require (
 	github.com/creack/goselect v0.1.2 // indirect
