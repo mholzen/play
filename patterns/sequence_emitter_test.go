@@ -13,10 +13,10 @@ import (
 func TestSequenceEmitter(t *testing.T) {
 	t.Run("emits sequence values at correct intervals", func(t *testing.T) {
 		values := []int{10, 20, 30}
-		sequence := controls.NewSequenceT(values)
+		sequence := controls.NewSequence(values)
 		clock := controls.NewClock(120) // 120 BPM
 
-		emitter := NewSequenceEmitter(sequence, clock, 2) // Every 2 ticks
+		emitter := NewSequenceEmitter(sequence, clock, controls.TriggerOnTick(2)) // Every 2 ticks
 
 		receivedValues := []int{}
 		observer := make(chan int)
@@ -40,15 +40,15 @@ func TestSequenceEmitter(t *testing.T) {
 
 	t.Run("resets properly", func(t *testing.T) {
 		values := []int{1, 2, 3}
-		sequence := controls.NewSequenceT(values)
+		sequence := controls.NewSequence(values)
 		clock := controls.NewClock(120)
 
-		emitter := NewSequenceEmitter(sequence, clock, 1)
+		emitter := NewSequenceEmitter(sequence, clock, controls.TriggerOnTick(1))
 
 		sequence.Inc() // Move to second value
 		emitter.Reset()
 
-		assert.Equal(t, 1, sequence.Values(), "sequence should reset to first value")
+		assert.Equal(t, 1, sequence.Value(), "sequence should reset to first value")
 	})
 }
 
@@ -102,10 +102,10 @@ func TestIntegration(t *testing.T) {
 		discretizer := NewDiscretizer(0, 10, ease.Linear, 5)
 		values := discretizer.GetValues()
 
-		sequence := controls.NewSequenceT(values)
+		sequence := controls.NewSequence(values)
 
 		clock := controls.NewClock(240)
-		emitter := NewSequenceEmitter(sequence, clock, 1)
+		emitter := NewSequenceEmitter(sequence, clock, controls.TriggerOnTick(1))
 
 		changeEmitter := NewChangeEmitter(emitter)
 
