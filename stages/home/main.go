@@ -31,8 +31,8 @@ func moveTomshine() controls.Triggers {
 }
 
 func beatDown() controls.Triggers {
-	freedomPars := controls.NewSequenceT(home.FreedomPars.GetFixtureList())
-	tomShines := controls.NewSequenceT(home.TomeShine.GetFixtureList())
+	freedomPars := controls.NewSequence(home.FreedomPars.GetFixtureList())
+	tomShines := controls.NewSequence(home.TomeShine.GetFixtureList())
 
 	return controls.Triggers{
 		*RepeatEvery(clock.BeatPeriod(), func() {
@@ -52,7 +52,7 @@ func beatDown() controls.Triggers {
 func moveDownTomshine() controls.Triggers {
 	top, _ := controls.NewChannelValues("tilt:128", "pan:255")
 	bottom, _ := controls.NewChannelValues("tilt:0", "pan:255")
-	tomShines := controls.NewSequenceT(home.TomeShine.GetFixtureList())
+	tomShines := controls.NewSequence(home.TomeShine.GetFixtureList())
 
 	home.TomeShine.SetChannelValue("speed", 0)
 	return controls.Triggers{
