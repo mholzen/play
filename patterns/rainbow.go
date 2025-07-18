@@ -50,26 +50,33 @@ func (c RainbowControls) Rainbow(fixtures *fixture.AddressableFixtures[fixture.F
 
 		for i, f := range fixtures.GetFixtureList() {
 
-			j := i
+			var fixtureIndex int
 			if c.Reverse.GetValue() {
-				j = max - i - 1
+				fixtureIndex = max - i - 1
+			} else {
+				fixtureIndex = i
 			}
 
-			if cancels[j] != nil {
-				cancels[j]()
+			if cancelFunc := cancels[fixtureIndex]; cancelFunc != nil {
+				cancelFunc()
 			}
-			contexts[j], cancels[j] = context.WithCancel(context.Background())
-			action := Transition(f, start, end, duration, ease.InOutSine, fixture.REFRESH, contexts[j])
+
+			contexts[fixtureIndex], cancels[fixtureIndex] = context.WithCancel(context.Background())
+			action := Transition(f, start, end, duration, ease.InOutSine, fixture.REFRESH, contexts[fixtureIndex])
 
 			chaseDelay := time.Duration(float64(c.Clock.BeatPeriod().Nanoseconds()) * c.Chase.Value * float64(i))
 
 			// log.Printf("rainbow chaseDelay: %v", chaseDelay)
-			go Delay(chaseDelay, action, contexts[j])
+			go Delay(chaseDelay, action, contexts[fixtureIndex])
 		}
 	}
 
+	var trigger *controls.Trigger
 	setupTrigger := func(ratio controls.Ratio) {
-		c.Clock.On(controls.TriggerOnPhraseRatio(ratio.Numerator, ratio.Denominator), transition)
+		if trigger != nil {
+			c.Clock.Cancel(trigger)
+		}
+		trigger = c.Clock.On(controls.TriggerOnPhraseRatio(ratio.Numerator, ratio.Denominator), transition)
 	}
 
 	setupTrigger(c.Cycle.Get())
