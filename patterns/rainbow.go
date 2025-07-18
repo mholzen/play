@@ -25,7 +25,7 @@ func (c RainbowControls) Rainbow(fixtures *fixture.AddressableFixtures[fixture.F
 	fixtures.SetChannelValue("dimmer", 255)
 	fixtures.SetChannelValue("tilt", 127)
 
-	seq := controls.NewSequence([]controls.ChannelValues{
+	seq := controls.NewSequenceT([]controls.ChannelValues{
 		controls.AllColors["red"].Values(), // TODO: if `red` doesn't exist, this should fail fast rather than return a the 0 (ie. black) color
 		controls.AllColors["yellow"].Values(),
 		controls.AllColors["green"].Values(),
