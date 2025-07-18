@@ -7,10 +7,10 @@ import (
 )
 
 type SequenceEmitter[T any] struct {
-	sequence *controls.Sequence[T]
-	clock    *controls.Clock
-	trigger  *controls.Trigger
-	*controls.Observers[T]
+	sequence               *controls.Sequence[T]
+	clock                  *controls.Clock
+	trigger                *controls.Trigger
+	*controls.Observers[T] // TODO: apply this pattern to all emitters
 }
 
 func NewSequenceEmitter[T any](sequence *controls.Sequence[T], clock *controls.Clock, trigger controls.TriggerFunc) *SequenceEmitter[T] {

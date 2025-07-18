@@ -13,9 +13,9 @@ import (
 type RainbowControls struct {
 	// controls are more than just the configurable parameters.  it also contains the dials, knobs and buttons used to select the parameters.
 	Clock   *controls.Clock               `json:"-"`
-	Cycle   *controls.ObservableRatioDial `json:"cycle"`
-	Speed   *controls.ObservableRatioDial `json:"speed"` // TODO: doesn't have to be observable
-	Chase   *controls.FloatDial           `json:"chase"`
+	Cycle   *controls.ObservableRatioDial `json:"cycle"` // TODO: rename advance duration
+	Speed   *controls.ObservableRatioDial `json:"speed"` // TODO: doesn't have to be observable , name transition duration
+	Chase   *controls.FloatDial           `json:"chase"` // TODO: rename "chase delay"
 	Reverse *controls.Toggle              `json:"reverse"`
 }
 
