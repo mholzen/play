@@ -24,7 +24,6 @@ var termTrigger *controls.TermTrigger
 var loggingEnabled = true // Track whether beat logging is enabled
 
 func setup() {
-	controls.LoadColors()
 	universe.SetAll(0)
 	universe.SetChannelValue("dimmer", 32)
 

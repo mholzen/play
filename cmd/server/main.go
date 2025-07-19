@@ -9,10 +9,6 @@ import (
 )
 
 func main() {
-	err := controls.LoadColors()
-	if err != nil {
-		log.Fatalf("Error loading colors: %v", err)
-	}
 
 	var h = home.GetHome()
 	var universe = h.Universe

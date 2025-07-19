@@ -64,7 +64,7 @@ func Sum(colors ...Color) Color {
 	return ObjectsSum(colors)
 }
 
-func LoadColors() error {
+func init() {
 	AllColors = make(Colors)
 	for name, color := range ColorsByName {
 		AllColors[name] = Color{
@@ -76,5 +76,4 @@ func LoadColors() error {
 			UV:    color["uv"],
 		}
 	}
-	return nil
 }
