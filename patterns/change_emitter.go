@@ -1,7 +1,7 @@
 package patterns
 
 import (
-	"github.com/mholzen/play-go/controls"
+	"github.com/mholzen/play/controls"
 )
 
 type ChangeEmitter[T comparable] struct {

@@ -1,10 +1,10 @@
 [Unit]
-Description=play-go
+Description=play
 After=network.target
 
 [Service]
-ExecStart=/home/marc/play-go/main
-WorkingDirectory=/home/marc/play-go
+ExecStart=/home/marc/play/main
+WorkingDirectory=/home/marc/play
 Restart=on-failure
 # Or use Restart=always to always attempt to restart the service on exit.
 

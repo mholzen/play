@@ -3,7 +3,7 @@ package patterns
 import (
 	"fmt"
 
-	"github.com/mholzen/play-go/controls"
+	"github.com/mholzen/play/controls"
 )
 
 type SequenceEmitterDial[T any] struct {

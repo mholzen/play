@@ -4,8 +4,8 @@ import (
 	"log"
 	"testing"
 
-	"github.com/mholzen/play-go/controls"
-	"github.com/mholzen/play-go/fixture"
+	"github.com/mholzen/play/controls"
+	"github.com/mholzen/play/fixture"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

@@ -3,7 +3,7 @@ package fixture
 import (
 	"sort"
 
-	"github.com/mholzen/play-go/controls"
+	"github.com/mholzen/play/controls"
 )
 
 type Fixtures[T Fixture] interface { // TODO: not sure generic is useful here

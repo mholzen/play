@@ -6,7 +6,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/mholzen/play-go/controls"
+	"github.com/mholzen/play/controls"
 )
 
 var clock = controls.NewClock(120)

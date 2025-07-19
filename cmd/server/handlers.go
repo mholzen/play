@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/labstack/echo/v4"
-	"github.com/mholzen/play-go/controls"
+	"github.com/mholzen/play/controls"
 )
 
 func ContainerGetHandler(container controls.Container) echo.HandlerFunc {

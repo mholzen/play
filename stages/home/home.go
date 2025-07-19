@@ -1,9 +1,9 @@
 package home
 
 import (
-	"github.com/mholzen/play-go/controls"
-	"github.com/mholzen/play-go/fixture"
-	"github.com/mholzen/play-go/patterns"
+	"github.com/mholzen/play/controls"
+	"github.com/mholzen/play/fixture"
+	"github.com/mholzen/play/patterns"
 )
 
 type Home struct {

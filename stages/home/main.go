@@ -5,9 +5,9 @@ import (
 	"time"
 
 	"github.com/fogleman/ease"
-	"github.com/mholzen/play-go/controls"
-	"github.com/mholzen/play-go/fixture"
-	"github.com/mholzen/play-go/patterns"
+	"github.com/mholzen/play/controls"
+	"github.com/mholzen/play/fixture"
+	"github.com/mholzen/play/patterns"
 )
 
 var home = GetHome()

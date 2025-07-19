@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"github.com/fogleman/ease"
-	"github.com/mholzen/play-go/controls"
-	"github.com/mholzen/play-go/fixture"
+	"github.com/mholzen/play/controls"
+	"github.com/mholzen/play/fixture"
 )
 
 func Transition(f fixture.Fixture, start, end controls.ChannelValues, duration time.Duration, ease ease.Function, period time.Duration, ctx context.Context) func() {

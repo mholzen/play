@@ -1,7 +1,7 @@
 package fixture
 
 import (
-	"github.com/mholzen/play-go/controls"
+	"github.com/mholzen/play/controls"
 )
 
 func ConnectObservableChannelValuesToFixtures(source controls.Observable[controls.ChannelValues], target Fixtures[Fixture]) {

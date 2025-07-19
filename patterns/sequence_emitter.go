@@ -3,7 +3,7 @@ package patterns
 import (
 	"log"
 
-	"github.com/mholzen/play-go/controls"
+	"github.com/mholzen/play/controls"
 )
 
 type SequenceEmitter[T any] struct {
