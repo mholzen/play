@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/labstack/echo/v4"
-	"github.com/mholzen/play-go/controls"
+	"github.com/mholzen/play/controls"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

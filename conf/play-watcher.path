@@ -1,5 +1,5 @@
 [Path]
-PathModified=/home/marc/play-go/main
+PathModified=/home/marc/play/main
 
 [Install]
 WantedBy=multi-user.target

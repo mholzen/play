@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/fogleman/ease"
-	"github.com/mholzen/play-go/controls"
+	"github.com/mholzen/play/controls"
 	"github.com/stretchr/testify/assert"
 )
 

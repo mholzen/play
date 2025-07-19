@@ -3,7 +3,7 @@ package patterns
 import (
 	"testing"
 
-	"github.com/mholzen/play-go/controls"
+	"github.com/mholzen/play/controls"
 )
 
 func Test_RainbowControls(t *testing.T) {

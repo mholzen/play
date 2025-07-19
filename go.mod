@@ -1,4 +1,4 @@
-module github.com/mholzen/play-go
+module github.com/mholzen/play
 
 go 1.23.0
 

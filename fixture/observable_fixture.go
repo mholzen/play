@@ -1,6 +1,6 @@
 package fixture
 
-import "github.com/mholzen/play-go/controls"
+import "github.com/mholzen/play/controls"
 
 type ObservableFixture struct {
 	controls.Observers[controls.ChannelValues]

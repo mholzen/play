@@ -3,9 +3,9 @@ package main
 import (
 	"log"
 
-	"github.com/mholzen/play-go/controls"
-	"github.com/mholzen/play-go/fixture"
-	"github.com/mholzen/play-go/stages/home"
+	"github.com/mholzen/play/controls"
+	"github.com/mholzen/play/fixture"
+	"github.com/mholzen/play/stages/home"
 )
 
 func main() {

@@ -7,10 +7,10 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/mholzen/play-go/controls"
-	"github.com/mholzen/play-go/fixture"
-	"github.com/mholzen/play-go/patterns"
-	"github.com/mholzen/play-go/stages/home"
+	"github.com/mholzen/play/controls"
+	"github.com/mholzen/play/fixture"
+	"github.com/mholzen/play/patterns"
+	"github.com/mholzen/play/stages/home"
 )
 
 var Transition = patterns.Transition

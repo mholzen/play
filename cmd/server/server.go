@@ -3,7 +3,7 @@ package main
 import (
 	"path/filepath"
 
-	"github.com/mholzen/play-go/controls"
+	"github.com/mholzen/play/controls"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"

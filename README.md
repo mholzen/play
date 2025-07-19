@@ -55,8 +55,8 @@ Currently supports:
 ### Build from Source
 
 ```bash
-git clone https://github.com/mholzen/play-go.git
-cd play-go
+git clone https://github.com/mholzen/play.git
+cd play
 go mod download
 make build
 ```

@@ -4,7 +4,7 @@ import (
 	"log"
 	"plugin"
 
-	"github.com/mholzen/play-go/pluginutil"
+	"github.com/mholzen/play/pluginutil"
 )
 
 func SetupWatchers() error {
