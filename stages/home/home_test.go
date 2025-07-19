@@ -16,7 +16,7 @@ func Test_RootSurfaceDialControls(t *testing.T) {
 	rootSurface := GetRootSurface(home.Universe, clock)
 
 	// dial map
-	item, err := rootSurface.GetItem("1")
+	item, err := rootSurface.GetItem("dials")
 	require.NoError(t, err)
 
 	container, ok := item.(controls.Container)
@@ -26,7 +26,7 @@ func Test_RootSurfaceDialControls(t *testing.T) {
 	assert.NotNil(t, item)
 
 	// dial list
-	item, err = rootSurface.GetItem("1")
+	item, err = rootSurface.GetItem("dials")
 	require.NoError(t, err)
 	dialList, ok := item.(controls.OrderedContainer)
 	require.True(t, ok)
@@ -34,12 +34,12 @@ func Test_RootSurfaceDialControls(t *testing.T) {
 }
 
 func Test_RootSurfaceMux(t *testing.T) {
-	clock := controls.NewClock(120)
+	clock := controls.NewClock(1000) // fast clock to ensure rainbow transitions quickly
 	clock.Start()
 	rootSurface := GetRootSurface(home.Universe, clock)
 
 	// Get dialMap
-	item, err := rootSurface.GetItem("1")
+	item, err := rootSurface.GetItem("dials")
 	require.NoError(t, err)
 	require.IsType(t, &controls.DialList{}, item)
 
@@ -53,7 +53,7 @@ func Test_RootSurfaceMux(t *testing.T) {
 	require.True(t, ok)
 
 	// mux
-	item, err = rootSurface.GetItem("0")
+	item, err = rootSurface.GetItem("mux")
 	require.NoError(t, err)
 	mux, ok := item.(*controls.Mux[fixture.FixtureValues])
 	require.True(t, ok)
@@ -82,29 +82,34 @@ func Test_RootSurfaceMux(t *testing.T) {
 		<-advance // wait for 3
 	}()
 
-	value := <-muxChannel
+	muxOutput := <-muxChannel
 
-	address := home.TomeShine.GetAddresses()[0]
-	expected := value[address]["r"]
+	tomshineAddress := home.TomeShine.GetAddresses()[0]
+	expected := muxOutput[tomshineAddress]["r"]
 	assert.Equal(t, byte(10), expected)
 
+	log.Printf("advance 1")
 	advance <- 1
 
-	value = <-muxChannel
+	muxOutput = <-muxChannel
 
-	expected = value[address]["r"]
+	expected = muxOutput[tomshineAddress]["r"]
 	assert.Equal(t, byte(0xb), expected)
 
+	log.Printf("advance 2")
 	advance <- 2
 
 	// wait for rainbow to set a non zero value
-	for i := 0; i < 100; i++ {
-		value = <-muxChannel
-		// log.Printf("value: %v", value)
-		expected = value[address]["r"]
+	for i := 0; i < 1000; i++ {
+		muxOutput = <-muxChannel
+		expected = muxOutput[tomshineAddress]["r"]
 		if expected > 0 {
 			break
 		}
 	}
 	assert.Greater(t, expected, byte(0))
+
+	log.Printf("advance 3")
+	advance <- 3
+
 }
