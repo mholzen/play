@@ -70,7 +70,7 @@ func (m *ObservableNumericDialMap) GetValue() ChannelValues {
 	return res
 }
 
-func NewObservableNumericDialMap(channels ...string) *ObservableDialMap {
+func _NewObservableNumericDialMap(channels ...string) *ObservableDialMap {
 	dialMap := NewObservableNumericDialMap2(channels...)
 
 	ch := make(chan byte)
