@@ -6,8 +6,8 @@ import (
 )
 
 type ObservableNumericDialMap struct {
-	Observers[ChannelValues]
 	Dials *NumericDialMap
+	Observers[ChannelValues]
 }
 
 func NewObservableNumericDialMap(channels ...string) *ObservableNumericDialMap {
