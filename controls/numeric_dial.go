@@ -46,12 +46,13 @@ func (d *NumericDial) GetValueString() string {
 	return fmt.Sprintf("%d", d.Value)
 }
 
-func (d *NumericDial) SetValueString(value string) {
+func (d *NumericDial) SetValueString(value string) error {
 	byteValue, err := strconv.Atoi(value)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	d.SetValue(byte(byteValue))
+	return nil
 }
 
 func (d *NumericDial) SetMax() {
@@ -103,9 +104,13 @@ func (d *ObservableNumericalDial) GetValueString() string {
 	return d.NumericDial.GetValueString()
 }
 
-func (d *ObservableNumericalDial) SetValueString(value string) {
-	d.NumericDial.SetValueString(value)
-	d.Notify(d.NumericDial.Value)
+func (d *ObservableNumericalDial) SetValueString(value string) error {
+	err := d.NumericDial.SetValueString(value)
+	if err != nil {
+		return err
+	}
+	d.Notify(d.Value)
+	return nil
 }
 
 func (d *ObservableNumericalDial) MarshalJSON() ([]byte, error) {

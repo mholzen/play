@@ -1,6 +1,6 @@
 package controls
 
-type ObservableNumericDial struct {
+type ObservableNumericDial struct { // TODO: reconcile with ObservableNumericalDial
 	NumericDial
 	Observable[byte]
 }
@@ -19,7 +19,11 @@ func (d *ObservableNumericDial) SetValue(value byte) {
 	d.Observable.Notify(value)
 }
 
-func (d *ObservableNumericDial) SetValueString(value string) {
-	d.NumericDial.SetValueString(value)
-	d.Observable.Notify(d.Value)
+func (d *ObservableNumericDial) SetValueString(value string) error {
+	err := d.NumericDial.SetValueString(value)
+	if err != nil {
+		return err
+	}
+	d.Notify(d.Value)
+	return nil
 }

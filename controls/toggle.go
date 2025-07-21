@@ -50,13 +50,14 @@ func (t *Toggle) SetValue(value bool) {
 	}
 }
 
-func (t *Toggle) SetValueString(value string) {
+func (t *Toggle) SetValueString(value string) error {
 	value = strings.ToLower(value)
 	if value == "true" || value == "1" || value == "on" || value == "yes" || value == "enable" {
 		t.Set(true)
 	} else {
 		t.Set(false)
 	}
+	return nil
 }
 
 func (t *Toggle) GetValue() bool {

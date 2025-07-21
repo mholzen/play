@@ -19,7 +19,8 @@ func Test_ToggleInContainer(t *testing.T) {
 	require.True(t, ok, "Item should implement Control interface")
 
 	// Verify control methods work
-	control.SetValueString("true")
+	err = control.SetValueString("true")
+	require.NoError(t, err)
 	require.Equal(t, true, toggle.GetValue())
 	require.Equal(t, "true", control.GetValueString())
 }

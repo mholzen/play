@@ -74,6 +74,13 @@ func (m *Mux[T]) GetValueString() string {
 	return m.Source
 }
 
-func (m *Mux[T]) SetValueString(value string) {
-	m.SetSource(value)
+func (m *Mux[T]) SetValueString(value string) error {
+	err := m.SetSource(value)
+	if err != nil {
+		return err
+	}
+	// Notify is _not_ called here because the observers are expected
+	// to be notified only when a change happens on the selected input,
+	// not when the selected input changes
+	return nil
 }

@@ -1,7 +1,7 @@
 package controls
 
-type Control interface {
+type Control interface { // TODO: use a SetStringer interface similar to fmt.Stringer
 	Item
 	GetValueString() string
-	SetValueString(string) // TODO: add error handling
+	SetValueString(string) error
 }

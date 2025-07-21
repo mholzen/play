@@ -13,9 +13,13 @@ func (d *ObservableRatioDial) MarshalJSON() ([]byte, error) {
 	return json.Marshal(&d.RatioDial)
 }
 
-func (d *ObservableRatioDial) SetValueString(value string) {
-	d.RatioDial.SetValueString(value)
+func (d *ObservableRatioDial) SetValueString(value string) error {
+	err := d.RatioDial.SetValueString(value)
+	if err != nil {
+		return err
+	}
 	d.Notify(d.Get())
+	return nil
 }
 
 func NewObservableRatioDial() *ObservableRatioDial {

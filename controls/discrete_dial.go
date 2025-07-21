@@ -58,12 +58,13 @@ func (d *DiscreteDial[T]) GetValueString() string {
 	return d.Get().Label()
 }
 
-func (d *DiscreteDial[T]) SetValueString(index string) {
+func (d *DiscreteDial[T]) SetValueString(index string) error {
 	indexInt, err := strconv.Atoi(index)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	d.SetIndex(indexInt)
+	return nil
 }
 
 func (d *DiscreteDial[T]) MarshalJSON() ([]byte, error) {

@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"maps"
 	"net/http"
 	"slices"
@@ -91,33 +90,15 @@ func ContainerPostHandler(container controls.Container) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusMethodNotAllowed, fmt.Sprintf("Item '%s' is not a Control (got '%T')", path, item))
 		}
 
-		var data interface{}
+		var data any
 		if err := c.Bind(&data); err != nil {
-			// this fails is content type is undefined.  it should default to application/json
+			// TODO: this fails when the content-type header is undefined.  It should instead default to application/json
 			return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("request body is required as the value: %v", err))
 		}
 
-		switch value := data.(type) {
-		case string:
-			control.SetValueString(value)
-			log.Printf("control '%s' updated to '%s'", path, value)
-
-		case int:
-			stringValue := fmt.Sprintf("%d", value)
-			control.SetValueString(stringValue)
-			log.Printf("control '%s' updated to '%d'", path, value)
-
-		case float64:
-			stringValue := fmt.Sprintf("%d", int(value))
-			control.SetValueString(stringValue)
-			log.Printf("control '%s' updated to '%f'", path, value)
-
-		case bool:
-			stringValue := fmt.Sprintf("%t", value)
-			control.SetValueString(stringValue)
-			log.Printf("control '%s' updated to '%t'", path, value)
-		default:
-			return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("request body of type '%T' cannot be converted to a string", value))
+		stringValue := fmt.Sprintf("%v", data)
+		if err := control.SetValueString(stringValue); err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest, err)
 		}
 
 		return c.JSON(http.StatusOK, item)

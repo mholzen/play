@@ -61,7 +61,11 @@ func (s *Selector[T]) GetValueString() string {
 	return s.Selected
 }
 
-func (s *Selector[T]) SetValueString(value string) {
-	s.SetSelected(value)
-	s.Notify(s.Options[value])
+func (s *Selector[T]) SetValueString(value string) error {
+	err := s.SetSelected(value)
+	if err != nil {
+		return err
+	}
+	s.Notify(s.GetSelectedValue())
+	return nil
 }

@@ -12,6 +12,7 @@ func Test_NewToggle(t *testing.T) {
 	require.Equal(t, toggle.GetValue(), true)
 
 	var control Control = toggle
-	control.SetValueString("true")
+	err := control.SetValueString("true")
+	require.NoError(t, err)
 	require.Equal(t, toggle.GetValue(), true)
 }

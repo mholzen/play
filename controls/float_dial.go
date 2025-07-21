@@ -27,8 +27,13 @@ func (d *FloatDial) GetValueString() string {
 	return fmt.Sprintf("%v", d.Value)
 }
 
-func (d *FloatDial) SetValueString(value string) {
-	d.Value, _ = strconv.ParseFloat(value, 64)
+func (d *FloatDial) SetValueString(value string) error {
+	parsedValue, err := strconv.ParseFloat(value, 64)
+	if err != nil {
+		return err
+	}
+	d.Value = parsedValue
+	return nil
 }
 
 type ObservableFloatDial struct {

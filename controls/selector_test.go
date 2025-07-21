@@ -101,7 +101,8 @@ func Test_SetValueString(t *testing.T) {
 		notifiedValue = value
 	})
 
-	selector.SetValueString("test")
+	err := selector.SetValueString("test")
+	require.NoError(t, err)
 	require.Equal(t, "test", selector.GetSelected())
 	require.True(t, notified)
 	require.Equal(t, "value", notifiedValue)
