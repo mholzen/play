@@ -2,9 +2,9 @@ package controls
 
 import "fmt"
 
-type ObservableNumericalDialmap map[string]*ObservableNumericalDial
+type ObservableNumericDialmap map[string]*ObservableNumericDial // TODO: consider a generic map type
 
-func (m *ObservableNumericalDialmap) SetValue(values ChannelValues) {
+func (m *ObservableNumericDialmap) SetValue(values ChannelValues) {
 	for name, value := range values {
 		if dial, ok := (*m)[name]; ok {
 			dial.SetValue(value)
@@ -13,10 +13,10 @@ func (m *ObservableNumericalDialmap) SetValue(values ChannelValues) {
 		}
 	}
 }
-func NewObservableNumericDialMap2(channels ...string) *ObservableNumericalDialmap {
-	res := ObservableNumericalDialmap{}
+func NewObservableNumericDialMap2(channels ...string) *ObservableNumericDialmap {
+	res := ObservableNumericDialmap{}
 	for _, channel := range channels {
-		res[channel] = NewObservableNumericalDial()
+		res[channel] = NewObservableNumericDial()
 	}
 	return &res
 }
@@ -66,7 +66,7 @@ func NewNumericDialMap(channels ...string) *NumericDialMap {
 	return &res
 }
 
-func (m *ObservableNumericalDialmap) GetItem(name string) (Item, error) {
+func (m *ObservableNumericDialmap) GetItem(name string) (Item, error) {
 	dial, ok := (*m)[name]
 	if !ok {
 		return nil, fmt.Errorf("dial '%s' not found", name)
@@ -74,7 +74,7 @@ func (m *ObservableNumericalDialmap) GetItem(name string) (Item, error) {
 	return dial, nil
 }
 
-func (m *ObservableNumericalDialmap) Items() map[string]Item {
+func (m *ObservableNumericDialmap) Items() map[string]Item {
 	res := make(map[string]Item)
 	for name, dial := range *m {
 		res[name] = dial
@@ -82,7 +82,7 @@ func (m *ObservableNumericalDialmap) Items() map[string]Item {
 	return res
 }
 
-func (m *ObservableNumericalDialmap) GetChannelValues() ChannelValues {
+func (m *ObservableNumericDialmap) GetChannelValues() ChannelValues {
 	res := ChannelValues{}
 	for name, dial := range *m {
 		res[name] = dial.Value

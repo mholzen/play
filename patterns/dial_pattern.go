@@ -11,21 +11,21 @@ import (
 type DialPattern struct {
 	Mux *controls.Mux[byte]
 
-	Dial *controls.ObservableNumericalDial
+	Dial *controls.ObservableNumericDial
 
 	SequenceEmitter *SequenceEmitterDial[byte]
 
 	EaseSelector *controls.Selector[ease.Function]
-	Intervals    *controls.ObservableNumericalDial
+	Intervals    *controls.ObservableNumericDial
 }
 
 func NewDialPattern(clock *controls.Clock) *DialPattern {
 	mux := controls.NewMux[byte]()
 
-	dial := controls.NewObservableNumericalDial()
+	dial := controls.NewObservableNumericDial()
 	mux.Add("dial", dial)
 
-	intervals := controls.NewObservableNumericalDial()
+	intervals := controls.NewObservableNumericDial()
 	intervals.Set(16)
 
 	easeSelector := controls.NewSelector[ease.Function]()

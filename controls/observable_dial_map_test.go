@@ -27,12 +27,12 @@ func Test_ObservableDialMapIsContainer(t *testing.T) {
 
 func Test_ObservableDialMap2(t *testing.T) {
 	dialMap := NewObservableDialMap2()
-	dialMap.AddItem("r", NewObservableNumericalDial())
+	dialMap.AddItem("r", NewObservableNumericDial())
 
 	item, err := dialMap.GetItem("r")
 	assert.Nil(t, err)
 
-	dial, ok := item.(*ObservableNumericalDial)
+	dial, ok := item.(*ObservableNumericDial)
 	assert.True(t, ok)
 
 	ch := make(chan ChannelValues)

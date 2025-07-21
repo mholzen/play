@@ -5,11 +5,9 @@ import (
 	"fmt"
 )
 
-// TODO: Make this a generic type with numerical dial as a parameter
-
 type ObservableDialMap struct {
+	Dials *ObservableNumericDialmap
 	Observable[ChannelValues]
-	Dials *ObservableNumericalDialmap
 }
 
 func (m *ObservableDialMap) GetItem(name string) (Item, error) {
@@ -24,27 +22,27 @@ func (m *ObservableDialMap) SetValue(values ChannelValues) {
 	m.Dials.SetValue(values)
 }
 
-type ObservableNumericalDialMap struct {
+type ObservableNumericDialMap struct {
 	Observers[ChannelValues]
 	Dials *NumericDialMap
 }
 
-func NewObservableNumericalDialMap(channels ...string) *ObservableNumericalDialMap {
-	return &ObservableNumericalDialMap{
+func NewObservableNumericalDialMap(channels ...string) *ObservableNumericDialMap {
+	return &ObservableNumericDialMap{
 		Observers: *NewObservable[ChannelValues](),
 		Dials:     NewNumericDialMap(channels...),
 	}
 }
 
-func (m *ObservableNumericalDialMap) GetItem(name string) (Item, error) {
+func (m *ObservableNumericDialMap) GetItem(name string) (Item, error) {
 	return m.Dials.GetItem(name)
 }
 
-func (m *ObservableNumericalDialMap) Items() map[string]Item {
+func (m *ObservableNumericDialMap) Items() map[string]Item {
 	return m.Dials.Items()
 }
 
-func (m *ObservableNumericalDialMap) SetValue(values ChannelValues) {
+func (m *ObservableNumericDialMap) SetValue(values ChannelValues) {
 	for name, value := range values {
 		if dial, ok := (*m.Dials)[name]; ok {
 			dial.SetValue(value)
@@ -55,7 +53,7 @@ func (m *ObservableNumericalDialMap) SetValue(values ChannelValues) {
 	m.Notify(values)
 }
 
-func (m *ObservableNumericalDialMap) SetChannelValue(name string, value byte) {
+func (m *ObservableNumericDialMap) SetChannelValue(name string, value byte) {
 	if dial, ok := (*m.Dials)[name]; ok {
 		dial.SetValue(value)
 	} else {
@@ -64,7 +62,7 @@ func (m *ObservableNumericalDialMap) SetChannelValue(name string, value byte) {
 	m.Notify(m.GetValue())
 }
 
-func (m *ObservableNumericalDialMap) GetValue() ChannelValues {
+func (m *ObservableNumericDialMap) GetValue() ChannelValues {
 	res := ChannelValues{}
 	for name, dial := range *m.Dials {
 		res[name] = dial.Value
@@ -95,15 +93,13 @@ func NewObservableNumericDialMap(channels ...string) *ObservableDialMap {
 	return res
 }
 
-func (m *ObservableNumericalDialMap) MarshalJSON() ([]byte, error) {
+func (m *ObservableNumericDialMap) MarshalJSON() ([]byte, error) {
 	return json.Marshal(m.Dials)
 }
 
-// Used in NewObservableDialMapForAllChannels
-type ObservableDialMap2 struct {
+type ObservableDialMap2 struct { // TODO: reconcile with ObservableDialMap
 	Observers[ChannelValues]
 	ItemMap // TODO: replace with DialMap
-	// DialMap
 }
 
 func (m *ObservableDialMap2) AddItem(name string, item Item) {

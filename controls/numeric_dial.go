@@ -84,27 +84,28 @@ func (d *NumericDial) MarshalJSON() ([]byte, error) {
 	return json.Marshal(d.Value)
 }
 
-type ObservableNumericalDial struct {
-	// NOTE: a NumericDial should not be automatically observable: it is useful even with only a polling API
-	Observers[byte]
+type ObservableNumericDial struct {
+	// NOTE: a NumericDial does not need to automatically be observable
+	// as it is useful with simply a polling API
 	NumericDial
+	Observers[byte]
 }
 
-func (d *ObservableNumericalDial) Set(value byte) {
+func (d *ObservableNumericDial) Set(value byte) {
 	d.NumericDial.SetValue(value)
 	d.Notify(value)
 }
 
-func (d *ObservableNumericalDial) SetValue(value byte) {
+func (d *ObservableNumericDial) SetValue(value byte) {
 	d.NumericDial.SetValue(value)
 	d.Notify(value)
 }
 
-func (d *ObservableNumericalDial) GetValueString() string {
+func (d *ObservableNumericDial) GetValueString() string {
 	return d.NumericDial.GetValueString()
 }
 
-func (d *ObservableNumericalDial) SetValueString(value string) error {
+func (d *ObservableNumericDial) SetValueString(value string) error {
 	err := d.NumericDial.SetValueString(value)
 	if err != nil {
 		return err
@@ -113,12 +114,12 @@ func (d *ObservableNumericalDial) SetValueString(value string) error {
 	return nil
 }
 
-func (d *ObservableNumericalDial) MarshalJSON() ([]byte, error) {
+func (d *ObservableNumericDial) MarshalJSON() ([]byte, error) {
 	return json.Marshal(d.NumericDial)
 }
 
-func NewObservableNumericalDial() *ObservableNumericalDial {
-	return &ObservableNumericalDial{
+func NewObservableNumericDial() *ObservableNumericDial {
+	return &ObservableNumericDial{
 		Observers:   *NewObservable[byte](),
 		NumericDial: *NewNumericDial(),
 	}
@@ -126,5 +127,5 @@ func NewObservableNumericalDial() *ObservableNumericalDial {
 
 func NewDialObservableNumeric() Dial[byte] {
 	// TODO: can this be constructed functionally?
-	return NewObservableNumericalDial()
+	return NewObservableNumericDial()
 }
