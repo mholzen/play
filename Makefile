@@ -50,7 +50,7 @@ test:
 	env ROOT=$(cwd) go test -timeout 5s ./... | grcat ~/.grc/conf.go-test
 
 test-watch:
-	CompileDaemon --build="make test || false" --command="echo 'Tests completed'" --pattern="(.+\.go|.+\.yaml)"
+	CompileDaemon --build="echo 'Starting tests...'" --command="make test" --log-prefix=false --color
 
 build-docker:
 	docker buildx build --platform linux/amd64 -t play --load .
