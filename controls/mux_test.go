@@ -7,8 +7,8 @@ import (
 )
 
 func Test_Mux_ValueMap(t *testing.T) {
-	inA := _NewObservableNumericDialMap("ch1")
-	inB := _NewObservableNumericDialMap("ch1")
+	inA := NewObservableNumericDialMap("ch1")
+	inB := NewObservableNumericDialMap("ch1")
 
 	mux := NewMux[ChannelValues]()
 	mux.Add("inA", inA)

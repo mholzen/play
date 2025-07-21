@@ -5,7 +5,7 @@ import (
 )
 
 func Test_DialListIsContainer(t *testing.T) {
-	dialMap := _NewObservableNumericDialMap("r", "g", "b")
+	dialMap := NewObservableNumericDialMap("r", "g", "b")
 	dialList := NewDialListFromContainer(dialMap)
 
 	// Verify dialList implements Container interface
