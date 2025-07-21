@@ -27,7 +27,7 @@ type ObservableNumericDialMap struct {
 	Dials *NumericDialMap
 }
 
-func NewObservableNumericalDialMap(channels ...string) *ObservableNumericDialMap {
+func NewObservableNumericDialMap(channels ...string) *ObservableNumericDialMap {
 	return &ObservableNumericDialMap{
 		Observers: *NewObservable[ChannelValues](),
 		Dials:     NewNumericDialMap(channels...),

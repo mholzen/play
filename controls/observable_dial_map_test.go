@@ -7,13 +7,13 @@ import (
 )
 
 func TestObservableDialMap(t *testing.T) {
-	s := NewObservableNumericalDialMap("r", "g", "b")
+	s := NewObservableNumericDialMap("r", "g", "b")
 
 	var _ Container = s
 }
 
 func Test_ObservableDialMapIsContainer(t *testing.T) {
-	dialMap := NewObservableNumericalDialMap("r", "g", "b")
+	dialMap := NewObservableNumericDialMap("r", "g", "b")
 
 	// Verify dialMap implements Container interface
 	var _ Container = dialMap
