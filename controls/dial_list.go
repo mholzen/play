@@ -53,9 +53,9 @@ func (dl *DialList) SetChannelValue(channel string, value byte) {
 		panic("channel not found")
 	}
 
-	dial, ok := item.(*ObservableNumericalDial)
+	dial, ok := item.(*ObservableNumericDial)
 	if !ok {
-		panic("dial is not a *ObservableNumericalDial")
+		panic("dial is not a *ObservableNumericDial")
 	}
 
 	dial.SetValue(value)

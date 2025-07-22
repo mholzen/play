@@ -49,7 +49,7 @@ func Test_RootSurfaceMux(t *testing.T) {
 	dial, err := dialList.GetItem("r")
 	require.NoError(t, err)
 
-	redDial, ok := dial.(*controls.ObservableNumericalDial)
+	redDial, ok := dial.(*controls.ObservableNumericDial)
 	require.True(t, ok)
 
 	// mux

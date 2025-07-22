@@ -27,21 +27,3 @@ func NewMultiCounter(periods ...int) MultiCounter {
 	}
 	return counters
 }
-
-type MultiCounter2 struct {
-	MultiCounter MultiCounter
-	Names        []string
-}
-
-func (c *MultiCounter2) On(name string, counts []int, fn func(int)) {
-	for i := range c.Names {
-		if c.Names[i] == name {
-			c.MultiCounter[i].On(counts, fn)
-		}
-	}
-}
-
-// var clock = MultiCounter2{
-// 	MultiCounter: NewMultiCounter(4, 4, 24),
-// 	Names:        []string{"bar", "beat", "tick"},
-// }

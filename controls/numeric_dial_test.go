@@ -24,7 +24,7 @@ func Test_NumericDial(t *testing.T) {
 }
 
 func Test_ObservableNumericDial(t *testing.T) {
-	observableNumericDial := NewObservableNumericalDial()
+	observableNumericDial := NewObservableNumericDial()
 
 	var _ Control = observableNumericDial
 
