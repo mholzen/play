@@ -2,7 +2,7 @@ package controls
 
 import "fmt"
 
-type ObservableNumericalDialmap map[string]*ObservableNumericDial
+type ObservableNumericalDialmap map[string]*ObservableNumericalDial
 
 func (m *ObservableNumericalDialmap) SetValue(values ChannelValues) {
 	for name, value := range values {
@@ -16,7 +16,7 @@ func (m *ObservableNumericalDialmap) SetValue(values ChannelValues) {
 func NewObservableNumericDialMap2(channels ...string) *ObservableNumericalDialmap {
 	res := ObservableNumericalDialmap{}
 	for _, channel := range channels {
-		res[channel] = NewObservableNumericDial()
+		res[channel] = NewObservableNumericalDial()
 	}
 	return &res
 }
